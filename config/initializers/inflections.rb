@@ -11,6 +11,11 @@
 # end
 
 # These inflection rules are supported but not enabled by default:
-# ActiveSupport::Inflector.inflections(:en) do |inflect|
-#   inflect.acronym 'RESTful'
-# end
+ActiveSupport::Inflector.inflections do |inflect|
+  inflect.plural 'criteria', 'criteria'
+  inflect.plural 'criterion', 'criteria'
+  inflect.singular 'criteria', 'criterion'
+  inflect.singular 'criterion', 'criterion'
+
+  inflect.irregular 'campus', 'campuses'
+end
