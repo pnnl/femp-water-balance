@@ -19,4 +19,4 @@ environment.loaders.get('sass').use.splice(-1, 0, {
     attempts: 1
   }
 });
-module.exports = environment
+module.exports = environment;
