@@ -1,0 +1,10 @@
+.git*
+.history*
+log
+tmp
+doc
+node_modules
+Dockerfile
+README.rdoc
+README.md
+
