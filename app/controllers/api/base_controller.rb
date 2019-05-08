@@ -30,14 +30,17 @@ module Api
           delete
         end
       end
-      Rails.logger.debug("#{request.path}:json_params:'#{json_parameters}'")
+      Rails.logger.debug("#{request.path}::#{request.method}:json_params:'#{json_parameters}'")
       json_parameters
     end
 
     def handle_api_model_failure(model)
-      return if model.nil? || !model.respond_to?(:errors)
-      Rails.logger.warn("#{model.class.name} failed for method:#{request.method}:#{request.path} due to errors {#{model.errors.full_messages.join(' | ')}}")
-      render(json: model, adapter: :json_api, serializer: ActiveModel::Serializer::ErrorSerializer, status: 400)
+      if model.nil? || !model.respond_to?(:errors)
+        Rails.logger.warn("#handle_api_model_failure for nil model for method:#{request.method}:#{request.path}::#{request.method}")
+      else
+        Rails.logger.warn("#{model.class.name} failed for method:#{request.method}:#{request.path}::#{request.method} due to errors {#{model.errors.full_messages.join(' | ')}}")
+        render(json: model, adapter: :json_api, serializer: ActiveModel::Serializer::ErrorSerializer, status: 400)
+      end
     end
 
     def api_not_found

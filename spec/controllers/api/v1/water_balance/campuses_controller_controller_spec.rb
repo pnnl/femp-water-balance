@@ -45,16 +45,13 @@ RSpec.describe(Api::V1::WaterBalance::CampusesController, type: :controller) do
   describe 'DELETE #destroy' do
     login_account
 
-    it ('responds with a valid API response and status code') do
+    it ('Removes campus records owned by current_account properly') do
       campus = FactoryBot.create(:campus, owner: @current_account)
       # delete the campus
       delete(:destroy, params: {id: campus.id}, format: :json)
       expect(response.code).to (eq('200'))
+      expect(json['id']).to(eq(campus.id))
       expect(response.content_type).to (eq('application/json'))
-
-      # make sure we still can't get it
-      get(:show, params: {id: campus.id}, format: :json)
-      expect(response.code).to (eq('404'))
     end
 
     it ('responds with 404 when attempting to remove unowned campus') do

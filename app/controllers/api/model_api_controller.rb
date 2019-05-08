@@ -12,19 +12,19 @@ module Api
     def create
       @resource = controller_resource_class.create(create_extra_attributes.merge(json_params(controller_resource_class)))
       if @resource.persisted?
-        render(json: @resource, include: json_api_include, meta: meta_attributes(query_model, {}))
+        render(json: @resource, include: json_api_include, meta: meta_attributes(nil, {}))
       else
         handle_api_model_failure(@resource)
       end
     end
 
     def show
-      render(json: active_resource, include: json_api_include, fields: json_api_sparse_fieldset, meta: meta_attributes(query_model, {}))
+      render(json: active_resource, include: json_api_include, fields: json_api_sparse_fieldset, meta: meta_attributes(nil, {}))
     end
 
     def update
       if active_resource.update(json_params(controller_resource_class))
-        render(json: active_resource, include: json_api_include, fields: json_api_sparse_fieldset, meta: meta_attributes(query_model, {}))
+        render(json: active_resource, include: json_api_include, fields: json_api_sparse_fieldset, meta: meta_attributes(nil, {}))
       else
         handle_api_model_failure(active_resource)
       end
@@ -32,7 +32,7 @@ module Api
 
     def destroy
       if active_resource.destroy
-        render(json: active_resource, include: json_api_include, fields: json_api_sparse_fieldset, meta: meta_attributes(query_model, {}))
+        render(json: active_resource, include: json_api_include, fields: json_api_sparse_fieldset, meta: meta_attributes(nil, {}))
       else
         handle_api_model_failure(active_resource)
       end
@@ -41,7 +41,7 @@ module Api
     protected
 
     def active_resource
-      raise(ActiveRecord::RecordNotFound, "#{params[:id]} is not a valid record ID.") unless !@resource.nil? || params[:id].is_i?
+      raise(ActiveRecord::RecordNotFound, "#{params[:id]} is not a valid record ID.") unless !@resource.nil? || params[:id].to_i != 0
       @resource ||= controller_resource_class.find_by!(id: params[:id])
     end
 
@@ -64,7 +64,7 @@ module Api
           inclusion << normalized_attribute
         end
       end
-      Rails.logger.debug("#{request.path}:json_api_include:'#{inclusion}'")
+      Rails.logger.debug("#{request.path}::#{request.method}:json_api_include:'#{inclusion}'")
       inclusion.empty? ? nil : inclusion
     end
 
@@ -83,7 +83,7 @@ module Api
         field_set[resource_type.to_sym] = field_set[resource_type.to_sym].nil? ? [] : field_set[resource_type.to_sym]
         field_set[resource_type.to_sym] << normalized_attribute
       end
-      Rails.logger.debug("#{request.path}:json_api_sparse_fieldset:'#{field_set}'")
+      Rails.logger.debug("#{request.path}::#{request.method}:json_api_sparse_fieldset:'#{field_set}'")
       field_set.empty? ? nil : field_set
     end
 
@@ -96,7 +96,7 @@ module Api
           clause[column_name.to_sym] = user_attribute.start_with?('-') ? :desc : :asc
         end
       end
-      Rails.logger.debug("#{request.path}:json_api_sorting:'#{clause.to_json}'")
+      Rails.logger.debug("#{request.path}::#{request.method}:json_api_sorting:'#{clause.to_json}'")
       clause
     end
 
@@ -119,7 +119,7 @@ module Api
       query_params = query_param
       unless query_params.nil? || !query_params.is_a?(Hash)
         return relation if query_params.empty?
-        Rails.logger.debug("#{request.path}:query_by_example:'#{query_params}'")
+        Rails.logger.debug("#{request.path}::#{request.method}:query_by_example:'#{query_params}'")
         # convert any dashes to underscores
         clazz = controller_resource_class
         query_params.keys.each do |k|
@@ -131,9 +131,9 @@ module Api
         end
         # intersection of parameters to what are actually valid column names
         valid_parameters = controller_resource_class.column_names & query_params.keys.map(&:to_s)
-        Rails.logger.debug("#{request.path}:query_by_example:valid:'#{valid_parameters}'")
+        Rails.logger.debug("#{request.path}::#{request.method}:query_by_example:valid:'#{valid_parameters}'")
         where_clause = query_params.delete_if { |k| !valid_parameters.include?(k) }
-        Rails.logger.debug("#{request.path}:query_by_example:where:'#{where_clause}'")
+        Rails.logger.debug("#{request.path}::#{request.method}:query_by_example:where:'#{where_clause}'")
         return relation.where(where_clause)
       end
       relation
@@ -141,7 +141,7 @@ module Api
 
     def paginate_results(activerecord)
       if paginate?
-        Rails.logger.debug("#{request.path}:paginate_results:('#{page_param}','#{page_size_param}')")
+        Rails.logger.debug("#{request.path}::#{request.method}:paginate_results:('#{page_param}','#{page_size_param}')")
         return activerecord.page(page_param).per(page_size_param)
       end
       activerecord
@@ -159,6 +159,8 @@ module Api
         extra_meta[:flash][key] = flash[key] unless flash[key].nil? || flash[key].empty?
       end
       extra_meta.delete(:flash) if extra_meta[:flash].empty?
+      return extra_meta if collection.nil?
+
       if paginate?
         return {
             current_page: collection.current_page,

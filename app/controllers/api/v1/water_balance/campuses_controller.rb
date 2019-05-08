@@ -38,7 +38,8 @@ module Api
         end
 
         def active_resource
-          controller_resource_class.find_by!(id: params[:id], owner: current_account)
+          raise(ActiveRecord::RecordNotFound, "#{params[:id]} is not a valid record ID.") unless !@resource.nil? || params[:id].to_i != 0
+          @resource ||= controller_resource_class.find_by!(id: params[:id], owner: current_account)
         end
 
         def active_resources
