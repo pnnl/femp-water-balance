@@ -1,7 +1,7 @@
 version: '2'
 services:
   rails:
-    image: docker.artifactory.pnnl.gov/asset-score/water-balance
+    image: docker.artifactory.pnnl.gov/asset-score/water-balance:bamboo
     environment:
       RAILS_ENV: 'test'
       REDIS_URL: 'redis://redis:6379/0'
