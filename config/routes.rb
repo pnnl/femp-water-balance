@@ -1,7 +1,6 @@
 Rails.application.routes.draw do
   devise_for(:accounts)
-
-  root(to: redirect('/secure/water-balance/campuses'))
+  root(to: 'water_balance/campuses#index')
   # routes that require authorization
   scope(path: 'secure') do
     scope(path: 'water-balance', module: 'water_balance', as: :water_balance) do
@@ -15,4 +14,6 @@ Rails.application.routes.draw do
       end
     end
   end
+  # needs to be last in order to not clobber the API routes
+  get('*path', to: 'water_balance/campuses#index')
 end

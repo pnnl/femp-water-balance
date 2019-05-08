@@ -1,18 +1,22 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>AssetScore :: Water Balance @ PNNL</title>
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
-    <meta httpEquiv="x-ua-compatible" content="ie=edge"/>
-    <meta name="description" content="" />
-    <meta name="viewport"  content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" />
-    <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"/>
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500"/>
-    <script defer src="//use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
-  </head>
-  <body>
-
-    <%= yield %>
-  </body>
+<html lang="en">
+<head>
+  <title>AssetScore :: Water Balance @ PNNL</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <meta httpEquiv="x-ua-compatible" content="ie=edge"/>
+  <meta name="description" content=""/>
+  <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"/>
+  <link rel="stylesheet" href="//fonts.googleapis.com/icon?family=Material+Icons"/>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500"/>
+  <script defer src="//use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+</head>
+<body>
+<% if current_account.nil? %>
+  <script type="text/javascript">const current_account = undefined;</script>
+<% else %>
+  <script type="text/javascript">const current_account = Object.assign({}, <%= current_account.to_json.html_safe %>);</script>
+<% end %>
+<%= yield %>
+</body>
 </html>

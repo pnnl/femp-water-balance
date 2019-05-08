@@ -42,7 +42,7 @@ class ApplicationLayout extends React.Component {
                         <AppBar
                             className={classNames(classes.appBar)}
                         >
-                            <DefaultToolbar toolbarText={toolbarText}>
+                            <DefaultToolbar {...this.props} toolbarText={toolbarText}>
                                 {toolbarContent}
                             </DefaultToolbar>
                         </AppBar>
@@ -51,10 +51,10 @@ class ApplicationLayout extends React.Component {
                         >
                             <div className={classes.drawerHeader}/>
                             {this.props.children}
-                            <ScrollToTopButton scrollStepInPx={50} delayInMs={30}/>
+                            <ScrollToTopButton {...this.props} scrollStepInPx={50} delayInMs={30}/>
                         </main>
                     </div>
-                    <DefaultFooter/>
+                    <DefaultFooter {...this.props} />
                 </div>
             </MuiThemeProvider>
         );

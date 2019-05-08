@@ -32,7 +32,7 @@ function Footer({ ...props }) {
             </List>
             <p className={classes.right}>
               <span>
-                <a href="mailto:ngfp@pnnl.gov" className={classes.a}>
+                <a href="//www.pnnl.gov/" className={classes.a}>
                   Pacific Northwest National Laboratory
                 </a>
               </span>

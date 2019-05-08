@@ -42,7 +42,7 @@ class LandingPage extends React.Component {
         return (
             <List dense>
                 {(campuses || []).map((c) => (
-                    <ListItem key={`campus-${c.id}`} button component="a" href={`#${c.id}`}>
+                    <ListItem key={`campus-${c.id}`} button component="a" href={`/secure/water-balance/campuses/${c.id}`}>
                         <ListItemText
                             primary={c.name}
                         />
