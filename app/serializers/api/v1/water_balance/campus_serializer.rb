@@ -2,8 +2,8 @@
 module Api
   module V1
     module WaterBalance
-      class CampusSerializer < ActiveModel::Serializer
-        attributes(%w(id name))
+      class CampusSerializer < ActiveSerializer
+        attributes(Campus.column_names)
       end
     end
   end

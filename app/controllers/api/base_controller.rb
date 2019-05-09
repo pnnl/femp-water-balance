@@ -18,7 +18,7 @@ module Api
     # pass in a model class to ensure that all attributes in the returned hash are valid for the model.
     def json_params(model = nil)
       # we ignore ID, Created At, Updated At as they are set by the server side. Clients should not dictate these.
-      json_parameters = ActiveModelSerializers::Deserialization.jsonapi_parse(params, except: [:created_at, :updated_at, :id])
+      json_parameters = ActiveModelSerializers::Deserialization.jsonapi_parse(params, except: ignored_json_params)
       if !model.nil? && model.respond_to?(:column_names)
         json_parameters = json_parameters.delete_if do |key, value|
           if key.to_s.ends_with?('_attributes')
@@ -83,6 +83,10 @@ module Api
 
     def paginate?
       !params[:page].blank?
+    end
+
+    def ignored_json_params
+      [:created_at, :updated_at, :id]
     end
 
     def handle_api_exception(exception)

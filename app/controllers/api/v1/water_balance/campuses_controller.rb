@@ -31,6 +31,10 @@ module Api
 
         protected
 
+        def ignored_json_params
+          [:owner_id, :owner_type] + super
+        end
+
         def create_extra_attributes
           {
               owner: current_account
