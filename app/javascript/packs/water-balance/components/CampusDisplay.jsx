@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import RemoteApi from '../RemoteApi';
 import MaterialTabs from './Common/TabContainer/MaterialTabs';
 import CampusForm from './Common/CampusForm';
+import VehicleWashForm from "./Common/VehicleWashForm";
 
 const TabContainer = (props) => {
     return (
@@ -45,7 +46,7 @@ class CampusDisplay extends React.Component {
                 tabName: 'Vehicle Wash',
                 tabContent: (
                     <TabContainer>
-                        [PH] => Vehicle Wash
+                        <VehicleWashForm campus={campus} {...this.props} />
                     </TabContainer>
                 ),
             },
@@ -53,7 +54,7 @@ class CampusDisplay extends React.Component {
                 tabName: 'Water Supply',
                 tabContent: (
                     <TabContainer>
-                        <CampusForm campus={campus} onSubmit={this.updateCampus} {...this.props} />
+                        [PH] => Water Supply
                     </TabContainer>
                 ),
             },
@@ -61,7 +62,7 @@ class CampusDisplay extends React.Component {
                 tabName: 'Waste Water',
                 tabContent: (
                     <TabContainer>
-                        [PH] => Waste Water
+                        [PH] => Waste Waters
                     </TabContainer>
                 ),
             },
