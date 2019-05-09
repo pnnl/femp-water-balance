@@ -7,6 +7,8 @@ import {
     CssBaseline,
 } from '@material-ui/core';
 import classNames from 'classnames';
+import MomentUtils from '@date-io/moment';
+import { MuiPickersUtilsProvider } from 'material-ui-pickers';
 
 import styles from './styles';
 import DefaultToolbar from './DefaultToolbar';
@@ -33,10 +35,10 @@ class ApplicationLayout extends React.Component {
     }
 
     render() {
-        const {classes, toolbarContent, toolbarText, genericMessages} = this.props;
+        const {classes, toolbarContent, toolbarText} = this.props;
         return (
             <MuiThemeProvider theme={this.getTheme()}>
-                <div>
+                <MuiPickersUtilsProvider utils={MomentUtils}>
                     <CssBaseline />
                     <div className={classes.appFrame}>
                         <AppBar
@@ -55,7 +57,7 @@ class ApplicationLayout extends React.Component {
                         </main>
                     </div>
                     <DefaultFooter {...this.props} />
-                </div>
+                </MuiPickersUtilsProvider>
             </MuiThemeProvider>
         );
     }

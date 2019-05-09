@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 if (module.hot) {
   module.hot.accept("./routes", () => {
-    console.log("HMR Update!");
     ReactDOM.render(<Routes />, document.getElementById('water-balance-react'))
   })
 }

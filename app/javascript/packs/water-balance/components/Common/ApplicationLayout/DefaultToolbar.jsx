@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import {withStyles} from '@material-ui/core/styles';
 import {
     Toolbar,
@@ -8,7 +7,6 @@ import {
     Menu,
     MenuItem
 } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Divider from '@material-ui/core/Divider';
 

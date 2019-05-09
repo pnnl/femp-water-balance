@@ -7,6 +7,7 @@ import {
 import ApplicationLayout from './components/Common/ApplicationLayout/ApplicationLayout';
 import LandingPage from './components/LandingPage';
 import SignIn from './components/SignIn';
+import CampusDisplay from "./components/CampusDisplay";
 
 const App = (props) => {
     const commonProps = Object.assign({}, props, {
@@ -15,10 +16,8 @@ const App = (props) => {
     return (
         <Router>
             <ApplicationLayout {...commonProps} >
-                <Route exact path='/' render={() => <LandingPage {...commonProps} />}/>
-                <Route exact path='/secure/water-balance/campuses/:id' render={({match}) => (<div>
-                    <h3>ID: {match.params.id}</h3>
-                </div>)}/>
+                <Route exact path='/' render={({match}) => <LandingPage match={match} {...commonProps} />}/>
+                <Route exact path='/secure/water-balance/campuses/:id' render={({match}) => (<CampusDisplay match={match} {...commonProps} /> )}/>
                 <Route exact path='/accounts/sign_in' component={SignIn}/>
             </ApplicationLayout>
         </Router>
