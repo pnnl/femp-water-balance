@@ -45,6 +45,33 @@ class RemoteApi {
             );
     };
 
+    static createCampus = (newCampus, onSuccess, onError, caller = undefined) => {
+        const fetchConfig = Object.assign({}, RemoteApi.DEFAULT_FETCH_CONFIG, {
+            method: 'POST',
+            body: JSON.stringify({data: {attributes: {...newCampus}}}),
+            headers: {
+                'Authorization': RemoteApi.retrieveCurrentAuthorization(),
+                ...RemoteApi.DEFAULT_HEADERS
+            }
+        });
+        fetch(`${RemoteApi.BASE_V1_URI}/water-balance/campuses`, Object.assign({}, RemoteApi.DEFAULT_FETCH_CONFIG, fetchConfig))
+            .then((response) => response.json())
+            .then(
+                // onFulfilled:
+                (result) => {
+                    if (onSuccess) {
+                        onSuccess.call(caller, result);
+                    }
+                },
+                // onRejected:
+                (error) => {
+                    if (onError) {
+                        onError.call(caller, error);
+                    }
+                }
+            );
+    };
+
     static getCampus = (campusId, onSuccess, onError, caller = undefined) => {
         fetch(`${RemoteApi.BASE_V1_URI}/water-balance/campuses/${campusId}`, RemoteApi.DEFAULT_FETCH_CONFIG)
             .then((response) => RemoteApi.captureAuthorization(response))
@@ -73,7 +100,6 @@ class RemoteApi {
                 ...RemoteApi.DEFAULT_HEADERS
             }
         });
-        console.log("fetchConfig(%o) => ", fetchConfig, fetchConfig.headers);
         fetch(`${RemoteApi.BASE_V1_URI}/water-balance/campuses/${campus.id}`, Object.assign({}, RemoteApi.DEFAULT_FETCH_CONFIG, fetchConfig))
             .then((response) => response.json())
             .then(

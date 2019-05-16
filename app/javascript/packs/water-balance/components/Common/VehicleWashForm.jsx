@@ -1,31 +1,29 @@
 import React, {Fragment} from 'react';
-import {Form, Field} from 'react-final-form';
-import {TextField, Checkbox, Radio, Select} from 'final-form-material-ui';
+import {Form, Field, FormSpy} from 'react-final-form';
+import {Checkbox, Select} from 'final-form-material-ui';
 import {
-    Paper,
     Grid,
     Button,
-    RadioGroup,
-    FormLabel,
-    MenuItem,
-    FormGroup,
-    FormControl,
     FormControlLabel,
-    Typography,
-    Switch
+    InputAdornment,
+    Switch,
+    MenuItem
 } from '@material-ui/core';
+import selectn from 'selectn';
+import MaterialInput from './MaterialInput';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 
-const validate = values => {
-    const errors = {};
-    if (!values.name) {
-        errors.name = 'Required';
-    }
-    return errors;
-};
+import formValidation from './VehicleWashForm.validation';
+
+const DEFAULT_NUMBER_MASK = createNumberMask({
+    prefix: '',
+    includeThousandsSeparator: true,
+    integerLimit: 10,
+    allowDecimal: false
+});
 
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     <FormControlLabel
@@ -35,9 +33,19 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     />
 );
 
+const FormRulesListener = ({handleFormChange}) => (
+    <FormSpy
+        subscription={{values: true, valid: true}}
+        onChange={async ({values, valid}) => {
+            if (valid) {
+                handleFormChange(values);
+            }
+        }}
+    />
+);
+
 
 class VehicleWashForm extends React.Component {
-
     onSubmit = values => {
         const {onSubmit} = this.props;
         if (onSubmit) {
@@ -47,198 +55,328 @@ class VehicleWashForm extends React.Component {
         }
     };
 
-    renderCentralFacilitiesQuestions = (values) => {
-        if (values.vw_central_facilities) {
-            return (
-                <Fragment>
+    renderWashpadForm = (values, basePath) => {
+        const washpadType = selectn(`${basePath}.type`)(values);
+        return (<Fragment>
+            <Grid item xs={12}>
+                <Field
+                    fullWidth
+                    required
+                    name={`${basePath}.vpw`}
+                    component={MaterialInput}
+                    type="text"
+                    mask={DEFAULT_NUMBER_MASK}
+                    label="Average number of vehicles washed per week"
+                    endAdornment={<InputAdornment position="end">Vehicles</InputAdornment>}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <Field
+                    fullWidth
+                    required
+                    name={`${basePath}.wpy`}
+                    component={MaterialInput}
+                    type="text"
+                    mask={DEFAULT_NUMBER_MASK}
+                    label="Total number of weeks per year vehicles are washed "
+                    endAdornment={<InputAdornment position="end">Washes</InputAdornment>}
+                />
+            </Grid>
+            <Grid item xs={12}>
+                <Field
+                    fullWidth
+                    required
+                    name={`${basePath}.wash_time`}
+                    component={MaterialInput}
+                    type="text"
+                    mask={DEFAULT_NUMBER_MASK}
+                    label="Approximate wash time per vehicle"
+                    endAdornment={<InputAdornment position="end">Minutes</InputAdornment>}
+                />
+            </Grid>
+            {washpadType === 'open_hose' && (
+                <Grid item xs={12}>
+                    <Field
+                        fullWidth
+                        required
+                        name={`${basePath}.rating`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_NUMBER_MASK}
+                        label="Flow rate of the open hose"
+                        endAdornment={<InputAdornment position="end">G.P.M</InputAdornment>}
+                    />
+                </Grid>
+            )}
+            {washpadType === 'pressure_washer' && (
+                <Grid item xs={12}>
+                    <Field
+                        fullWidth
+                        required
+                        name={`${basePath}.rating`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_NUMBER_MASK}
+                        label="Nozzle rating of pressure washer"
+                        endAdornment={<InputAdornment position="end">G.P.M</InputAdornment>}
+                    />
+                </Grid>
+            )}
+        </Fragment>);
+    };
+
+    renderFacilityForm = (values, basePath) => {
+        const isMetered = selectn(`${basePath}.metered`)(values);
+        return (
+            <Fragment>
+                {this.renderWaterMeteredControl(basePath,values, true)}
+                {isMetered === true && (
                     <Grid item xs={12}>
-                        <FormControlLabel
-                            label="Is the water metered?"
-                            control={
-                                <Field
-                                    name="module[central_facilities].metered"
-                                    component={Checkbox}
-                                    indeterminate={values.module['central_facilities'].metered === undefined}
-                                    type="checkbox"
-                                />
-                            }
+                        <Field
+                            fullWidth
+                            required
+                            name={`${basePath}.water_usage`}
+                            component={MaterialInput}
+                            type="text"
+                            mask={DEFAULT_NUMBER_MASK}
+                            label="Total annual water use for all vehicle wash facilities on campus"
+                            endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         />
                     </Grid>
-                    {values.module['central_facilities'].metered && (
+                )}
+                {isMetered === false && (
+                    <Fragment>
                         <Grid item xs={12}>
                             <Field
                                 fullWidth
                                 required
-                                name="module[central_facilities].water_usage"
-                                component={TextField}
+                                name={`${basePath}.vpw`}
+                                component={MaterialInput}
                                 type="text"
-                                label="Enter the total annual water use for all central facilities"
+                                mask={DEFAULT_NUMBER_MASK}
+                                label="Average number of vehicles washed per week"
+                                endAdornment={<InputAdornment position="end">Vehicles</InputAdornment>}
                             />
                         </Grid>
-                    )}
-                    {(values.module['central_facilities'].metered === false) && (
-                            <Grid container>
-                            <Grid item xs={12}>
-                                <Field
-                                    fullWidth
-                                    required
-                                    name="module[central_facilities].weekly_washes"
-                                    component={TextField}
-                                    type="text"
-                                    label="Total number of vehicles washed per week"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Field
-                                    fullWidth
-                                    required
-                                    name="module[central_facilities].monthly_washes"
-                                    component={TextField}
-                                    type="text"
-                                    label="Total number of weeks vehicles washed per month"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Field
-                                    fullWidth
-                                    required
-                                    name="module[central_facilities].wash_time"
-                                    component={TextField}
-                                    type="text"
-                                    label="Approximate wash time per vehicle in minutes"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Field
-                                    fullWidth
-                                    required
-                                    name="module[central_facilities].month_count"
-                                    component={TextField}
-                                    type="text"
-                                    label="Number of months vehicles washed per year"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Field
-                                    fullWidth
-                                    required
-                                    name="module[central_facilities].nozzle_rating"
-                                    component={TextField}
-                                    type="text"
-                                    label="Nozzle Rating (gpm)"
-                                />
-                            </Grid>
-                            <Grid item xs={12}>
-                                <Field
-                                    fullWidth
-                                    required
-                                    name="module[central_facilities].recycled"
-                                    component={TextField}
-                                    type="text"
-                                    label="Percentage of water recycled/reused if any"
-                                />
-                            </Grid>
-                            </Grid>
-                    )}
-                </Fragment>
-            );
+                        <Grid item xs={12}>
+                            <Field
+                                fullWidth
+                                required
+                                name={`${basePath}.wpy`}
+                                component={MaterialInput}
+                                type="text"
+                                mask={DEFAULT_NUMBER_MASK}
+                                label="Total number of weeks per year vehicles are washed "
+                                endAdornment={<InputAdornment position="end">Washes</InputAdornment>}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Field
+                                fullWidth
+                                required
+                                name={`${basePath}.gpv`}
+                                component={MaterialInput}
+                                type="text"
+                                mask={DEFAULT_NUMBER_MASK}
+                                label="Estimated water use per vehicle (gpv)"
+                                endAdornment={<InputAdornment position="end">Gallons</InputAdornment>}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Field
+                                fullWidth
+                                required
+                                name={`${basePath}.recycled`}
+                                component={MaterialInput}
+                                type="text"
+                                mask={[/\d/, /\d/, /\d/]}
+                                label="Percentage of water recycled/reused (if any)"
+                                endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                            />
+                        </Grid>
+                    </Fragment>
+                )}
+            </Fragment>
+        );
+    };
 
+    renderWaterMeteredControl = (basePath, values, indeterminate = false) => (
+        <Grid item xs={12}>
+            <FormControlLabel
+                label="Is the water use metered at these facilities?"
+                control={
+                    <Field
+                        name={`${basePath}.metered`}
+                        component={Checkbox}
+                        indeterminate={indeterminate ? selectn(`${basePath}.metered`)(values) === undefined : null}
+                        type="checkbox"
+                    />
+                }
+            />
+        </Grid>
+    );
+
+    renderFormInputs = (values) => {
+        const elements = [];
+        const baseObject = values.vehicle_wash;
+
+        if (values.vw_facilities === true) {
+            return (<Fragment>
+                <Grid item xs={12}>
+                    <ExpansionPanel expanded={baseObject['auto_wash_facilities'] === true}>
+                        <ExpansionPanelSummary>
+                            <Field
+                                name="vehicle_wash.auto_wash_facilities"
+                                label="This campus has an individual in-bay automated vehicle wash facilities"
+                                component={ToggleAdapter}
+                                type="checkbox"
+                            />
+                        </ExpansionPanelSummary>
+                        <ExpansionPanelDetails>
+                            <Grid container alignItems="flex-start" spacing={16}>
+                                {this.renderFacilityForm(values, 'vehicle_wash.auto_wash')}
+                            </Grid>
+                        </ExpansionPanelDetails>
+                    </ExpansionPanel>
+                </Grid>
+                <Grid item xs={12}>
+                    <ExpansionPanel expanded={baseObject['conveyor_facilities'] === true}>
+                        <ExpansionPanelSummary>
+                            <Field
+                                name="vehicle_wash.conveyor_facilities"
+                                label="This campus has a conveyor type friction washing or frictionless washing vehicle wash facilities"
+                                component={ToggleAdapter}
+                                type="checkbox"
+                            />
+                        </ExpansionPanelSummary>
+                        <ExpansionPanelDetails>
+                            <Grid container alignItems="flex-start" spacing={16}>
+                                <Grid item xs={12}>
+                                    <Field
+                                        formControlProps={{fullWidth: true}}
+                                        required
+                                        name="vehicle_wash.conveyor.type"
+                                        component={Select}
+                                        type="text"
+                                        label="Conveyor type used for vehicle washes"
+                                    >
+                                        <MenuItem value="friction">
+                                            Friction Washing
+                                        </MenuItem>
+
+                                        <MenuItem value="frictionless">
+                                            Frictionless Washing
+                                        </MenuItem>
+                                    </Field>
+                                </Grid>
+                                {selectn('vehicle_wash.conveyor.type')(values) && (this.renderFacilityForm(values, 'vehicle_wash.conveyor'))}
+                            </Grid>
+                        </ExpansionPanelDetails>
+                    </ExpansionPanel>
+                </Grid>
+                <Grid item xs={12}>
+                    <ExpansionPanel expanded={baseObject['wash_pad_facilities'] === true}>
+                        <ExpansionPanelSummary>
+                            <Field
+                                name="vehicle_wash.wash_pad_facilities"
+                                label="This campus has self-service wash pad(s)"
+                                component={ToggleAdapter}
+                                type="checkbox"
+                            />
+                        </ExpansionPanelSummary>
+                        <ExpansionPanelDetails>
+                            <Grid container alignItems="flex-start" spacing={16}>
+                                <Grid item xs={12}>
+                                    <Field
+                                        formControlProps={{fullWidth: true}}
+                                        required
+                                        name="vehicle_wash.wash_pads.type"
+                                        component={Select}
+                                        type="text"
+                                        label="Are most vehicles washed with an open hose or pressure washer?"
+                                    >
+                                        <MenuItem value="open_hose">
+                                            Open Hose
+                                        </MenuItem>
+                                        <MenuItem value="pressure_washer">
+                                            Pressure Washer
+                                        </MenuItem>
+                                    </Field>
+                                </Grid>
+                                {selectn('vehicle_wash.wash_pads.type')(values) && this.renderWashpadForm(values, 'vehicle_wash.wash_pads')}
+                            </Grid>
+                        </ExpansionPanelDetails>
+                    </ExpansionPanel>
+                </Grid>
+                <Grid item xs={12}>
+                    <ExpansionPanel expanded={baseObject['large_facilities'] === true}>
+                        <ExpansionPanelSummary>
+                            <Field
+                                name="vehicle_wash.large_facilities"
+                                label="This campus has vehicle wash facilities for large vehicles such as semi-trucks, tracked vehicles, or aircraft?"
+                                component={ToggleAdapter}
+                                type="checkbox"
+                            />
+                        </ExpansionPanelSummary>
+                        <ExpansionPanelDetails>
+                            <Grid container alignItems="flex-start" spacing={16}>
+                                {this.renderFacilityForm(values, 'vehicle_wash.large_vehicles')}
+                            </Grid>
+                        </ExpansionPanelDetails>
+                    </ExpansionPanel>
+                </Grid>
+            </Fragment>);
         }
-        return '';
+        return elements;
     };
 
     render() {
-        const {campus} = this.props;
-        const formModules = {module: {central_facilities: {}}};
+        const {campus, applyRules} = this.props;
         return (
             <Form
                 onSubmit={this.onSubmit}
-                initialValues={Object.assign({}, formModules, campus)}
-                validate={validate}
+                initialValues={campus}
+                validate={formValidation}
                 render={({handleSubmit, reset, submitting, pristine, values}) => (
                     <form onSubmit={handleSubmit} noValidate>
-                        <Paper style={{padding: 16}}>
-                            <div>{values.vw_facilities}</div>
-                            <Grid container alignItems="flex-start" spacing={16}>
-                                <Grid item xs={12}>
-                                    <FormControlLabel
-                                        label="My campus has vehicle wash facilities?"
-                                        control={
-                                            <Field
-                                                name="vw_facilities"
-                                                component={Checkbox}
-                                                indeterminate={values.vw_facilities === undefined}
-                                                type="checkbox"
-                                            />
-                                        }
-                                    />
-                                </Grid>
-                                {values.vw_facilities && (
-                                    <Grid item xs={12}>
-                                    <ExpansionPanel expanded={values.vw_central_facilities === true} >
-                                        <ExpansionPanelSummary>
-                                            <Field
-                                                name="vw_central_facilities"
-                                                label="My campus has central vehicle wash facilities?"
-                                                component={ToggleAdapter}
-                                                type="checkbox"
-                                            />
-                                        </ExpansionPanelSummary>
-                                        <ExpansionPanelDetails>
-                                            <Grid container alignItems="flex-start" spacing={16}>
-                                                <Grid item xs={12}>
-                                                    {this.renderCentralFacilitiesQuestions(values)}
-                                                </Grid>
-                                            </Grid>
-                                        </ExpansionPanelDetails>
-                                    </ExpansionPanel>
-                                    </Grid>
-                                )}
-                                {values.vw_central_facilities && (
-                                    <Grid item xs={12}>
-                                        <ExpansionPanel expanded={values.vw_automated_facilities === true} >
-                                            <ExpansionPanelSummary>
-                                                <Field
-                                                    name="vw_automated_facilities"
-                                                    label="My campus has individual automated car washes?"
-                                                    component={ToggleAdapter}
-                                                    type="checkbox"
-                                                />
-                                            </ExpansionPanelSummary>
-                                            <ExpansionPanelDetails>
-                                                <Grid container alignItems="flex-start" spacing={16}>
-                                                    <Grid item xs={12}>
-                                                        XXXXX
-                                                    </Grid>
-                                                </Grid>
-                                            </ExpansionPanelDetails>
-                                        </ExpansionPanel>
-                                    </Grid>
-                                )}
-
-                                <Grid item style={{marginTop: 16}}>
-                                    <Button
-                                        type="button"
-                                        variant="contained"
-                                        onClick={reset}
-                                        disabled={submitting || pristine}
-                                    >
-                                        Reset
-                                    </Button>
-                                </Grid>
-                                <Grid item style={{marginTop: 16}}>
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        type="submit"
-                                        disabled={submitting}
-                                    >
-                                        Submit
-                                    </Button>
-                                </Grid>
+                        <Grid container alignItems="flex-start" spacing={16}>
+                            <Grid item xs={12}>
+                                <FormControlLabel
+                                    label="My campus has vehicle wash facilities?"
+                                    control={
+                                        <Field
+                                            name="vw_facilities"
+                                            component={Checkbox}
+                                            indeterminate={values.vw_facilities === undefined}
+                                            type="checkbox"
+                                        />
+                                    }
+                                />
                             </Grid>
-                        </Paper>
+                            {this.renderFormInputs(values)}
+                            <Grid item style={{marginTop: 16}}>
+                                <Button
+                                    type="button"
+                                    variant="contained"
+                                    onClick={reset}
+                                    disabled={submitting || pristine}
+                                >
+                                    Reset
+                                </Button>
+                            </Grid>
+                            <Grid item style={{marginTop: 16}}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    type="submit"
+                                    disabled={submitting}
+                                >
+                                    Submit
+                                </Button>
+                            </Grid>
+                        </Grid>
                         <pre className="code">{JSON.stringify(values, 0, 2)}</pre>
+                        <FormRulesListener handleFormChange={applyRules}/>
                     </form>
                 )}
             />

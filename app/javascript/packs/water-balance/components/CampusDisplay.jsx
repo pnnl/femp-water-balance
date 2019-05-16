@@ -2,18 +2,108 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
 
 import RemoteApi from '../RemoteApi';
 import MaterialTabs from './Common/TabContainer/MaterialTabs';
 import CampusForm from './Common/CampusForm';
 import VehicleWashForm from "./Common/VehicleWashForm";
 
+import {Engine} from 'json-rules-engine';
+
+const formRules = [
+    {
+        conditions: {
+            all: [
+                {
+                    fact: 'vw_facilities',
+                    operator: 'equal',
+                    value: true
+                }
+            ],
+        },
+        event: {
+            type: 'displayCentralFacilityQuestions',
+            params: {
+                value: true
+            }
+        }
+    },
+    {
+        conditions: {
+            any: [{
+                all: [{
+                    fact: 'vw_central_facilities',
+                    operator: 'equal',
+                    value: false
+                }, {
+                    fact: 'vw_facilities',
+                    operator: 'equal',
+                    value: true
+                }]
+            }]
+        },
+        event: {
+            type: 'displayFrictionWashQuestions',
+            params: {
+                value: true
+            }
+        }
+    },
+    {
+        conditions: {
+            any: [{
+                all: [{
+                    fact: 'vw_fw_facilities',
+                    operator: 'equal',
+                    value: false
+                }, {
+                    fact: 'vw_facilities',
+                    operator: 'equal',
+                    value: true
+                }]
+            },
+            ],
+        },
+        event: {
+            type: 'displayWashPadsQuestions',
+            params: {
+                value: true
+            }
+        }
+    },
+    {
+        conditions: {
+            any: [{
+                all: [{
+                    fact: 'vw_wash_pads',
+                    operator: 'equal',
+                    value: false
+                }, {
+                    fact: 'vw_facilities',
+                    operator: 'equal',
+                    value: true
+                }]
+            },
+            ],
+        },
+        event: {
+            type: 'displayLargeQuestions',
+            params: {
+                value: true
+            }
+        }
+    }
+];
+
 const TabContainer = (props) => {
     return (
         <Grid style={{margin: '0.75em 0.50em 0.25em'}} container direction="row" justify="center" alignItems="center"
               spacing={0}>
-            <Grid item xs={12}>
-                {props.children}
+            <Grid item xs={12 } style={{margin: '0em 1em  0em 0em'}} >
+                <Paper style={{padding: 16}}>
+                    {props.children}
+                </Paper>
             </Grid>
         </Grid>
     );
@@ -23,14 +113,15 @@ class CampusDisplay extends React.Component {
     state = {
         error: undefined,
         campus: undefined,
-        isLoaded: false
+        isLoaded: false,
+        engine: new Engine([], {allowUndefinedFacts: true}),
     };
 
     updateCampus = (values) => {
         RemoteApi.updateCampus(values,
             (data) => this.setState({
                 isLoaded: true,
-                campus: data
+                campus: Object.assign({}, {vehicle_wash: {}}, data)
             }),
             (data) => this.setState({
                 isLoaded: true,
@@ -39,14 +130,20 @@ class CampusDisplay extends React.Component {
         );
     };
 
+    executeRules = async (facts) => {
+        const { engine } = this.state;
+        this.setState({events: await engine.run(facts)});
+    };
+
     getCampusTabs = () => {
-        const {campus} = this.state;
+        const {campus, events} = this.state;
         return [
             {
                 tabName: 'Vehicle Wash',
                 tabContent: (
                     <TabContainer>
-                        <VehicleWashForm campus={campus} {...this.props} />
+                        <VehicleWashForm campus={campus} events={events}
+                                         applyRules={this.executeRules} {...this.props} />
                     </TabContainer>
                 ),
             },
@@ -86,11 +183,14 @@ class CampusDisplay extends React.Component {
     };
 
     componentDidMount() {
+        const {engine} = this.state;
         const {match: {params: {id}}} = this.props;
+        formRules.forEach((rule) => engine.addRule(rule));
+
         RemoteApi.getCampus(id, (campus) => (
             this.setState({
                 isLoaded: true,
-                campus: campus
+                campus: Object.assign({}, {vehicle_wash: {}}, campus)
             })
         ), (error) => (
             this.setState({

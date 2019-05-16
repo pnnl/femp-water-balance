@@ -77,7 +77,7 @@ class DefaultToolbar extends React.Component {
         }
         return (
             <Typography variant="h6" color="inherit" className={classes.flex}>
-                AssetScore :: Water Balance
+                <a href="/" style={{textDecoration: 'none', color: 'inherit'}}>AssetScore :: Water Balance</a>
             </Typography>
         );
     }

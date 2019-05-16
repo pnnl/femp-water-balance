@@ -9,6 +9,7 @@ import LandingPage from './components/LandingPage';
 import SignIn from './components/SignIn';
 import CampusDisplay from "./components/CampusDisplay";
 
+localStorage.debug = 'json-rules-engine';
 const App = (props) => {
     const commonProps = Object.assign({}, props, {
         user: current_account,
