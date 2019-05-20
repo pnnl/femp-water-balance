@@ -1,54 +1,55 @@
 version: '2'
 services:
-  db:
-     networks:
-       - front
-     image: docker.artifactory.pnnl.gov/postgres:9.5.16
-     volumes:
-       - /opt/rails/water-balance/data:/var/lib/postgresql/data
-       - /tmp:/tmp
-     restart: always
-     environment:
-       POSTGRES_DB: 'water_balance'
-       POSTGRES_USER: 'CHANGE_ME'
-       POSTGRES_PASSWORD: 'CHANGE_ME'
+  postgresql:
+    networks:
+      - front
+    image: docker.artifactory.pnnl.gov/postgres:9.5.16
+    volumes:
+      - /opt/asset-score/water-balance/data:/var/lib/postgresql/data
+      - /tmp:/tmp
+    restart: always
+    environment:
+      POSTGRES_DB: 'water_balance'
+      POSTGRES_USER: 'CHANGE_ME'
+      POSTGRES_PASSWORD: 'CHANGE_ME'
   redis:
-     networks:
-       - front
-     restart: always
-     image: docker.artifactory.pnnl.gov/redis:3.2.7
-     volumes:
-       - /opt/rails/water-balance/redis:/data
+    networks:
+      - front
+    restart: always
+    image: docker.artifactory.pnnl.gov/redis:3.2.7
+    volumes:
+      - /opt/asset-score/water-balance/redis:/data
   web:
-     networks:
-       - front
-     image: docker.artifactory.pnnl.gov/asset-score/water-balance-app:staging
-     restart: always
-     ports:
-       - '127.0.0.1:8080:80'
-     environment:
-       RAILS_ENV: 'staging'
-       RACK_ENV: 'staging'
-       PASSENGER_APP_ENV: 'staging'
-       REDIS_URL: 'redis://redis:6379/0'
-       DATABASE_HOST: 'db'
-       DATABASE_USER: 'CHANGE_ME_TOO'
-       DATABASE_PASWORD: 'CHANGE_ME_TOO'
-       DEVISE_JWT_SECRET_KEY: 'RUN_RAKE_SECRET'
-     depends_on:
-       - 'db'
-       - 'redis'
-     entrypoint: bundle exec
-     command: /sbin/my_init
-     volumes:
-       - /opt/rails/water-balance/logs:/home/app/water-balance/log
-       - /opt/rails/water-balance/web-logs:/var/log/nginx
-       - /opt/rails/water-balance/storage:/opt/rails/water-balance-storage
+    networks:
+      - front
+    image: docker.artifactory.pnnl.gov/asset-score/water-balance:staging
+    restart: always
+    ports:
+      - '127.0.0.1:8080:80'
+    environment:
+      RAILS_ENV: 'staging'
+      RACK_ENV: 'staging'
+      PASSENGER_APP_ENV: 'staging'
+      REDIS_URL: 'redis://redis:6379/0'
+      DATABASE_HOST: 'postgresql'
+      DATABASE_USERNAME: 'CHANGE_ME'
+      DATABASE_PASSWORD: 'CHANGE_ME'
+      DEVISE_JWT_SECRET_KEY: 'RUN_RAKE_SECRET'
+      SECRET_KEY_BASE: 'RUN_RAKE_SECRET'
+    depends_on:
+      - 'postgresql'
+      - 'redis'
+    entrypoint: bundle exec
+    command: /sbin/my_init
+    volumes:
+      - /opt/asset-score/water-balance/logs:/home/app/water-balance/log
+      - /opt/asset-score/water-balance/web-logs:/var/log/nginx
+      - /opt/asset-score/water-balance/storage:/opt/rails/water-balance-storage
 networks:
-    front:
-        driver: bridge
-        ipam:
-            driver: default
-            config:
-            - subnet: 10.17.0.0/24
-              gateway: 10.17.0.1
+  front:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.17.0.0/24
+          gateway: 10.17.0.1

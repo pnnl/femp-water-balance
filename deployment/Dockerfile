@@ -24,4 +24,4 @@ RUN bundle install --quiet --system --without development test
 RUN yarn install --silent --ignore-optional --production --no-progress
 RUN chown -R app:app /home/app/water-balance
 
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /home/app/water-balance/log/* /home/app/water-balance/tmp/*
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /home/app/water-balance/log /home/app/water-balance/tmp
