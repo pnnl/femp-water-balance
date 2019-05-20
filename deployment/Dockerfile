@@ -7,6 +7,7 @@ CMD ["/sbin/my_init"]
 
 RUN apt-get update -qq && apt-get upgrade -qq -y -o Dpkg::Options::="--force-confold"
 RUN apt-get install -qq -y build-essential nodejs npm libpq-dev tzdata
+RUN npm install --global yarn
 RUN rm -f /etc/service/nginx/down
 RUN rm /etc/nginx/sites-enabled/default
 
@@ -19,8 +20,8 @@ ADD water-balance-app.tgz /home/app/water-balance
 
 WORKDIR /home/app/water-balance
 RUN gem uninstall -i /usr/local/rvm/gems/ruby-2.5.5@global bundler && gem install bundler --version 1.17.3
-RUN bundle install --system --quiet
-RUN rake assets:precompile webpacker:compile
+RUN bundle install --quiet --system --without development test
+RUN yarn install --silent --ignore-optional --production --no-progress
 RUN chown -R app:app /home/app/water-balance
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /home/app/water-balance/log/* /home/app/water-balance/tmp/*

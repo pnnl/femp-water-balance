@@ -354,28 +354,7 @@ class VehicleWashForm extends React.Component {
                                 />
                             </Grid>
                             {this.renderFormInputs(values)}
-                            <Grid item style={{marginTop: 16}}>
-                                <Button
-                                    type="button"
-                                    variant="contained"
-                                    onClick={reset}
-                                    disabled={submitting || pristine}
-                                >
-                                    Reset
-                                </Button>
-                            </Grid>
-                            <Grid item style={{marginTop: 16}}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                    disabled={submitting}
-                                >
-                                    Submit
-                                </Button>
-                            </Grid>
                         </Grid>
-                        <pre className="code">{JSON.stringify(values, 0, 2)}</pre>
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
                 )}
