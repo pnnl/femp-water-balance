@@ -13,3 +13,4 @@ ADD . /water-balance
 WORKDIR /water-balance
 RUN bundle install --system --quiet && \
     yarn install --silent --ignore-optional --production --no-progress && \
+    rake assets:precompile
