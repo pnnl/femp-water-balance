@@ -1,3 +1,4 @@
+ARG APP_TARGET=test
 FROM ruby:2.5.5
 MAINTAINER Markus A. Kobold <markus.kobold@pnnl.gov>
 LABEL Description="This image is the test environment for the Water Balance tool that is part of AssetScore" Vendor="Pacific Northwest National Laboratory" Version="1.0"
@@ -11,6 +12,6 @@ RUN npm install --global yarn
 RUN mkdir -p /water-balance/log && mkdir -p /water-balance/node_modules
 ADD . /water-balance
 WORKDIR /water-balance
-RUN bundle install --system --quiet && \
-    yarn install --silent --ignore-optional --production --no-progress && \
-    rake assets:precompile
+RUN bundle install --system --quiet
+RUN yarn install --silent --ignore-optional --production --no-progress
+RUN RAILS_ENV=$APP_TARGET rake assets:precompile
