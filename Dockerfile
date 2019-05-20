@@ -11,5 +11,5 @@ RUN npm install --global yarn
 RUN mkdir -p /water-balance/log && mkdir -p /water-balance/node_modules
 ADD . /water-balance
 WORKDIR /water-balance
-RUN bundle install --system --quiet --without development test && \
+RUN bundle install --system --quiet && \
     yarn install --silent --ignore-optional --production --no-progress && \
