@@ -7,7 +7,9 @@ import Paper from '@material-ui/core/Paper';
 import RemoteApi from '../RemoteApi';
 import MaterialTabs from './Common/TabContainer/MaterialTabs';
 import CampusForm from './Common/CampusForm';
+
 import VehicleWashForm from "./Common/VehicleWashForm";
+import WaterSupplyForm from "./Common/WaterSupplyForm";
 
 import {Engine} from 'json-rules-engine';
 
@@ -151,7 +153,8 @@ class CampusDisplay extends React.Component {
                 tabName: 'Water Supply',
                 tabContent: (
                     <TabContainer>
-                        [PH] => Water Supply
+                        <WaterSupplyForm campus={campus} events={events}
+                                         applyRules={this.executeRules} {...this.props} />
                     </TabContainer>
                 ),
             },

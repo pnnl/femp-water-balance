@@ -85,7 +85,7 @@ class MaterialInput extends React.Component {
     const {
       meta: { visited, error, warning },
     } = this.props || {};
-    const displayError = visited && Boolean(error);
+    const displayError = visited && error;
     const displayWarning = Boolean(warning);
     const formControlProps = {
       fullWidth: true,
@@ -120,7 +120,7 @@ class MaterialInput extends React.Component {
             {helperText}
           </FormHelperText>
         )}
-        {displayWarning && (
+        {displayWarning && (typeof error === 'string') && (
           <FormHelperText
             className={classes.labelRoot + labelClasses}
             id="material-input-warning"
@@ -128,7 +128,7 @@ class MaterialInput extends React.Component {
             {warning}
           </FormHelperText>
         )}
-        {displayError && (
+        {displayError && (typeof error === 'string') && (
           <FormHelperText
             className={classes.labelRoot + labelClasses}
             id="material-input-error"

@@ -56,6 +56,10 @@ development:
   # Verifies that versions and hashed value of the package contents in the project's package.json
   check_yarn_integrity: false
 
+  optimization:
+    splitChunks:
+      chunks: 'all'
+
   # Reference: https://webpack.js.org/configuration/dev-server/
   dev_server:
     https: false
