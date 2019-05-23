@@ -55,7 +55,7 @@ module Api
 
     def json_api_include
       inclusion = []
-      (params.fetch(:include, '*') || '').gsub(/\*\*/, '*').split(',').each do |attribute|
+      (params.fetch(:include, '') || '').gsub(/\*\*/, '*').split(',').each do |attribute|
         return attribute if '*'.eql?(attribute)
 
         normalized_attribute = attribute.gsub(/-/, '_').to_sym

@@ -750,6 +750,39 @@
   resolved "https://registry.yarnpkg.com/@date-io/moment/-/moment-1.3.5.tgz#e5bf3837cbd3f5f5f5d7f49d8549e4118ea75f8d"
   integrity sha512-b0JQb10Lie07iW2/9uKCQSrXif262d6zfYBstCLLJUk0JVA+7o/yLDg5p2+GkjgJbmodjHozIXs4Bi34RRhL8Q==
 
+"@devexpress/dx-core@1.11.0":
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/@devexpress/dx-core/-/dx-core-1.11.0.tgz#f291d852e93531c3fa8a25ea7dd4f8bfe0d0c3c3"
+  integrity sha512-Kpw+Unx7lc10L3FJkLX/BbQHD8RIhirm9ZPJXpMfQdX1/KROMOoIo6n6gxcLAjU302NXNY5n7AlvHrw3KgNL+A==
+
+"@devexpress/dx-grid-core@1.11.0":
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/@devexpress/dx-grid-core/-/dx-grid-core-1.11.0.tgz#c28a9b8bac2bae736da76aab5bc9be43326765ca"
+  integrity sha512-AEvppCbOhpLH6v/ZfYdEyMOjXxTQpbVizwy5U3/Zm0hNKdLSTnT0k1Iipt6elbJRvxrGe4dYgjvkiWhIaQ0pBg==
+
+"@devexpress/dx-react-core@^1.11.0":
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/@devexpress/dx-react-core/-/dx-react-core-1.11.0.tgz#9f78aaf48a8b835aca6a993d8f9c82e0241feecb"
+  integrity sha512-RhqfjZxuyN/4amVVQCJmutvTQLk2mfU+CfaizWuJWw/bx7rjkSZXEV9r8k2z1Zs31mLW65LDkvesg2ty0B15sw==
+  dependencies:
+    "@devexpress/dx-core" "1.11.0"
+    prop-types "^15.7.2"
+
+"@devexpress/dx-react-grid-material-ui@^1.11.0":
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/@devexpress/dx-react-grid-material-ui/-/dx-react-grid-material-ui-1.11.0.tgz#0ebd0d4bb9c3c75994b955affbc7c236af31f87d"
+  integrity sha512-ahLq8KKFzW8QpKKw5+wM75Naltp1z6dA2MTFffJqcaEnIWXpfyMV4mlReggc//jBOwkfZzUg+MOFM0S65x+a2g==
+  dependencies:
+    classnames "^2.2.6"
+    prop-types "^15.7.2"
+
+"@devexpress/dx-react-grid@^1.11.0":
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/@devexpress/dx-react-grid/-/dx-react-grid-1.11.0.tgz#cfa9a46f747aea88329bb7b52d72b52eaa6b781c"
+  integrity sha512-Wy7228viYQVn8R2KkIt9C79LZz2sch2ALeerTIn1HIzf24xiayA3+MSpBT/5NOcjUwf+cqAapWdidILz812hFA==
+  dependencies:
+    "@devexpress/dx-grid-core" "1.11.0"
+
 "@material-ui/core@^3.9.3":
   version "3.9.3"
   resolved "https://registry.yarnpkg.com/@material-ui/core/-/core-3.9.3.tgz#d378c1f4beb18df9a534ca7258c2c33fb8e0e51f"

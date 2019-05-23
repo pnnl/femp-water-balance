@@ -101,5 +101,9 @@ module Api
       error_obj[:backtrace] = exception.backtrace.take(10) unless Rails.env.production?
       render(json: {errors: [error_obj]}, status: 500)
     end
+
+    def require_administrator!
+      raise(ActiveRecord::RecordNotFound) unless !current_account.nil? && current_account.role_implied?(:administrator)
+    end
   end
 end

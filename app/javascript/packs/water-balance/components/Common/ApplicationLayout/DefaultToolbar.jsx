@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import {withStyles} from '@material-ui/core/styles';
 import {
     Toolbar,
@@ -12,6 +12,15 @@ import Divider from '@material-ui/core/Divider';
 
 import styles from './styles';
 
+import NavigationMenu from "../Administration/NavigationMenu";
+
+const hasRole = (user, role) => {
+    if (user && Array.isArray(user.roles)) {
+        return user.roles.filter((roleObj) => roleObj.role === role).length > 0;
+    }
+    return false;
+};
+
 class DefaultToolbar extends React.Component {
     state = {
         anchorEl: null,
@@ -24,6 +33,18 @@ class DefaultToolbar extends React.Component {
     handleClose = () => {
         this.setState({anchorEl: null});
     };
+
+    renderUserNavMenu = () => {
+        const {user} = this.props;
+        if (user && hasRole(user, 'administrator')){
+            return (
+                <Fragment>
+                    <NavigationMenu account={user} />
+                </Fragment>
+            )
+        }
+        return '';
+    }
 
     renderUserMenu() {
         const {user} = this.props;
@@ -87,6 +108,7 @@ class DefaultToolbar extends React.Component {
             <Toolbar>
                 {this.renderToolbarTitle()}
                 {this.props.children}
+                {this.renderUserNavMenu()}
                 {this.renderUserMenu()}
             </Toolbar>
         );

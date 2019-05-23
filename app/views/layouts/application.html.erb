@@ -15,7 +15,7 @@
 <% if current_account.nil? %>
   <script type="text/javascript">const current_account = undefined;</script>
 <% else %>
-  <script type="text/javascript">const current_account = Object.assign({}, <%= current_account.to_json.html_safe %>);</script>
+  <script type="text/javascript">const current_account = Object.assign({}, <%= ActiveModelSerializers::SerializableResource.new(current_account, {}).to_json.html_safe %>);</script>
 <% end %>
 <%= yield %>
 </body>

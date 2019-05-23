@@ -11,6 +11,10 @@ Rails.application.routes.draw do
         scope(path: 'water-balance', module: :water_balance, as: :water_balance) do
           resources(:campuses, except: [:new, :edit])
         end
+        scope(path: 'administration', module: :admin, as: :administration) do
+          resources(:accounts, except: [:new, :edit])
+          resources(:campuses, except: [:new, :edit])
+        end
       end
     end
   end
