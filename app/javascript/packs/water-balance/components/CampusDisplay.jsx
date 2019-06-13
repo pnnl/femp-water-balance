@@ -10,6 +10,7 @@ import CampusForm from './Common/CampusForm';
 
 import VehicleWashForm from "./Common/VehicleWashForm";
 import WaterSupplyForm from "./Common/WaterSupplyForm";
+import KitchensForm from "./Common/KitchensForm";
 
 import {Engine} from 'json-rules-engine';
 
@@ -170,7 +171,8 @@ class CampusDisplay extends React.Component {
                 tabName: 'Kitchens',
                 tabContent: (
                     <TabContainer>
-                        [PH] => Kitchens
+                        <KitchensForm campus={campus} events={events}
+                            applyRules={this.executeRules} {...this.props} />
                     </TabContainer>
                 ),
             },
