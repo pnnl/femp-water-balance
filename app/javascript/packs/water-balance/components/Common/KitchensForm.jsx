@@ -27,13 +27,18 @@ const FormRulesListener = ({handleFormChange}) => (
     />
 );
 
+const toNumber = (value) => {
+    if (value === undefined || value === null) {
+        return -1;
+    }
+    return parseInt(value.toString().replace(/,/g, ''));
+};
+
 class KitchensForm extends React.Component {
     renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
-        const facilityType = selectn(`${basePath}.facility_type`)(values);
-
          return (<Fragment>
-            {isMetered && facilityType === 'stand_alone' && (
+            {isMetered && (
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -46,15 +51,202 @@ class KitchensForm extends React.Component {
                     </Field>
                 </Grid>
             )}
+            {isMetered === false && (
+                this.averageMeals(basePath, values)
+            )}
         </Fragment>);
+    }
+
+    kitchenComponents = (basePath, values) => {
+         return(<Fragment>
+            <Grid item xs={12}>
+                <Field
+                    formControlProps={{fullWidth: true}}
+                    name={`${basePath}.dishwasher_type`}
+                    component={Select}
+                    type="text"
+                    label="Type of dishwasher"
+                >
+                    <MenuItem value="standard_continuous">
+                        Standard Continuous
+                    </MenuItem>
+                    <MenuItem value="standard_batch">
+                        Standard Batch
+                    </MenuItem>
+                    <MenuItem value="energy_star_labelled">
+                        Energy Star Labelled
+                    </MenuItem>
+                    <MenuItem value="no_dishwasher">
+                        No Dishwasher
+                    </MenuItem>
+                </Field>
+            </Grid>
+            <Grid item xs={12}>
+                <Field
+                    formControlProps={{fullWidth: true}}
+                    name={`${basePath}.spray_valve`}
+                    component={Select}
+                    type="text"
+                    label="Type of pre-rinse spray valve"
+                >
+                    <MenuItem value="standard_flow">
+                        Standard Flow
+                    </MenuItem>
+                    <MenuItem value="watersense_labelled">
+                        WaterSense Labelled
+                    </MenuItem>
+                    <MenuItem value="no_valve">
+                        No Pre-Rinse Spray Valves
+                    </MenuItem>
+                </Field>
+            </Grid>
+            <Grid item xs={12}>
+                <Field
+                    formControlProps={{fullWidth: true}}
+                    name={`${basePath}.flow_rate`}
+                    component={MaterialInput}
+                    type="text"
+                    label="Typical flow rate of the handwash faucets"
+                    endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
+                    >
+                </Field>
+            </Grid>
+            <FormControlLabel
+                label="Faucets for prep sinks or for washing pots and pans present"
+                control={
+                <Field
+                    name={`${basePath}.prep_sink`}
+                    component={Checkbox}
+                    indeterminate= {selectn(`${basePath}.prep_sink`)(values) === undefined}
+                    type="checkbox"
+                />
+                }
+            />
+            <Grid item xs={12}>
+                <Field
+                    formControlProps={{fullWidth: true}}
+                    name={`${basePath}.combination_oven`}
+                    component={Select}
+                    type="text"
+                    label="Type of combination oven or steam cooker"
+                >
+                    <MenuItem value="standard_boiler_based">
+                        Standard Boiler-Based
+                    </MenuItem>
+                    <MenuItem value="standard_connectionless">
+                        Standard Connectionless
+                    </MenuItem>
+                    <MenuItem value="energy_star_labelled">
+                        Energy Star Labelled
+                    </MenuItem>
+                    <MenuItem value="no_combination">
+                        No Combination Ovens or Steam Cookers
+                    </MenuItem>
+                </Field>
+            </Grid>
+             <Grid item xs={12}>
+                <Field
+                    formControlProps={{fullWidth: true}}
+                    name={`${basePath}.ice_maker`}
+                    component={Select}
+                    type="text"
+                    label="Type of ice maker"
+                >
+                    <MenuItem value="standard_water_cooled">
+                        Standard Water-Cooled
+                    </MenuItem>
+                    <MenuItem value="standard_air_cooled">
+                        Standard Air-Cooled
+                    </MenuItem>
+                    <MenuItem value="energy_star_labelled">
+                        Energy Star Labelled
+                    </MenuItem>
+                    <MenuItem value="no_ice_maker">
+                        No Ice Maker
+                    </MenuItem>
+                </Field>
+            </Grid>
+            <FormControlLabel
+                label="Enter another commercial kitchen?"
+                control={
+                <Field
+                    name={`${basePath}.another_kitchen`}
+                    component={Checkbox}
+                    indeterminate= {selectn(`${basePath}.another_kitchen`)(values) === undefined}
+                    type="checkbox"
+                />
+                }
+            /> 
+           
+        </Fragment>)
+    }
+
+    averageMeals = (basePath, values) => {
+        const weekdayMeals = selectn(`${basePath}.weekday_meals`)(values);
+        const weekendMeals = selectn(`${basePath}.weekend_meals`)(values);
+        return(<Fragment>
+            <Grid item xs={12}>
+                <Field
+                    formControlProps={{fullWidth: true}}
+                    name={`${basePath}.weekday_meals`}
+                    component={MaterialInput}
+                    type="text"
+                    label="Average number of meals prepared per weekday (M-F)"
+                    >
+                </Field>
+            </Grid>
+            {weekdayMeals != undefined && weekdayMeals != 0 && (
+                <Grid item xs={12}>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        name={`${basePath}.operating_weeks`}
+                        component={MaterialInput}
+                        type="text"
+                        label="Number of weeks (M-F) commercial kitchen is operating per year"
+                        >
+                    </Field>
+                </Grid>
+            )}
+
+            {toNumber(weekdayMeals) === 0 && (
+                <Grid item xs={12}>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        name={`${basePath}.weekend_meals`}
+                        component={MaterialInput}
+                        type="text"
+                        label="Average number of meals prepared per weekend day"
+                        >
+                    </Field>
+                </Grid>
+            )}
+
+            {toNumber(weekendMeals) != 0 && weekendMeals != undefined && (
+                <Grid item xs={12}>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        name={`${basePath}.operating_weekends`}
+                        component={MaterialInput}
+                        type="text"
+                        label="Number of weekends the commercial kitchen operates per year"
+                        >
+                    </Field>
+                </Grid>
+            )}
+
+            {toNumber(weekendMeals) == 0 && weekendMeals != undefined && (
+                this.kitchenComponents(basePath, values)
+            )}
+
+        </Fragment>)
     }
 
     renderFacilityTypeResponse = (values, basePath) => {
        const facilityType = selectn(`${basePath}.facility_type`)(values);
         return (<Fragment>
-                {facilityType === 'stand_alone' && (
-                     <Grid item xs={12}>
-                        <FormControlLabel
+            {facilityType === 'stand_alone' && (
+                    <Grid item xs={12}>
+                    <FormControlLabel
                         label="Is the water use metered?"
                         control={
                         <Field
@@ -63,26 +255,15 @@ class KitchensForm extends React.Component {
                             indeterminate= {selectn(`${basePath}.is_metered`)(values) === undefined}
                             type="checkbox"
                         />
-                    }
+                        }
                     />
-                    </Grid>
-                )}
-
-            {this.renderMetered(values, basePath)}
-
-            {facilityType === 'incorporated' && (
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        name={`${basePath}.average_meals`}
-                        component={MaterialInput}
-                        type="text"
-                        label="Average number of meals prepared per weekday (M-F)"
-                        >
-                    </Field>
+                    {this.renderMetered(values, basePath)}
                 </Grid>
             )}
-           
+
+            {facilityType === 'incorporated' && (
+                this.averageMeals(basePath, values)
+            )}
         </Fragment>);
     };
 
@@ -96,12 +277,11 @@ class KitchensForm extends React.Component {
     };
 
     renderFacilityTypes = (values) => {
-         const baseObject = values.kitchen_facility;
 
         if (values.kitchen_facilities === true) {
             return( <Fragment>
                     <Grid item xs={12}>
-                        <ExpansionPanel expanded = {true}>
+                        <ExpansionPanel expanded = {selectn(`kitchen_facility.facility_name`)(values) !== undefined}>
                             <ExpansionPanelSummary>
                                 <Field
                                     fullWidth
@@ -160,6 +340,7 @@ class KitchensForm extends React.Component {
                             </Grid>
                             {this.renderFacilityTypes(values)}
                         </Grid>
+                        <pre>{JSON.stringify(values, 0, 2)}</pre>
                     </form>
                 )}
            />
