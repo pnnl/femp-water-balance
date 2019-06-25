@@ -5,7 +5,8 @@ import {
     IconButton,
     Typography,
     Menu,
-    MenuItem
+    MenuItem,
+    Avatar
 } from '@material-ui/core';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Divider from '@material-ui/core/Divider';
@@ -59,7 +60,12 @@ class DefaultToolbar extends React.Component {
                         onClick={this.handleMenu}
                         color="inherit"
                     >
-                        <AccountCircle/>
+                        {user.oauth_meta.image && (
+                            <Avatar alt={user.oauth_meta.name} src={user.oauth_meta.image} />
+                        )}
+                        {!user.oauth_meta.image && (
+                            <AccountCircle/>
+                        )}
                     </IconButton>
                     <Menu
                         id="menu-appbar"
@@ -75,7 +81,7 @@ class DefaultToolbar extends React.Component {
                         open={open}
                         onClose={this.handleClose}
                     >
-                        <MenuItem dense={true} disabled={true}>{user['name'] || user['email']}</MenuItem>
+                        <MenuItem dense={true} disabled={true}>{user.oauth_meta.name || user.email}</MenuItem>
                         <Divider/>
                         <MenuItem dense={true} button component="a" href="/accounts/sign_out">
                             Sign Out

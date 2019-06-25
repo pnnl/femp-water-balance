@@ -59,5 +59,5 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  config.action_mailer.default_url_options = { host: '10.10.10.20', protocol: :http }
+  config.action_mailer.default_url_options = { host: 'water-balance-dev.labworks.org', protocol: :http }
 end
