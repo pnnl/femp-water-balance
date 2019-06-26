@@ -1,21 +1,4 @@
 <%= javascript_pack_tag 'water-balance/index' %>
 <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
   <div id="water-balance-react"></div>
-  <div>
-    <%= link_to "Sign in with Google", account_google_oauth2_omniauth_authorize_path %>
-    <% if resource.errors.any? %>
-      <div id="error_explanation">
-        <h2>
-          <%= I18n.t("errors.messages.not_saved",
-                     count: resource.errors.count,
-                     resource: resource.class.model_name.human.downcase) %>
-        </h2>
-        <ul>
-          <% resource.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-  </div>
 <% end %>
