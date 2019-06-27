@@ -9,7 +9,6 @@ import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
 import selectn from 'selectn';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
-import { OnChange } from 'react-final-form-listeners'
 
 import formValidation from './kitchensForm.validation';
 
@@ -56,7 +55,11 @@ const toNumber = (value) => {
 
 class KitchensForm extends React.Component {
 
-    renderMetered = (values, basePath, push, pop) => {
+    state = { 
+        anotherKitchen:false 
+    }
+
+    renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
          return (<Fragment>
             {isMetered && (
@@ -64,7 +67,7 @@ class KitchensForm extends React.Component {
                     <Field
                         formControlProps={{fullWidth: true}}
                         required
-                        name={`${basePath}.total_annual`}
+                        name={`${basePath}.annual_water_use`}
                         component={MaterialInput}
                         type="text"
                         mask={DEFAULT_NUMBER_MASK}
@@ -74,42 +77,10 @@ class KitchensForm extends React.Component {
                     </Field>
                 </Grid>
             )}
-            {isMetered === false && (
-                this.averageMeals(basePath, values)
-            )}
-            {selectn(`${basePath}.total_annual`)(values) != undefined && isMetered && (
-                this.anotherKitchen(basePath, values, push, pop)
-            )}
+            {isMetered === false 
+                && (this.averageMeals(basePath, values))
+            }
         </Fragment>);
-    }
-
-    anotherKitchen = (basePath, values, push, pop) => {
-        return(<Fragment>
-            <Grid item xs={12}>
-                <FormControlLabel
-                    label="Enter another commercial kitchen?"
-                    control={
-                    <Field
-                        name={`${basePath}.another_kitchen`}
-                        component={Checkbox}
-                        indeterminate= {selectn(`${basePath}.another_kitchen`)(values) === undefined}
-                        type="checkbox"
-                    />
-                    }
-                /> 
-            </Grid>
-            <OnChange name={`${basePath}.another_kitchen`}>
-                {(value, previous) => {
-                    if(value == true) {
-                        values.facilities.push(null);
-                        this.forceUpdate()
-                    }
-                    if(value == false) {
-                        values.facilities.pop(null);
-                    }
-                }}
-          </OnChange>
-          </Fragment>)
     }
 
     kitchenComponents = (basePath, values) => {
@@ -223,7 +194,6 @@ class KitchensForm extends React.Component {
                     </MenuItem>
                 </Field>
             </Grid>
-            {this.anotherKitchen(basePath, values)}
         </Fragment>)
     }
 
@@ -258,20 +228,18 @@ class KitchensForm extends React.Component {
                 </Grid>
             )}
 
-            {toNumber(weekdayMeals) === 0 && (
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.weekend_meals`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_NUMBER_MASK}
-                        label="Average number of meals prepared per weekend day"
-                        >
-                    </Field>
-                </Grid>
-            )}
+            <Grid item xs={12}>
+                <Field
+                    formControlProps={{fullWidth: true}}
+                    required
+                    name={`${basePath}.weekend_meals`}
+                    component={MaterialInput}
+                    type="text"
+                    mask={DEFAULT_NUMBER_MASK}
+                    label="Average number of meals prepared per weekend day"
+                    >
+                </Field>
+            </Grid>
 
             {toNumber(weekendMeals) != 0 && weekendMeals != undefined && (
                 <Grid item xs={12}>
@@ -287,16 +255,12 @@ class KitchensForm extends React.Component {
                     </Field>
                 </Grid>
             )}
-
-            {toNumber(weekendMeals) == 0 && weekendMeals != undefined && (
-                this.kitchenComponents(basePath, values)
-            )}
-
+            {this.kitchenComponents(basePath, values)}
         </Fragment>)
     }
 
-    renderFacilityTypeResponse = (values, basePath, push, pop) => {
-       const facilityType = selectn(`${basePath}.facility_type`)(values);
+    renderFacilityTypeResponse = (values, basePath) => {
+       const facilityType = selectn(`${basePath}.type`)(values);
         return (<Fragment>
             {facilityType === 'stand_alone' && (
                     <Grid item xs={12}>
@@ -311,7 +275,7 @@ class KitchensForm extends React.Component {
                         />
                         }
                     />
-                    {this.renderMetered(values, basePath, push, pop)}
+                    {this.renderMetered(values, basePath)}
                 </Grid>
             )}
 
@@ -330,57 +294,66 @@ class KitchensForm extends React.Component {
         }
     };
 
-    renderFacilityTypes = (values, push, pop) => {
-        if (values.kitchen_facilities === true) {
-            return( <Fragment>
-                <FieldArray name="facilities">
-                    {({ fields }) =>
-                    fields.map((name, index) => (
-                        <Grid item xs={12}>
-                            <ExpansionPanel expanded = {selectn(`${name}.kitchen_facility.facility_name`)(values) !== undefined}>
-                                <ExpansionPanelSummary>
-                                    <Field
-                                        fullWidth
-                                        required
-                                        name={`${name}.kitchen_facility.facility_name`}
-                                        component={MaterialInput}
-                                        type="text"
-                                        label="Facility name"/>
-                                </ExpansionPanelSummary>
-                                <ExpansionPanelDetails>
-                                <Grid container alignItems="flex-start" spacing={16}>
-                                    <Grid item xs={12}>
-                                        <Field
-                                            formControlProps={{fullWidth: true}}
-                                            required
-                                            name={`${name}.kitchen_facility.facility_type`}
-                                            component={Select}
-                                            label="Is the commercial kitchen a stand-alone facility or is it incorporated into another building?">
-                                            <MenuItem value="stand_alone">
-                                                Stand Alone
-                                            </MenuItem>
-                                            <MenuItem value="incorporated">
-                                                Incorporated in Another Building
-                                            </MenuItem>
-                                        </Field>
-                                    </Grid>
-                                    {selectn(`${name}.kitchen_facility.facility_type`)(values) && this.renderFacilityTypeResponse(values, `${name}.kitchen_facility`, push, pop)}
-                                    </Grid>
-                                </ExpansionPanelDetails>
-                            </ExpansionPanel>
-                        </Grid>
-                    ))
-                    }
-                </FieldArray>
-                </Fragment>);
+    renderFacilityTypes = (values) => {
+        if(!values.has_kitchens) {
+            return null;
         }
+        return( <Fragment>
+            <FieldArray name="kitchen_facilities">
+                {({ fields }) =>
+                fields.map((name, index) => (
+                    <Grid item xs={12} key={index}>
+                        <ExpansionPanel expanded = {selectn(`${name}.name`)(values) !== undefined}>
+                            <ExpansionPanelSummary>
+                                <Field
+                                    fullWidth
+                                    required
+                                    name={`${name}.name`}
+                                    component={MaterialInput}
+                                    type="text"
+                                    label="Facility name"/>
+                                    <span
+                                        onClick={() => fields.remove(index)}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        ❌
+                                    </span>
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                            <Grid container alignItems="flex-start" spacing={16}>
+                                <Grid item xs={12}>
+                                    <Field
+                                        formControlProps={{fullWidth: true}}
+                                        required
+                                        name={`${name}.type`}
+                                        component={Select}
+                                        label="Is the commercial kitchen a stand-alone facility or is it incorporated into another building?">
+                                        <MenuItem value="stand_alone">
+                                            Stand Alone
+                                        </MenuItem>
+                                        <MenuItem value="incorporated">
+                                            Incorporated in Another Building
+                                        </MenuItem>
+                                    </Field>
+                                </Grid>
+                                {selectn(`${name}.type`)(values) && this.renderFacilityTypeResponse(values, `${name}`)}
+                                </Grid>
+                            </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                    </Grid>
+                    
+                ))
+                }
+            </FieldArray>
+            </Fragment>);
     }
 
     render() {
-        const {campus, applyRules} = this.props;
-        if (!('facilities' in campus)) {
-            campus.facilities = [];
-            campus.facilities.push(null);
+        const { campus, applyRules } = this.props;
+       
+        if (!('kitchen_facilities' in campus)) {
+            campus.kitchen_facilities = [];
+            campus.kitchen_facilities.push(null);
         }
 
         return (
@@ -401,10 +374,9 @@ class KitchensForm extends React.Component {
                             <Grid item xs={12}>
                                 <FormControlLabel
                                     label="My campus has commercial kitchen facilities?"
-                                    name="test"
                                     control={
                                         <Field
-                                            name="kitchen_facilities"
+                                            name="has_kitchens"
                                             component={Checkbox}
                                             indeterminate={values.kitchen_facilities === undefined}
                                             type="checkbox"
@@ -412,10 +384,20 @@ class KitchensForm extends React.Component {
                                     }
                                 />
                             </Grid>
-                            {this.renderFacilityTypes(values, push, pop)}
+                            {this.renderFacilityTypes(values)}
+                            <Grid item xs={12}>
+                                {(values.has_kitchens === false || values.has_kitchens === undefined) ? null : (
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => push('kitchen_facilities', undefined)}>
+                                        Enter another commercial kitchen
+                                    </Button>
+                                )}
+                                
+                            </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
-                        <pre>{JSON.stringify(values, 0, 2)}</pre>
                     </form>
                 )}
            />

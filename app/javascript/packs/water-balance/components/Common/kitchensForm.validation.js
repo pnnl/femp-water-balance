@@ -1,20 +1,21 @@
-import selectn from 'selectn';
 
-const resolve = (path, values) => selectn(path)(values);
 
-const isPositiveNumeric = (path, values, required = true) => {
-    const resolvedValue = resolve(path, values);
-    if (required === true && resolvedValue) {
-        const numeric = parseInt(resolvedValue.replace(/,/g,''));
+const isPositiveNumeric = (value, required = true) => {
+    if (required === true && value) {
+        const numeric = parseInt(value.replace(/,/g,''));
         return !(isNaN(numeric) || numeric < 0);
     }
     return false;
 };
 
-const isWithinNumericDecimalRange = (path, values, min, max, inclusive = true, required = true) => {
-    const resolvedValue = resolve(path, values);
-    if (required === true && resolvedValue){
-        const numeric = parseFloat(resolvedValue.replace(/,/g,''));
+const isWithinNumericRange = (value, min, max, decimal = false, inclusive = true, required = true) => {
+    if (required === true && value) {
+        let numeric = null;
+        if(decimal) {
+            numeric = parseFloat(value.replace(/,/g,''));
+        } else {
+            numeric = parseInt(value.replace(/,/g,''));
+        }
         if (isNaN(numeric)) {
             return false;
         } else if (inclusive === true) {
@@ -25,41 +26,42 @@ const isWithinNumericDecimalRange = (path, values, min, max, inclusive = true, r
     return false;
 };
 
-const isWithinNumericRange = (path, values, min, max, inclusive = true, required = true) => {
-    const resolvedValue = resolve(path, values);
-    if (required === true && resolvedValue){
-        const numeric = parseInt(resolvedValue.replace(/,/g,''));
-        if (isNaN(numeric)) {
-            return false;
-        } else if (inclusive === true) {
-            return (numeric >= min && numeric <= max);
-        }
-        return (numeric > min && numeric < max);
-    }
-    return false;
-};
-
-
-const validatekitchenFacility = (values, basePath) => {
+const validatekitchenFacility = (values) => {
+    
     const errors = {};
+    let valuePath = values.annual_water_use;
+    if (values.is_metered) {
+        if (!isPositiveNumeric(valuePath)) {
+            errors['annual_water_use'] = 'Annual water usage is required if this facility is metered.';
+        }
+    }
+    valuePath = values.operating_weeks;
+    if (!isWithinNumericRange(valuePath, 1,52)) {
+        errors['operating_weeks'] = 'The number of weeks per year vehicles are washed must be between 1 and 52.';
+    }
+    valuePath = values.operating_weekends;
+    if (!isWithinNumericRange(valuePath, 1,52)) {
+        errors['operating_weekends'] = 'The number of weekends per year vehicles are washed must be between 1 and 52.';
+    }
+    valuePath = values.flow_rate;
+    if (!isWithinNumericRange(valuePath, 0.5, 4, true)) {
+        errors['flow_rate'] = 'The flow rate must be between 0.5 and 4.0 gpm';
+    }
+    var week_meals = values.weekday_meals;
+    var weekend_meals = values.weekend_meals;
+    if(week_meals == 0 && weekend_meals == 0) {
+        errors['weekday_meals'] = 'Number of meals prepared cannot be 0 for both weekdays and weekends.';
+        errors['weekend_meals'] = 'Number of meals prepared cannot be 0 for both weekdays and weekends.';
+    }
 
-        let valuePath = `${basePath}.total_annual`;
-        if (!isPositiveNumeric(valuePath, values)) {
-            errors['total_annual'] = 'Annual water usage is required if this facility is metered.';
-        }
-        valuePath = `${basePath}.operating_weeks`;
-        if (!isWithinNumericRange(valuePath, values, 1,52)) {
-            errors['operating_weeks'] = 'The number of weeks per year vehicles are washed must be between 1 and 52.';
-        }
-        valuePath = `${basePath}.operating_weekends`;
-        if (!isWithinNumericRange(valuePath, values, 1,52)) {
-            errors['operating_weekends'] = 'The number of weeks per year vehicles are washed must be between 1 and 52.';
-        }
-        valuePath = `${basePath}.flow_rate`;
-        if (!isWithinNumericDecimalRange(valuePath, values, 1,52)) {
-            errors['flow_rate'] = 'The flow rate must be between 0.5 and 4.0 gpm';
-        }
-        
+    var weeks_operating = values.weekday_meals;
+    var weekends_operating = values.weekend_meals;
+    if(weeks_operating == 0 && weekends_operating == 0) {
+        errors['operating_weeks'] = 'Number of operating weeks and weekends cannot both be zero.';
+        errors['operating_weekends'] = 'Number of operating weeks and weekends cannot both be zero.';
+    }
+
+
     return Object.keys(errors).length === 0 ? undefined : errors;
 }
 
@@ -68,17 +70,19 @@ const validate = values => {
     if (!values.kitchen_facilities) {
         errors.kitchen_facilities = 'An answer about vehicle wash facilities is required.';
     }
-    const kitchenFacility = {};
-    const basePath = 'kitchen_facility';
-    errors[basePath] = kitchenFacility;
-
-    
-    let sectionErrors = validatekitchenFacility(values, basePath);
-    if (sectionErrors) {
-        Object.assign(kitchenFacility, sectionErrors);
+    const facilitiesErrors = [];
+    values.kitchen_facilities.map((facility, index) => {
+        const basePath = `kitchen_facilities[${index}]`;
+        if(facility) {
+            let sectionErrors = validatekitchenFacility(facility, basePath);
+            if (sectionErrors) {
+                facilitiesErrors[index] = sectionErrors;
+            }
+        }
+    })
+    if(facilitiesErrors.length > 0) {
+        errors['kitchen_facilities'] = facilitiesErrors;
     }
-
     return errors;
 };
-
 export default validate;
