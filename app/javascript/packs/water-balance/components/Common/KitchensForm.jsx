@@ -55,10 +55,6 @@ const toNumber = (value) => {
 
 class KitchensForm extends React.Component {
 
-    state = { 
-        anotherKitchen:false 
-    }
-
     renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
          return (<Fragment>
