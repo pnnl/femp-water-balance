@@ -9,6 +9,8 @@ import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
 import selectn from 'selectn';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import formValidation from './kitchensForm.validation';
 
@@ -308,12 +310,12 @@ class KitchensForm extends React.Component {
                                     component={MaterialInput}
                                     type="text"
                                     label="Facility name"/>
-                                    <span
+                                    <IconButton 
+                                        style={{padding: 'inherit', height:'40px', width:'40px'}}
                                         onClick={() => fields.remove(index)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        ❌
-                                    </span>
+                                        aria-label="Delete">
+                                        <DeleteIcon />
+                                    </IconButton>
                             </ExpansionPanelSummary>
                             <ExpansionPanelDetails>
                             <Grid container alignItems="flex-start" spacing={16}>
@@ -387,7 +389,7 @@ class KitchensForm extends React.Component {
                                         variant="contained"
                                         color="primary"
                                         onClick={() => push('kitchen_facilities', undefined)}>
-                                        Enter another commercial kitchen
+                                        Add another kitchen
                                     </Button>
                                 )}
                                 
