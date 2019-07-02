@@ -376,7 +376,7 @@ class KitchensForm extends React.Component {
                                         <Field
                                             name="has_kitchens"
                                             component={Checkbox}
-                                            indeterminate={values.kitchen_facilities === undefined}
+                                            indeterminate={values.has_kitchens === undefined}
                                             type="checkbox"
                                         />
                                     }

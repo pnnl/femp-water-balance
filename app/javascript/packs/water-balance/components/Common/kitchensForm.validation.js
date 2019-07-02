@@ -36,11 +36,11 @@ const validatekitchenFacility = (values) => {
         }
     }
     valuePath = values.operating_weeks;
-    if (!isWithinNumericRange(valuePath, 1,52)) {
+    if (!isWithinNumericRange(valuePath, 1, 52)) {
         errors['operating_weeks'] = 'The number of weeks per year vehicles are washed must be between 1 and 52.';
     }
     valuePath = values.operating_weekends;
-    if (!isWithinNumericRange(valuePath, 1,52)) {
+    if (!isWithinNumericRange(valuePath, 1, 52)) {
         errors['operating_weekends'] = 'The number of weekends per year vehicles are washed must be between 1 and 52.';
     }
     valuePath = values.flow_rate;
@@ -53,15 +53,6 @@ const validatekitchenFacility = (values) => {
         errors['weekday_meals'] = 'Number of meals prepared cannot be 0 for both weekdays and weekends.';
         errors['weekend_meals'] = 'Number of meals prepared cannot be 0 for both weekdays and weekends.';
     }
-
-    var weeks_operating = values.weekday_meals;
-    var weekends_operating = values.weekend_meals;
-    if(weeks_operating == 0 && weekends_operating == 0) {
-        errors['operating_weeks'] = 'Number of operating weeks and weekends cannot both be zero.';
-        errors['operating_weekends'] = 'Number of operating weeks and weekends cannot both be zero.';
-    }
-
-
     return Object.keys(errors).length === 0 ? undefined : errors;
 }
 
