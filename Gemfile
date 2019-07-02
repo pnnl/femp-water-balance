@@ -18,6 +18,8 @@ gem('jbuilder', '~> 2.5')
 gem('bootsnap', '>= 1.1.0', require: false)
 gem('devise')
 gem('devise-jwt')
+gem('omniauth-google-oauth2')
+gem('google-api-client')
 
 group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
