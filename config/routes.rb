@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  devise_for(:accounts)
+  devise_for(:accounts, controllers: { omniauth_callbacks: 'accounts/omniauth_callbacks' })
   root(to: 'water_balance/campuses#index')
   # routes that require authorization
   scope(path: 'secure') do
