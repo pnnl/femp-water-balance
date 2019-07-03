@@ -47,12 +47,21 @@ const validatekitchenFacility = (values) => {
     if (!isWithinNumericRange(valuePath, 0.5, 4, true)) {
         errors['flow_rate'] = 'The flow rate must be between 0.5 and 4.0 gpm';
     }
+
     var week_meals = values.weekday_meals;
     var weekend_meals = values.weekend_meals;
-    if(week_meals == 0 && weekend_meals == 0) {
+    if (!isPositiveNumeric(week_meals)) {
+        errors['weekday_meals'] = 'A positive number for the average number of meals prepared per week is required.';
+    } else if (week_meals == 0 && weekend_meals == 0) {
         errors['weekday_meals'] = 'Number of meals prepared cannot be 0 for both weekdays and weekends.';
+    }
+
+    if (!isPositiveNumeric(weekend_meals)) {
+        errors['weekend_meals'] = 'A positive number for the average number of meals prepared per weekend is required';
+    } else if (week_meals == 0 && weekend_meals == 0) {
         errors['weekend_meals'] = 'Number of meals prepared cannot be 0 for both weekdays and weekends.';
     }
+
     return Object.keys(errors).length === 0 ? undefined : errors;
 }
 
