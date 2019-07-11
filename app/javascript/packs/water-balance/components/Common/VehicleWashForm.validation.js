@@ -27,7 +27,7 @@ const isWithinNumericRange = (path, values, min, max, inclusive = true, required
 
 const validateAutomatedFacility = (values, basePath) => {
     const errors = {};
-    if (resolve(`${basePath}.metered`, values) === true) {
+    if (resolve(`${basePath}.metered`, values) === "yes") {
         let valuePath = `${basePath}.water_usage`;
         if (!isPositiveNumeric(valuePath, values)) {
             errors['water_usage'] = 'Annual water usage is required if this facility is metered.';
@@ -39,11 +39,11 @@ const validateAutomatedFacility = (values, basePath) => {
         }
         valuePath = `${basePath}.vpw`;
         if (!isPositiveNumeric(valuePath, values)) {
-            errors['vpw'] = 'A positive number for the average number of vehicles washed per week is required.';
+            errors['vpw'] = 'The average number of vehicles washed per week.';
         }
         valuePath = `${basePath}.gpv`;
         if (!isPositiveNumeric(valuePath, values)) {
-            errors['gpv'] = 'A positive number for the estimated number of gallons per vehicle is required.';
+            errors['gpv'] = 'The estimated number of gallons per vehicle.';
         }
         valuePath = `${basePath}.recycled`;
         if (!isWithinNumericRange(valuePath, values, 0,100)) {

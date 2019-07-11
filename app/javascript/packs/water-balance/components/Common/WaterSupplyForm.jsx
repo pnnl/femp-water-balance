@@ -1,4 +1,5 @@
 import React, {Fragment} from 'react';
+import Typography from '@material-ui/core/Typography';
 import {Form, Field, FormSpy} from 'react-final-form';
 import {Checkbox} from 'final-form-material-ui';
 import {
@@ -164,7 +165,10 @@ class WaterSupplyForm extends React.Component {
 
     render() {
         const {campus, applyRules} = this.props;
-        return (
+        return (<Fragment>
+            <Typography variant="h5" gutterBottom>Water Supply</Typography>
+            <Typography variant="body2" gutterBottom>Enter the following information for potable water use (supply) for the campus.</Typography>
+            <Typography variant="body2" gutterBottom>Optional - Enter the following information for wastewater discharge for the campus if it is available.</Typography>
             <Form
                 onSubmit={this.onSubmit}
                 decorators={[calculator]}
@@ -221,7 +225,7 @@ class WaterSupplyForm extends React.Component {
                     </form>
                 )}
             />
-        );
+        </Fragment>);
     }
 }
 

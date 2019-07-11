@@ -37,11 +37,11 @@ const validatekitchenFacility = (values) => {
     }
     valuePath = values.operating_weeks;
     if (!isWithinNumericRange(valuePath, 1, 52)) {
-        errors['operating_weeks'] = 'The number of weeks per year vehicles are washed must be between 1 and 52.';
+        errors['operating_weeks'] = 'The number of weeks per year commercial kitchens are operated must be between 1 and 52.';
     }
     valuePath = values.operating_weekends;
     if (!isWithinNumericRange(valuePath, 1, 52)) {
-        errors['operating_weekends'] = 'The number of weekends per year vehicles are washed must be between 1 and 52.';
+        errors['operating_weekends'] = 'The number of weekends per year commercial kitchens are operated must be between 1 and 52.';
     }
     valuePath = values.flow_rate;
     if (!isWithinNumericRange(valuePath, 0.5, 4, true)) {
@@ -51,13 +51,13 @@ const validatekitchenFacility = (values) => {
     var week_meals = values.weekday_meals;
     var weekend_meals = values.weekend_meals;
     if (!isPositiveNumeric(week_meals)) {
-        errors['weekday_meals'] = 'A positive number for the average number of meals prepared per week is required.';
+        errors['weekday_meals'] = 'The average number of meals prepared per week.';
     } else if (week_meals == 0 && weekend_meals == 0) {
         errors['weekday_meals'] = 'Number of meals prepared cannot be 0 for both weekdays and weekends.';
     }
 
     if (!isPositiveNumeric(weekend_meals)) {
-        errors['weekend_meals'] = 'A positive number for the average number of meals prepared per weekend is required';
+        errors['weekend_meals'] = 'The average number of meals prepared per weekend.';
     } else if (week_meals == 0 && weekend_meals == 0) {
         errors['weekend_meals'] = 'Number of meals prepared cannot be 0 for both weekdays and weekends.';
     }

@@ -1,4 +1,5 @@
 import React, {Fragment} from 'react';
+import Typography from '@material-ui/core/Typography';
 import {Form, Field, FormSpy} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import {
@@ -130,7 +131,7 @@ class VehicleWashForm extends React.Component {
         return (
             <Fragment>
                 {this.renderWaterMeteredControl(basePath,values, true)}
-                {isMetered === true && (
+                {isMetered === "yes" && (
                     <Grid item xs={12}>
                         <Field
                             fullWidth
@@ -144,7 +145,7 @@ class VehicleWashForm extends React.Component {
                         />
                     </Grid>
                 )}
-                {isMetered === false && (
+                {isMetered === "no" && (
                     <Fragment>
                         <Grid item xs={12}>
                             <Field
@@ -202,17 +203,20 @@ class VehicleWashForm extends React.Component {
 
     renderWaterMeteredControl = (basePath, values, indeterminate = false) => (
         <Grid item xs={12}>
-            <FormControlLabel
-                label="Is the water use metered at these facilities?"
-                control={
-                    <Field
-                        name={`${basePath}.metered`}
-                        component={Checkbox}
-                        indeterminate={indeterminate ? selectn(`${basePath}.metered`)(values) === undefined : null}
-                        type="checkbox"
-                    />
-                }
-            />
+              <Field
+                    formControlProps={{fullWidth: true}}
+                    required
+                    name={`${basePath}.metered`}
+                    component={Select}
+                    label="Is the water use metered?"
+                >
+                    <MenuItem value="yes">
+                        Yes
+                    </MenuItem>
+                    <MenuItem value="no">
+                        No
+                    </MenuItem>
+                </Field>
         </Grid>
     );
 
@@ -293,7 +297,7 @@ class VehicleWashForm extends React.Component {
                                         name="vehicle_wash.wash_pads.type"
                                         component={Select}
                                         type="text"
-                                        label="Are most vehicles washed with an open hose or pressure washer?"
+                                        label="Are most vehicles using self-service wash pads washed with an open hose or with a pressure washer?"
                                     >
                                         <MenuItem value="open_hose">
                                             Open Hose
@@ -332,7 +336,9 @@ class VehicleWashForm extends React.Component {
 
     render() {
         const {campus, applyRules} = this.props;
-        return (
+        return (<Fragment>
+            <Typography variant="h5" gutterBottom>Vehicle Wash</Typography>
+            <Typography variant="body2" gutterBottom>Enter the following information only for vehicle wash facilities that use potable water on the campus</Typography>
             <Form
                 onSubmit={this.onSubmit}
                 initialValues={campus}
@@ -359,7 +365,7 @@ class VehicleWashForm extends React.Component {
                     </form>
                 )}
             />
-        );
+        </Fragment>);
     }
 }
 

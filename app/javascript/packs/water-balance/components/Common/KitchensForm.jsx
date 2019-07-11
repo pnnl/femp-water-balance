@@ -1,4 +1,5 @@
 import React, {Fragment} from 'react';
+import Typography from '@material-ui/core/Typography';
 import {Form, Field, FormSpy} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
@@ -60,7 +61,7 @@ class KitchensForm extends React.Component {
     renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
          return (<Fragment>
-            {isMetered && (
+            {isMetered === "yes" && (
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -75,7 +76,7 @@ class KitchensForm extends React.Component {
                     </Field>
                 </Grid>
             )}
-            {isMetered === false 
+            {isMetered === "no" 
                 && (this.averageMeals(basePath, values))
             }
         </Fragment>);
@@ -262,21 +263,23 @@ class KitchensForm extends React.Component {
         return (<Fragment>
             {facilityType === 'stand_alone' && (
                     <Grid item xs={12}>
-                    <FormControlLabel
-                        label="Is the water use metered?"
-                        control={
                         <Field
+                            formControlProps={{fullWidth: true}}
+                            required
                             name={`${basePath}.is_metered`}
-                            component={Checkbox}
-                            indeterminate= {selectn(`${basePath}.is_metered`)(values) === undefined}
-                            type="checkbox"
-                        />
-                        }
-                    />
-                    {this.renderMetered(values, basePath)}
-                </Grid>
+                            component={Select}
+                            label="Is the water use metered?"
+                        >
+                            <MenuItem value="yes">
+                                Yes
+                            </MenuItem>
+                            <MenuItem value="no">
+                                No
+                            </MenuItem>
+                        </Field>
+                        {this.renderMetered(values, basePath)}
+                    </Grid>
             )}
-
             {facilityType === 'incorporated' && (
                 this.averageMeals(basePath, values)
             )}
@@ -354,7 +357,9 @@ class KitchensForm extends React.Component {
             campus.kitchen_facilities.push(null);
         }
 
-        return (
+        return (<Fragment>
+            <Typography variant="h5" gutterBottom>Commercial Kitchen</Typography>
+            <Typography variant="body2" gutterBottom>Enter the following information for commercial kitchens on the campus</Typography>
             <Form
                 onSubmit={this.onSubmit}
                 initialValues={campus}
@@ -397,9 +402,9 @@ class KitchensForm extends React.Component {
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
-                )}
-           />
-        );
+                  )}
+            />
+        </Fragment>);
     }
 }
 
