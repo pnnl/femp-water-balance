@@ -142,7 +142,16 @@ class CampusDisplay extends React.Component {
     getCampusTabs = () => {
         const {campus, events} = this.state;
         return [
-            {
+               {
+                tabName: 'Water Supply',
+                tabContent: (
+                    <TabContainer>
+                        <WaterSupplyForm campus={campus} events={events}
+                                         applyRules={this.executeRules} {...this.props} />
+                    </TabContainer>
+                ),
+            },
+             {
                 tabName: 'Vehicle Wash',
                 tabContent: (
                     <TabContainer>
@@ -152,24 +161,40 @@ class CampusDisplay extends React.Component {
                 ),
             },
             {
-                tabName: 'Water Supply',
+                tabName: 'Other Processes',
                 tabContent: (
                     <TabContainer>
-                        <WaterSupplyForm campus={campus} events={events}
-                                         applyRules={this.executeRules} {...this.props} />
+                        <Typography variant="h5" gutterBottom>Other Processes</Typography>
+                        <Typography variant="body2" gutterBottom>
+                            Enter the following information only for other processes that use potable water on the campus
+                        </Typography>
                     </TabContainer>
                 ),
             },
             {
-                tabName: 'Waste Water',
+                tabName: 'Cooling Towers',
                 tabContent: (
                     <TabContainer>
-                        [PH] => Waste Waters
+                        <Typography variant="h5" gutterBottom>Cooling Towers</Typography>
+                        <Typography variant="body2" gutterBottom>
+                            Enter the following information only for cooling towers that use potable water on the campus
+                        </Typography>
                     </TabContainer>
                 ),
             },
             {
-                tabName: 'Kitchens',
+                tabName: 'Steam Boilers',
+                tabContent: (
+                    <TabContainer>
+                        <Typography variant="h5" gutterBottom>Steam Boilers</Typography>
+                        <Typography variant="body2" gutterBottom>
+                            Enter the following information only for steam boilers that use potable water on the campus
+                        </Typography>
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Commercial Kitchen',
                 tabContent: (
                     <TabContainer>
                         <KitchensForm campus={campus} events={events}
@@ -178,11 +203,22 @@ class CampusDisplay extends React.Component {
                 ),
             },
             {
-                tabName: 'Laundry',
+                tabName: 'Laundry (Washing Machines)',
                 tabContent: (
                     <TabContainer>
                         <LaundryForm campus={campus} events={events}
                             applyRules={this.executeRules} {...this.props} />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Irrigated Landscaped Areas',
+                tabContent: (
+                    <TabContainer>
+                        <Typography variant="h5" gutterBottom>Irrigated Landscaped Areas</Typography>
+                        <Typography variant="body2" gutterBottom>
+                            Enter the following information only for irrigated landscaped areas that use potable water on the campus
+                        </Typography>
                     </TabContainer>
                 ),
             },

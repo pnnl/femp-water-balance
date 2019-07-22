@@ -27,7 +27,7 @@ const isWithinNumericRange = (path, values, min, max, inclusive = true, required
 
 const validateAutomatedFacility = (values, basePath) => {
     const errors = {};
-    if (resolve(`${basePath}.metered`, values) === true) {
+    if (resolve(`${basePath}.metered`, values) === "yes") {
         let valuePath = `${basePath}.water_usage`;
         if (!isPositiveNumeric(valuePath, values)) {
             errors['water_usage'] = 'Annual water usage is required if this facility is metered.';
@@ -39,17 +39,33 @@ const validateAutomatedFacility = (values, basePath) => {
         }
         valuePath = `${basePath}.vpw`;
         if (!isPositiveNumeric(valuePath, values)) {
-            errors['vpw'] = 'A positive number for the average number of vehicles washed per week is required.';
+            errors['vpw'] = 'The average number of vehicles washed per week.';
         }
         valuePath = `${basePath}.gpv`;
         if (!isPositiveNumeric(valuePath, values)) {
-            errors['gpv'] = 'A positive number for the estimated number of gallons per vehicle is required.';
+            errors['gpv'] = 'The estimated number of gallons per vehicle.';
         }
         valuePath = `${basePath}.recycled`;
         if (!isWithinNumericRange(valuePath, values, 0,100)) {
             errors['recycled'] = 'The percentage of recycled or reused water must be between 0 and 100.';
         }
     }
+    return Object.keys(errors).length === 0 ? undefined : errors;
+};
+
+const validateWashPadFacility = (values, basePath) => {
+    const errors = {};
+    const facilityErrors = validateAutomatedFacility(values, basePath);
+
+    if (facilityErrors){
+        Object.assign(errors, facilityErrors);
+    }
+
+    let valuePath = `${basePath}.wash_time`;
+    if (!isPositiveNumeric(valuePath, values)) {
+        errors['wash_time'] = 'The approximate wash time per vehicle.';
+    }
+
     return Object.keys(errors).length === 0 ? undefined : errors;
 };
 
@@ -83,6 +99,18 @@ const validate = values => {
         let sectionErrors = validateConveyorFacility(values, `${basePath}.conveyor`);
         if (sectionErrors) {
             vehicleWash['conveyor'] = sectionErrors;
+        }
+    }
+    if (selectn(`${basePath}.wash_pad_facilities`)(values) === true) {
+        let sectionErrors = validateWashPadFacility(values, `${basePath}.wash_pads`);
+        if (sectionErrors) {
+            vehicleWash['wash_pads'] = sectionErrors;
+        }
+    }
+    if (selectn(`${basePath}.large_facilities`)(values) === true) {
+        let sectionErrors = validateAutomatedFacility(values, `${basePath}.large_vehicles`);
+        if (sectionErrors) {
+            vehicleWash['large_vehicles'] = sectionErrors;
         }
     }
     return errors;

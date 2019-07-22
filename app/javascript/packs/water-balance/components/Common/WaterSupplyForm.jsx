@@ -1,4 +1,5 @@
 import React, {Fragment} from 'react';
+import Typography from '@material-ui/core/Typography';
 import {Form, Field, FormSpy} from 'react-final-form';
 import {Checkbox} from 'final-form-material-ui';
 import {
@@ -12,11 +13,18 @@ import createDecorator from 'final-form-calculate';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import selectn from 'selectn';
 import MaterialInput from './MaterialInput';
-import formValidation from './VehicleWashForm.validation';
+import formValidation from './WaterSupplyForm.validation.js';
 
 const DEFAULT_NUMBER_MASK = createNumberMask({
     prefix: '',
     includeThousandsSeparator: true,
+    integerLimit: 10,
+    allowDecimal: false
+});
+
+const DEFAULT_YEAR_MASK = createNumberMask({
+    prefix: '',
+    includeThousandsSeparator: false,
     integerLimit: 10,
     allowDecimal: false
 });
@@ -83,7 +91,6 @@ class WaterSupplyForm extends React.Component {
 
         if (values.monthly_discharge === undefined && values.monthly_usage === undefined) {
             return (<Fragment>
-                [PH]
             </Fragment>);
         } else if (values.monthly_discharge === true || values.monthly_usage === true) {
             const usageDiff = toNumber(values.ws_wu_total) - toNumber(values.potable_water);
@@ -93,69 +100,78 @@ class WaterSupplyForm extends React.Component {
                     {DateUtils.getMonthArray(new Date()).map((monthDate) => {
                             const rowDiff = toNumber(selectn(`${basePath}.wu[${DateUtils.getMonth(monthDate)}]`)(values)) - toNumber(selectn(`${basePath}.ww[${DateUtils.getMonth(monthDate)}]`)(values));
                             const hasWarning = (rowDiff < 0);
-                            return (
-                                <Fragment key={DateUtils.getMonth(monthDate)}>
-                                    <Grid item xs={12} sm={4}>
-                                        <Field
-                                            fullWidth
-                                            required
-                                            name={`${basePath}.wu[${DateUtils.getMonth(monthDate)}]`}
-                                            disabled={!values.monthly_usage}
-                                            component={MaterialInput}
-                                            type="text"
-                                            mask={DEFAULT_NUMBER_MASK}
-                                            label={`${DateUtils.getMonthText(monthDate)} Potable Water Usage`}
-                                            endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={4}>
-                                        <Field
-                                            fullWidth
-                                            required
-                                            disabled={!values.monthly_discharge}
-                                            name={`${basePath}.ww[${DateUtils.getMonth(monthDate)}]`}
-                                            component={MaterialInput}
-                                            type="text"
-                                            mask={DEFAULT_NUMBER_MASK}
-                                            label={`${DateUtils.getMonthText(monthDate)} Waste Water Usage`}
-                                            endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} sm={4}>
-                                        <MaterialInput disabled meta={{visited: true, error: hasWarning}}
-                                                       helperText={`Difference in Water Usage & Waste Water for the month of ${DateUtils.getMonthText(monthDate)}`}
-                                                       input={{value: numberFormat.format(rowDiff)}}
-                                                       startAdornment={<InputAdornment position="start">Balance</InputAdornment>}
-                                                       endAdornment={<InputAdornment position="end">kgal</InputAdornment>}/>
-                                    </Grid>
-                                </Fragment>
-                            );
+                            let dischargeWidth = values.monthly_discharge ? 4 : 12;
+                            let usageWidth = values.monthly_usage ? 4 : 12;
+                            return (<Fragment key={DateUtils.getMonth(monthDate)}>
+                                {values.monthly_usage && (
+                                        <Grid item xs={12} sm={dischargeWidth}>
+                                            <Field
+                                                fullWidth
+                                                required
+                                                name={`${basePath}.wu[${DateUtils.getMonth(monthDate)}]`}
+                                                disabled={!values.monthly_usage}
+                                                component={MaterialInput}
+                                                type="text"
+                                                mask={DEFAULT_NUMBER_MASK}
+                                                label={`${DateUtils.getMonthText(monthDate)} Potable Water Useage`}
+                                                endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                                            />
+                                        </Grid>
+                                     )}
+                                     {values.monthly_discharge && (
+                                        <Grid item xs={12} sm={usageWidth}>
+                                            <Field
+                                                fullWidth
+                                                required
+                                                name={`${basePath}.ww[${DateUtils.getMonth(monthDate)}]`}
+                                                component={MaterialInput}
+                                                type="text"
+                                                mask={DEFAULT_NUMBER_MASK}
+                                                label={`${DateUtils.getMonthText(monthDate)} Wastewater Discharge`}
+                                                endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                                            />
+                                        </Grid>
+                                    )}
+                                    {values.monthly_discharge && values.monthly_usage && (
+                                        <Grid item xs={12} sm={4}>
+                                            <MaterialInput disabled meta={{visited: true, error: hasWarning}}
+                                                        helperText={`Difference in Water Usage & Wastewater for the month of ${DateUtils.getMonthText(monthDate)}`}
+                                                        input={{value: numberFormat.format(rowDiff)}}
+                                                        startAdornment={<InputAdornment position="start">Balance</InputAdornment>}
+                                                        endAdornment={<InputAdornment position="end">kgal</InputAdornment>}/>
+                                        </Grid>
+                                    )}
+                            </Fragment>);
                         }
                     )}
-                    <Grid item xs={12} sm={4}>
-                        <Field
-                            fullWidth
-                            disabled
-                            name="ws_wu_total"
-                            component={MaterialInput}
-                            type="text"
-                            label={`Annual Potable Water Usage`}
-                            meta={{visited: true, error: (overallUsageOK ? null : 'Annual water usage does not monthly water usage values.' )}}
-                            endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
-                        />
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                        <Field
-                            fullWidth
-                            disabled
-                            defaultValue="0"
-                            name="ws_ww_total"
-                            component={MaterialInput}
-                            type="text"
-                            label={`Annual Waste Water Usage`}
-                            endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
-                        />
-                    </Grid>
+                    {values.monthly_usage && (
+                        <Grid item xs={12} sm={4}>
+                            <Field
+                                fullWidth
+                                disabled
+                                name="ws_wu_total"
+                                component={MaterialInput}
+                                type="text"
+                                label={`Annual Potable Water Usage`}
+                                meta={{visited: true, error: (overallUsageOK ? null : 'Annual water usage does not match monthly water usage values.' )}}
+                                endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                            />
+                        </Grid>
+                    )}
+                    {values.monthly_discharge && (
+                        <Grid item xs={12} sm={4}>
+                            <Field
+                                fullWidth
+                                disabled
+                                defaultValue="0"
+                                name="ws_ww_total"
+                                component={MaterialInput}
+                                type="text"
+                                label={`Annual Wastewater Discharge`}
+                                endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                            />
+                        </Grid>
+                    )}
                 </Fragment>
             );
         }
@@ -164,7 +180,11 @@ class WaterSupplyForm extends React.Component {
 
     render() {
         const {campus, applyRules} = this.props;
-        return (
+       
+        return (<Fragment>
+            <Typography variant="h5" gutterBottom>Water Supply</Typography>
+            <Typography variant="body2" gutterBottom>Enter the following information for potable water use (supply) for the campus.</Typography>
+            <Typography variant="body2" gutterBottom>Optional - Enter the following information for wastewater discharge for the campus if it is available.</Typography>
             <Form
                 onSubmit={this.onSubmit}
                 decorators={[calculator]}
@@ -185,11 +205,22 @@ class WaterSupplyForm extends React.Component {
                                     endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                                 />
                             </Grid>
-                            {toNumber(values.potable_water) > 0 && (
+                             <Grid item xs={12}>
+                                <Field
+                                    fullWidth
+                                    required
+                                    name={`calendar_year`}
+                                    component={MaterialInput}
+                                    type="text"
+                                    mask={DEFAULT_YEAR_MASK}
+                                    label="What calendar year does this water use represent?"
+                                />
+                            </Grid>
+                            {toNumber(values.potable_water) > 0 && values.calendar_year && (
                                 <Fragment>
                                     <Grid item xs={12}>
                                         <FormControlLabel
-                                            label="Is the potable water use for the campus available by month?"
+                                            label= {`Is the potable water use for the campus in ${values.calendar_year} available by month?`}
                                             control={
                                                 <Field
                                                     name="monthly_usage"
@@ -202,7 +233,7 @@ class WaterSupplyForm extends React.Component {
                                     </Grid>
                                     <Grid item xs={12}>
                                         <FormControlLabel
-                                            label="Is the waste water discharged for the campus available by month?"
+                                            label={`Is the volume of wastewater discharged from the campus in ${values.calendar_year} available by month?`}
                                             control={
                                                 <Field
                                                     name="monthly_discharge"
@@ -221,7 +252,7 @@ class WaterSupplyForm extends React.Component {
                     </form>
                 )}
             />
-        );
+        </Fragment>);
     }
 }
 

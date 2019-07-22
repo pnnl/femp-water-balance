@@ -1,4 +1,5 @@
 import React, {Fragment} from 'react';
+import Typography from '@material-ui/core/Typography';
 import {Form, Field, FormSpy} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
@@ -288,7 +289,9 @@ class LaundryForm extends React.Component {
 
     render() {
         const {campus, applyRules} = this.props;
-        return (
+        return (<Fragment>
+            <Typography variant="h5" gutterBottom>Laundry (Washing Machines)</Typography>
+            <Typography variant="body2" gutterBottom>Enter the following information for laundry (washing machines) on the campus</Typography>
             <Form
                 onSubmit={this.onSubmit}
                 initialValues={campus}
@@ -315,7 +318,7 @@ class LaundryForm extends React.Component {
                     </form>
                 )}
            />
-        );
+        </Fragment>);
     }
 }
 
