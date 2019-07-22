@@ -38,11 +38,11 @@ const validateLaundryFacility = (values, basePath) => {
     const errors = {};
     let valuePath = `${basePath}.people`;
     if (!isPositiveNumeric(valuePath, values, true)) {
-        errors['people'] = 'The number of people that use washing machines each week must be greater than 0.';
+        errors['people'] = 'The number of people that use washing machines each week.';
     }
     valuePath = `${basePath}.loads_per_person`;
     if (!isPositiveNumeric(valuePath, values, true)) {
-        errors['loads_per_person'] = 'The number of loads of laundry per person must be greater than 0.';
+        errors['loads_per_person'] = 'The number of loads of laundry per person per week.';
     }
     valuePath = `${basePath}.single_load_weeks`;
     if (!isWithinNumericRange(valuePath, values, 1, 52)) {
@@ -66,14 +66,14 @@ const validateLaundryFacility = (values, basePath) => {
     }
 
     let machineType = resolve(`${basePath}.machine_type`, values)
-    let maxWaterFactor = machineType == 'top_loading' ? 5.5 : 8.5;
+    let maxWaterFactor = machineType == 'top_loading' ? 8.5 : 5.5;
     valuePath = `${basePath}.nonenergy_star_factor`;
     if (!isWithinNumericRange(valuePath, values, 0, maxWaterFactor, true)) {
-        errors['nonenergy_star_factor'] = 'Water factor of non-ENERGY STAR single-load washing machines must be between 0 and ' + maxWaterFactor +'.';
+        errors['nonenergy_star_factor'] = 'Water factor of non-ENERGY STAR single-load washing machines must be between 0 and ' + maxWaterFactor +' gallons/cycle/cubic feet³.';
     }
     valuePath = `${basePath}.weight`;
     if (!isPositiveNumeric(valuePath, values)) {
-        errors['weight'] = 'A positive number for the weight of laundry washed in industrial washing machines is required.';
+        errors['weight'] = 'The weight of laundry washed in industrial washing machines.';
     }
     valuePath = `${basePath}.industrial_weeks`;
     if (!isWithinNumericRange(valuePath, values, 1, 52)) {
@@ -81,7 +81,7 @@ const validateLaundryFacility = (values, basePath) => {
     }
     valuePath = `${basePath}.water_use`;
     if (!isPositiveNumeric(valuePath, values)) {
-        errors['water_use'] = 'A positive number for the water use per pound of laundry is required.';
+        errors['water_use'] = 'The water use per pound of laundry.';
     }
     valuePath = `${basePath}.recycled`;
     if (!isWithinNumericRange(valuePath, values, 0, 99)) {
@@ -93,7 +93,7 @@ const validateLaundryFacility = (values, basePath) => {
 const validate = values => {
     const errors = {};
     if (!values.laundry) {
-        errors.laundry = 'An answer about vehicle wash facilities is required.';
+        errors.laundry = 'An answer about laundry facilities is required.';
     }
 
     const basePath = 'laundry';
@@ -104,8 +104,6 @@ const validate = values => {
         }
     }
 
-    console.log("errors: %o", errors)
-    
     return errors;
 };
 export default validate;

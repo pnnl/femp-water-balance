@@ -125,7 +125,7 @@ class LaundryForm extends React.Component {
                         required
                         name={`${basePath}.machine_type`}
                         component={Select}
-                        label="Are the non-ENERGY STAR single-load washing machines predominately top loading or front loading?">
+                        label="Non-ENERGY STAR single-load washing machines predominately top loading or front loading?">
                         <MenuItem value="top_loading">
                             Top Loading
                         </MenuItem>
@@ -134,23 +134,8 @@ class LaundryForm extends React.Component {
                         </MenuItem>
                     </Field>
                 </Grid>
-                )}
-
-            {selectn(`${basePath}.energy_star`)(values) < 100 && (
-                <Grid item xs={12}>
-                    <Field 
-                        required
-                        formControlProps={{fullWidth: true}}
-                        name={`${basePath}.nonenergy_star_capacity`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label="Typical capacity of non-ENERGY STAR single-load washing machines."
-                        endAdornment={<InputAdornment position="end">feet³</InputAdornment>}
-                    />
-                </Grid>
             )}
-            
+
             <Grid item xs={12}>
                 <Field 
                     required
@@ -163,6 +148,22 @@ class LaundryForm extends React.Component {
                     endAdornment={<InputAdornment position="end">feet³</InputAdornment>}
                 />
             </Grid>
+
+            {selectn(`${basePath}.energy_star`)(values) < 100 && (
+                <Grid item xs={12}>
+                    <Field 
+                        required
+                        formControlProps={{fullWidth: true}}
+                        name={`${basePath}.nonenergy_star_capacity`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_DECIMAL_MASK}
+                        label="Typical capacity of Non-ENERGY STAR single-load washing machines."
+                        endAdornment={<InputAdornment position="end">feet³</InputAdornment>}
+                    />
+                </Grid>
+            )}
+            
             <Grid item xs={12}>
                 <Field 
                     required
@@ -184,7 +185,7 @@ class LaundryForm extends React.Component {
                         component={MaterialInput}
                         type="text"
                         mask={DEFAULT_DECIMAL_MASK}
-                        label="Water factor of the non-ENERGY STAR single-load washing machines."
+                        label="Water factor of the Non-ENERGY STAR single-load washing machines."
                         endAdornment={<InputAdornment position="end">gallons/cycle/feet³</InputAdornment>}
                     />
                 </Grid>
@@ -309,7 +310,6 @@ class LaundryForm extends React.Component {
                                 />
                             </Grid>
                             {this.renderFacilityTypes(values)}
-                            <pre>{JSON.stringify(values, 0, 2)}</pre>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
