@@ -9,7 +9,9 @@ Rails.application.routes.draw do
     scope(path: 'api', module: 'api', as: :api, defaults: {format: :json}) do
       scope(path: 'v1', module: 'v1', as: :v1) do
         scope(path: 'water-balance', module: :water_balance, as: :water_balance) do
-          resources(:campuses, except: [:new, :edit])
+          resources(:campuses, except: [:new, :edit]) do
+            resources(:campus_modules, path: 'modules', except: [:new, :edit])
+          end
         end
         scope(path: 'administration', module: :admin, as: :administration) do
           resources(:accounts, except: [:new, :edit])

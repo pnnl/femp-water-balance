@@ -117,6 +117,86 @@ class RemoteApi {
                 }
             );
     };
+
+    static getCampusModules = (campus, onSuccess, onError, caller = undefined) => {
+        fetch(`${RemoteApi.BASE_V1_URI}/water-balance/campuses/${campus.id}/modules`, RemoteApi.DEFAULT_FETCH_CONFIG)
+            .then((response) => RemoteApi.captureAuthorization(response))
+            .then(
+                // onFulfilled:
+                (result) => {
+                    if (onSuccess) {
+                        onSuccess.call(caller, result);
+                    }
+                },
+                // onRejected:
+                (error) => {
+                    if (onError) {
+                        onError.call(caller, error);
+                    }
+                }
+            );
+    };
+
+    static createOrUpdateCampusModule = (campus, campusModule, onSuccess, onError, caller = undefined) => {
+        let targetURL = null;
+        let fetchConfig = Object.assign({}, RemoteApi.DEFAULT_FETCH_CONFIG, {
+            method: 'GET',
+            body: JSON.stringify({data: {attributes: {...campusModule}}}),
+            headers: {
+                'Authorization': RemoteApi.retrieveCurrentAuthorization(),
+                ...RemoteApi.DEFAULT_HEADERS
+            }
+        });
+        if (!campusModule.id || isNaN(parseInt(campusModule.id)) ) {
+            fetchConfig.method = 'POST';
+            targetURL = `${RemoteApi.BASE_V1_URI}/water-balance/campuses/${campus.id}/modules`;
+        } else {
+            fetchConfig.method = 'PUT';
+            targetURL = `${RemoteApi.BASE_V1_URI}/water-balance/campuses/${campus.id}/modules/${campusModule.id}`
+        }
+        fetch(targetURL, fetchConfig)
+            .then((response) => RemoteApi.captureAuthorization(response))
+            .then(
+                // onFulfilled:
+                (result) => {
+                    if (onSuccess) {
+                        onSuccess.call(caller, result);
+                    }
+                },
+                // onRejected:
+                (error) => {
+                    if (onError) {
+                        onError.call(caller, error);
+                    }
+                }
+            );
+    };
+
+    static deleteCampusModules = (campus, campusModule, onSuccess, onError, caller = undefined) => {
+        const fetchConfig = Object.assign({}, RemoteApi.DEFAULT_FETCH_CONFIG, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': RemoteApi.retrieveCurrentAuthorization(),
+                ...RemoteApi.DEFAULT_HEADERS
+            }
+        });
+        fetch(`${RemoteApi.BASE_V1_URI}/water-balance/campuses/${campus.id}/modules/${campusModule.id}`, fetchConfig)
+            .then((response) => RemoteApi.captureAuthorization(response))
+            .then(
+                // onFulfilled:
+                (result) => {
+                    if (onSuccess) {
+                        onSuccess.call(caller, result);
+                    }
+                },
+                // onRejected:
+                (error) => {
+                    if (onError) {
+                        onError.call(caller, error);
+                    }
+                }
+            );
+    };
 }
 
 export default RemoteApi;
