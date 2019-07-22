@@ -141,20 +141,20 @@ class CampusDisplay extends React.Component {
     getCampusTabs = () => {
         const {campus, events} = this.state;
         return [
+               {
+                tabName: 'Water Supply',
+                tabContent: (
+                    <TabContainer>
+                        <WaterSupplyForm campus={campus} events={events}
+                                         applyRules={this.executeRules} {...this.props} />
+                    </TabContainer>
+                ),
+            },
              {
                 tabName: 'Vehicle Wash',
                 tabContent: (
                     <TabContainer>
                         <VehicleWashForm campus={campus} events={events}
-                                         applyRules={this.executeRules} {...this.props} />
-                    </TabContainer>
-                ),
-            },
-            {
-                tabName: 'Water Supply',
-                tabContent: (
-                    <TabContainer>
-                        <WaterSupplyForm campus={campus} events={events}
                                          applyRules={this.executeRules} {...this.props} />
                     </TabContainer>
                 ),

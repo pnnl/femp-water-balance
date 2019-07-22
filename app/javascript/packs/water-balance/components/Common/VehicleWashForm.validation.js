@@ -53,6 +53,22 @@ const validateAutomatedFacility = (values, basePath) => {
     return Object.keys(errors).length === 0 ? undefined : errors;
 };
 
+const validateWashPadFacility = (values, basePath) => {
+    const errors = {};
+    const facilityErrors = validateAutomatedFacility(values, basePath);
+
+    if (facilityErrors){
+        Object.assign(errors, facilityErrors);
+    }
+
+    let valuePath = `${basePath}.wash_time`;
+    if (!isPositiveNumeric(valuePath, values)) {
+        errors['wash_time'] = 'The approximate wash time per vehicle.';
+    }
+
+    return Object.keys(errors).length === 0 ? undefined : errors;
+};
+
 const validateConveyorFacility = (values, basePath) => {
     const errors = {};
     if (!resolve(`${basePath}.type`, values)) {
@@ -83,6 +99,18 @@ const validate = values => {
         let sectionErrors = validateConveyorFacility(values, `${basePath}.conveyor`);
         if (sectionErrors) {
             vehicleWash['conveyor'] = sectionErrors;
+        }
+    }
+    if (selectn(`${basePath}.wash_pad_facilities`)(values) === true) {
+        let sectionErrors = validateWashPadFacility(values, `${basePath}.wash_pads`);
+        if (sectionErrors) {
+            vehicleWash['wash_pads'] = sectionErrors;
+        }
+    }
+    if (selectn(`${basePath}.large_facilities`)(values) === true) {
+        let sectionErrors = validateAutomatedFacility(values, `${basePath}.large_vehicles`);
+        if (sectionErrors) {
+            vehicleWash['large_vehicles'] = sectionErrors;
         }
     }
     return errors;

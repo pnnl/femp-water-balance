@@ -1,4 +1,6 @@
+import selectn from 'selectn';
 
+const resolve = (path, values) => selectn(path)(values);
 
 const isPositiveNumeric = (value, required = true) => {
     if (required === true && value) {
@@ -26,7 +28,7 @@ const isWithinNumericRange = (value, min, max, decimal = false, inclusive = true
     return false;
 };
 
-const validatekitchenFacility = (values) => {
+const validatekitchenFacility = (values, allValues) => {
     
     const errors = {};
     let valuePath = values.annual_water_use;
@@ -44,8 +46,8 @@ const validatekitchenFacility = (values) => {
         errors['operating_weekends'] = 'The number of weekends per year commercial kitchens are operated must be between 1 and 52.';
     }
     valuePath = values.flow_rate;
-    if (!isWithinNumericRange(valuePath, 0.5, 4, true)) {
-        errors['flow_rate'] = 'The flow rate must be between 0.5 and 4.0 gpm';
+    if (!isWithinNumericRange(valuePath, .3, 4, true)) {
+        errors['flow_rate'] = 'The flow rate must be between 0.3 and 4.0 gpm';
     }
 
     var week_meals = values.weekday_meals;
@@ -62,24 +64,42 @@ const validatekitchenFacility = (values) => {
         errors['weekend_meals'] = 'Number of meals prepared cannot be 0 for both weekdays and weekends.';
     }
 
+    valuePath = values.name;
+    let isUsed = false;
+    let resolvedValue = undefined;
+    allValues.kitchen_facilities.map((facility, index) => {
+        if(facility != undefined) {
+                resolvedValue = facility.name;
+            if (resolvedValue == valuePath && isUsed == true && valuePath != undefined) {
+                errors['name'] = 'Identifiers must be unique.';
+                isUsed = false;
+            } 
+            if (resolvedValue == valuePath) {
+                isUsed = true;
+            } 
+        }
+    })
+    
+
     return Object.keys(errors).length === 0 ? undefined : errors;
 }
 
 const validate = values => {
     const errors = {};
     if (!values.kitchen_facilities) {
-        errors.kitchen_facilities = 'An answer about vehicle wash facilities is required.';
+        errors.kitchen_facilities = 'An answer about commercial kitchens is required.';
     }
     const facilitiesErrors = [];
+
     values.kitchen_facilities.map((facility, index) => {
-        const basePath = `kitchen_facilities[${index}]`;
         if(facility) {
-            let sectionErrors = validatekitchenFacility(facility, basePath);
+            let sectionErrors = validatekitchenFacility(facility, values);
             if (sectionErrors) {
                 facilitiesErrors[index] = sectionErrors;
             }
         }
     })
+
     if(facilitiesErrors.length > 0) {
         errors['kitchen_facilities'] = facilitiesErrors;
     }

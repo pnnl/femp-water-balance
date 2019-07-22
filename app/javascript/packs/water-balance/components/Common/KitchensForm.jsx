@@ -304,40 +304,41 @@ class KitchensForm extends React.Component {
                 {({ fields }) =>
                 fields.map((name, index) => (
                     <Grid item xs={12} key={index}>
-                        <ExpansionPanel expanded = {selectn(`${name}.name`)(values) !== undefined}>
+                        <ExpansionPanel expanded = {selectn(`${name}.type`)(values) !== undefined}>
                             <ExpansionPanelSummary>
                                 <Field
-                                    fullWidth
+                                    formControlProps={{fullWidth: true}}
                                     required
-                                    name={`${name}.name`}
-                                    component={MaterialInput}
-                                    type="text"
-                                    label="Facility name"/>
-                                    <IconButton 
-                                        style={{padding: 'inherit', height:'40px', width:'40px'}}
-                                        onClick={() => fields.remove(index)}
-                                        aria-label="Delete">
-                                        <DeleteIcon />
-                                    </IconButton>
+                                    name={`${name}.type`}
+                                    component={Select}
+                                    label="Is the commercial kitchen a stand-alone facility or is it incorporated into another building?">
+                                    <MenuItem value="stand_alone">
+                                        Stand Alone
+                                    </MenuItem>
+                                    <MenuItem value="incorporated">
+                                        Incorporated in Another Building
+                                    </MenuItem>
+                                </Field>
+                                <IconButton 
+                                    style={{padding: 'initial', height:'40px', width:'40px'}}
+                                    onClick={() => fields.remove(index)}
+                                    aria-label="Delete">
+                                    <DeleteIcon />
+                                </IconButton>
                             </ExpansionPanelSummary>
                             <ExpansionPanelDetails>
-                            <Grid container alignItems="flex-start" spacing={16}>
-                                <Grid item xs={12}>
-                                    <Field
-                                        formControlProps={{fullWidth: true}}
-                                        required
-                                        name={`${name}.type`}
-                                        component={Select}
-                                        label="Is the commercial kitchen a stand-alone facility or is it incorporated into another building?">
-                                        <MenuItem value="stand_alone">
-                                            Stand Alone
-                                        </MenuItem>
-                                        <MenuItem value="incorporated">
-                                            Incorporated in Another Building
-                                        </MenuItem>
-                                    </Field>
-                                </Grid>
-                                {selectn(`${name}.type`)(values) && this.renderFacilityTypeResponse(values, `${name}`)}
+                                <Grid container alignItems="flex-start" spacing={16}>
+                                    <Grid item xs={12}>
+                                        <Field
+                                            fullWidth
+                                            required
+                                            name={`${name}.name`}
+                                            component={MaterialInput}
+                                            type="text"
+                                            label="Unique Identifier"
+                                        />
+                                    </Grid>
+                                    {selectn(`${name}.type`)(values) && this.renderFacilityTypeResponse(values, `${name}`)}
                                 </Grid>
                             </ExpansionPanelDetails>
                         </ExpansionPanel>

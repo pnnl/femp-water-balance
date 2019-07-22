@@ -231,7 +231,7 @@ class VehicleWashForm extends React.Component {
                         <ExpansionPanelSummary>
                             <Field
                                 name="vehicle_wash.auto_wash_facilities"
-                                label="This campus has an individual in-bay automated vehicle wash facilities"
+                                label="This campus has individual in-bay automated vehicle wash facilities"
                                 component={ToggleAdapter}
                                 type="checkbox"
                             />
@@ -248,7 +248,7 @@ class VehicleWashForm extends React.Component {
                         <ExpansionPanelSummary>
                             <Field
                                 name="vehicle_wash.conveyor_facilities"
-                                label="This campus has a conveyor type friction washing or frictionless washing vehicle wash facilities"
+                                label="This campus has conveyor type friction washing or frictionless washing vehicle wash facilities"
                                 component={ToggleAdapter}
                                 type="checkbox"
                             />
