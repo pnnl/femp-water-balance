@@ -12,6 +12,7 @@ import VehicleWashForm from "./Common/VehicleWashForm";
 import WaterSupplyForm from "./Common/WaterSupplyForm";
 import KitchensForm from "./Common/KitchensForm";
 import LaundryForm from "./Common/LaundryForm";
+import PlumbingForm from "./Common/PlumbingForm";
 
 import {Engine} from 'json-rules-engine';
 
@@ -152,6 +153,15 @@ class CampusDisplay extends React.Component {
                 ),
             },
              {
+                tabName: 'Plumbing',
+                tabContent: (
+                    <TabContainer>
+                        <PlumbingForm campus={campus} events={events}
+                                         applyRules={this.executeRules} {...this.props} />
+                    </TabContainer>
+                ),
+            },
+             {
                 tabName: 'Vehicle Wash',
                 tabContent: (
                     <TabContainer>
@@ -208,17 +218,6 @@ class CampusDisplay extends React.Component {
                     <TabContainer>
                         <LaundryForm campus={campus} events={events}
                             applyRules={this.executeRules} {...this.props} />
-                    </TabContainer>
-                ),
-            },
-            {
-                tabName: 'Irrigated Landscaped Areas',
-                tabContent: (
-                    <TabContainer>
-                        <Typography variant="h5" gutterBottom>Irrigated Landscaped Areas</Typography>
-                        <Typography variant="body2" gutterBottom>
-                            Enter the following information only for irrigated landscaped areas that use potable water on the campus
-                        </Typography>
                     </TabContainer>
                 ),
             },

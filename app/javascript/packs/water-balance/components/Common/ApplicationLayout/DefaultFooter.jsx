@@ -16,7 +16,7 @@ function Footer({ ...props }) {
           <div className={classes.left}>
             <List className={classes.list}>
               <ListItem className={classes.inlineBlock}>
-                AssetScore<span className={classes.titleO}>@PNNL</span>::Water Balance
+                FEMP <span className={classes.titleO}>@PNNL</span>::Water Balance
               </ListItem>
               <ListItem className={classes.inlineBlock}>
                 <a href="//www.pnnl.gov/important-notices" className={classes.block}>Terms</a>
