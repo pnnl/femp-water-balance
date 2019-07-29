@@ -435,7 +435,6 @@ class PlumbingForm extends React.Component {
                                 {this.renderFacilityTypes(values)}
                             </Grid>
                             <FormRulesListener handleFormChange={applyRules}/>
-                            <pre>{JSON.stringify(values, null, 2)}</pre> 
                         </form>
                     )}
                 /> 
