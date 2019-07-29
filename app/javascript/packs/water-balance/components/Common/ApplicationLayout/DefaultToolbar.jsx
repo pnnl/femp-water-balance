@@ -11,6 +11,7 @@ import {
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Divider from '@material-ui/core/Divider';
 
+
 import styles from './styles';
 
 import NavigationMenu from "../Administration/NavigationMenu";
@@ -104,7 +105,7 @@ class DefaultToolbar extends React.Component {
         }
         return (
             <Typography variant="h6" color="inherit" className={classes.flex}>
-                <a href="/" style={{textDecoration: 'none', color: 'inherit'}}>AssetScore :: Water Balance</a>
+                <a href="/" style={{textDecoration: 'none', color: 'inherit'}}>FEMP :: Water Balance</a>
             </Typography>
         );
     }

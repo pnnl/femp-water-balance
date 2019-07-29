@@ -113,7 +113,7 @@ class WaterSupplyForm extends React.Component {
                                                 component={MaterialInput}
                                                 type="text"
                                                 mask={DEFAULT_NUMBER_MASK}
-                                                label={`${DateUtils.getMonthText(monthDate)} Potable Water Useage`}
+                                                label={`${DateUtils.getMonthText(monthDate)} Potable Water Usage`}
                                                 endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                                             />
                                         </Grid>
