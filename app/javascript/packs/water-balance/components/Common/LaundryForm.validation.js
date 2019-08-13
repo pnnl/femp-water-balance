@@ -54,7 +54,7 @@ const validateLaundryFacility = (values, basePath) => {
     }
     valuePath = `${basePath}.nonenergy_star_capacity`;
     if (!isWithinNumericRange(valuePath, values, 1.6, 8, true)) {
-        errors['nonenergy_star_capacity'] = 'The capacity of ENERGY STAR single-load washing machines must be between 1.6 and 8 feet³.';
+        errors['nonenergy_star_capacity'] = 'The capacity of non-ENERGY STAR single-load washing machines must be between 1.6 and 8 feet³.';
     }
     valuePath = `${basePath}.energy_star_capacity`;
     if (!isWithinNumericRange(valuePath, values, 1.6, 8, true)) {

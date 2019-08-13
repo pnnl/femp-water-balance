@@ -398,7 +398,6 @@ class KitchensForm extends React.Component {
                                         Add another kitchen
                                     </Button>
                                 )}
-                                
                             </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>

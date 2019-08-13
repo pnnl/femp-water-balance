@@ -10,8 +10,9 @@ import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
 
 import formValidation from './LaundryForm.validation';
-
 import {
+    Fab, 
+    Icon,
     Grid,
     Button,
     FormControlLabel,
@@ -19,6 +20,20 @@ import {
     Switch,
     MenuItem
 } from '@material-ui/core';
+
+const style = {
+  opacity: '.65',
+  position: 'fixed',
+  bottom: '11px',
+  right: '104px',
+  zIndex: '10000',
+  'background-color' : 'rgb(220, 0, 78)',
+  borderRadius: '11px',
+  width: '166px',
+  '&:hover': {
+    opacity: '1',
+  },
+};
 
 const DEFAULT_NUMBER_MASK = createNumberMask({
     prefix: '',
@@ -53,7 +68,41 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     />
 );
 
+ const calculateSingleLoad = (values) => {
+    let esPercent = selectn(`laundry.energy_star`)(values) || 0;
+    let loadsPerYear = (selectn(`laundry.people`)(values) * selectn(`laundry.loads_per_person`)(values) * selectn(`laundry.single_load_weeks`)(values)) || 0;
+    let esGalPerCycle = (selectn(`laundry.energy_star_capacity`)(values) * selectn(`laundry.energy_star_factor`)(values)) || 0;
+    let nesGalPerCycle = (selectn(`laundry.nonenergy_star_capacity`)(values) * selectn(`laundry.nonenergy_star_factor`)(values)) || 0;
+    let totalSingleLoad = (((esGalPerCycle * loadsPerYear * esPercent) + nesGalPerCycle * loadsPerYear * (100 - esPercent))/1000)|| 0;
+
+    return totalSingleLoad;
+} 
+
+const calculateIndustrialLoad = (values) => {
+    let totalIndustrialLoad = (((selectn(`laundry.weight`)(values) * selectn(`laundry.industrial_weeks`)(values)) * (selectn(`laundry.water_use`)(values) * (1- selectn(`laundry.recycled`)(values)/100)))/1000) || 0;
+    
+    return totalIndustrialLoad;
+}
+
 class LaundryForm extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            waterUse: ''
+        };
+        this.calculateWaterUse = this.calculateWaterUse.bind(this);
+    }   
+
+    calculateWaterUse = (values) => {
+        let singleLoad = calculateSingleLoad(values);
+        let industrialLoad = calculateIndustrialLoad(values);
+        let total = singleLoad + industrialLoad;
+        this.setState({
+            waterUse: " Water Use: " + total
+        });
+
+    };
 
     onSubmit = values => {
         const {onSubmit} = this.props;
@@ -313,6 +362,25 @@ class LaundryForm extends React.Component {
                                 />
                             </Grid>
                             {this.renderFacilityTypes(values)}
+                             <Grid item xs={12}>
+                                {(values.has_laundry_facility === false || values.has_laundry_facility === undefined) ? null : (
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => this.calculateWaterUse(values)}>
+                                        Calculate Water Use
+                                    </Button>
+                                )}
+                                {this.state.waterUse != '' && (
+                                    <Fab
+                                        color="primary"
+                                        aria-label="Water Use"
+                                        title="Water Use"
+                                        style={style}
+                                    >
+                                    {this.state.waterUse}
+                                    </Fab>
+                                )}
+                            </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
