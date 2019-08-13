@@ -3,6 +3,8 @@ import Typography from '@material-ui/core/Typography';
 import {Form, Field, FormSpy} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import {
+    Fab,
+    Icon,
     Grid,
     Button,
     FormControlLabel,
@@ -19,11 +21,32 @@ import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 
 import formValidation from './VehicleWashForm.validation';
 
+const style = {
+  opacity: '.65',
+  position: 'fixed',
+  bottom: '11px',
+  right: '104px',
+  zIndex: '10000',
+  'background-color' : 'rgb(220, 0, 78)',
+  borderRadius: '11px',
+  width: '196px',
+  '&:hover': {
+    opacity: '1',
+  },
+};
+
 const DEFAULT_NUMBER_MASK = createNumberMask({
     prefix: '',
     includeThousandsSeparator: true,
     integerLimit: 10,
     allowDecimal: false
+});
+
+const DEFAULT_DECIMAL_MASK = createNumberMask({
+    prefix: '',
+    includeThousandsSeparator: true,
+    integerLimit: 10,
+    allowDecimal: true
 });
 
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
@@ -45,8 +68,55 @@ const FormRulesListener = ({handleFormChange}) => (
     />
 );
 
+const recycledCalculation = (valuePath, values) => {
+    if(selectn(`${valuePath}.metered`)(values) == "yes") {
+        return (selectn(`${valuePath}.water_usage`)(values) * 1);
+    } 
+   
+    return (selectn(`${valuePath}.vpw`)(values) * selectn(`${valuePath}.wpy`)(values) * selectn(`${valuePath}.gpv`)(values) * (1 - (selectn(`${valuePath}.recycled`)(values)/100)))/1000;
+}
+
+const nonRecycledCalculation = (valuePath, values) => {
+    if(selectn(`${valuePath}.metered`)(values) == "yes") {
+        return (selectn(`${valuePath}.water_usage`)(values) * 1);
+    } 
+   
+    return (selectn(`${valuePath}.vpw`)(values) * selectn(`${valuePath}.wpy`)(values) * selectn(`${valuePath}.rating`)(values) * (selectn(`${valuePath}.wash_time`)(values)))/1000;
+}
 
 class VehicleWashForm extends React.Component {
+
+     constructor(props) {
+        super(props);
+        this.state = {
+            waterUse: ''
+        };
+        this.calculateWaterUse = this.calculateWaterUse.bind(this);
+    }
+
+    calculateWaterUse = (values) => {
+
+        let valuePath = 'vehicle_wash.auto_wash';
+        let autoWash = recycledCalculation(valuePath, values) || 0;
+        
+        valuePath = 'vehicle_wash.conveyor';
+        let conveyor = recycledCalculation(valuePath, values) || 0;
+
+        valuePath = 'vehicle_wash.wash_pads';
+        let washPads = nonRecycledCalculation(valuePath, values) || 0;
+
+        valuePath = 'vehicle_wash.large_vehicles';
+        let LargeVehicle = recycledCalculation(valuePath, values) || 0;
+
+        let total = autoWash + conveyor + washPads + LargeVehicle;
+        let roundTotal = Math.round( total * 10) / 10;
+
+        this.setState({
+            waterUse: " Water Use: " + roundTotal + " kgal"
+        });
+
+    };
+
     onSubmit = values => {
         const {onSubmit} = this.props;
         if (onSubmit) {
@@ -178,7 +248,7 @@ class VehicleWashForm extends React.Component {
                                 name={`${basePath}.gpv`}
                                 component={MaterialInput}
                                 type="text"
-                                mask={DEFAULT_NUMBER_MASK}
+                                mask={DEFAULT_DECIMAL_MASK}
                                 label="Estimated water use per vehicle (gpv)"
                                 endAdornment={<InputAdornment position="end">Gallons</InputAdornment>}
                             />
@@ -190,7 +260,7 @@ class VehicleWashForm extends React.Component {
                                 name={`${basePath}.recycled`}
                                 component={MaterialInput}
                                 type="text"
-                                mask={[/\d/, /\d/, /\d/]}
+                                mask={DEFAULT_DECIMAL_MASK}
                                 label="Percentage of water recycled/reused (if any)"
                                 endAdornment={<InputAdornment position="end">%</InputAdornment>}
                             />
@@ -261,7 +331,6 @@ class VehicleWashForm extends React.Component {
                                         required
                                         name="vehicle_wash.conveyor.type"
                                         component={Select}
-                                        type="text"
                                         label="Conveyor type used for vehicle washes"
                                     >
                                         <MenuItem value="friction">
@@ -296,7 +365,6 @@ class VehicleWashForm extends React.Component {
                                         required
                                         name="vehicle_wash.wash_pads.type"
                                         component={Select}
-                                        type="text"
                                         label="Are most vehicles using self-service wash pads washed with an open hose or with a pressure washer?"
                                     >
                                         <MenuItem value="open_hose">
@@ -337,7 +405,7 @@ class VehicleWashForm extends React.Component {
     render() {
         const {campus, applyRules} = this.props;
         return (<Fragment>
-            <Typography variant="h5" gutterBottom>Vehicle Wash</Typography>
+            <Typography variant="h5" gutterBottom>Vehicle Wash </Typography>
             <Typography variant="body2" gutterBottom>Enter the following information only for vehicle wash facilities that use potable water on the campus</Typography>
             <Form
                 onSubmit={this.onSubmit}
@@ -360,6 +428,25 @@ class VehicleWashForm extends React.Component {
                                 />
                             </Grid>
                             {this.renderFormInputs(values)}
+                            <Grid item xs={12}>
+                                {(values.vw_facilities === false || values.vw_facilities === undefined) ? null : (
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => this.calculateWaterUse(values)}>
+                                        Calculate Water Use
+                                    </Button>
+                                )}
+                                {this.state.waterUse != '' && (
+                                    <Fab
+                                        color="primary"
+                                        aria-label="Water Use"
+                                        title="Water Use"
+                                        style={style}
+                                    >
+                                    {this.state.waterUse}
+                                    </Fab>
+                                )}
+                            </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>

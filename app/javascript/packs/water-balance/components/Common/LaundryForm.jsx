@@ -10,8 +10,9 @@ import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
 
 import formValidation from './LaundryForm.validation';
-
 import {
+    Fab, 
+    Icon,
     Grid,
     Button,
     FormControlLabel,
@@ -19,6 +20,20 @@ import {
     Switch,
     MenuItem
 } from '@material-ui/core';
+
+const style = {
+  opacity: '.65',
+  position: 'fixed',
+  bottom: '11px',
+  right: '104px',
+  zIndex: '10000',
+  'background-color' : 'rgb(220, 0, 78)',
+  borderRadius: '11px',
+  width: '196px',
+  '&:hover': {
+    opacity: '1',
+  },
+};
 
 const DEFAULT_NUMBER_MASK = createNumberMask({
     prefix: '',
@@ -53,7 +68,43 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     />
 );
 
+ const calculateSingleLoad = (values) => {
+    let esPercent = selectn(`laundry.energy_star`)(values) || 0;
+    let loadsPerYear = (selectn(`laundry.people`)(values) * selectn(`laundry.loads_per_person`)(values) * selectn(`laundry.single_load_weeks`)(values)) || 0;
+    let esGalPerCycle = (selectn(`laundry.energy_star_capacity`)(values) * selectn(`laundry.energy_star_factor`)(values)) || 0;
+    let nesGalPerCycle = (selectn(`laundry.nonenergy_star_capacity`)(values) * selectn(`laundry.nonenergy_star_factor`)(values)) || 0;
+    let totalSingleLoad = (((esGalPerCycle * loadsPerYear * esPercent) + nesGalPerCycle * loadsPerYear * (100 - esPercent))/1000)|| 0;
+
+    return totalSingleLoad;
+} 
+
+const calculateIndustrialLoad = (values) => {
+    let totalIndustrialLoad = (((selectn(`laundry.weight`)(values) * selectn(`laundry.industrial_weeks`)(values)) * (selectn(`laundry.water_use`)(values) * (1- selectn(`laundry.recycled`)(values)/100)))/1000) || 0;
+    
+    return totalIndustrialLoad;
+}
+
 class LaundryForm extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            waterUse: ''
+        };
+        this.calculateWaterUse = this.calculateWaterUse.bind(this);
+    }   
+
+    calculateWaterUse = (values) => {
+        let singleLoad = calculateSingleLoad(values);
+        let industrialLoad = calculateIndustrialLoad(values);
+        let total = singleLoad + industrialLoad;
+        let roundTotal = Math.round( total * 10) / 10;
+
+        this.setState({
+            waterUse: " Water Use: " + roundTotal + " kgal"
+        });
+
+    };
 
     onSubmit = values => {
         const {onSubmit} = this.props;
@@ -126,7 +177,7 @@ class LaundryForm extends React.Component {
                         required
                         name={`${basePath}.machine_type`}
                         component={Select}
-                        label="Non-ENERGY STAR single-load washing machines predominately top loading or front loading?">
+                        label="Non-ENERGY STAR single-load/multi-load washing machines predominately top loading or front loading?">
                         <MenuItem value="top_loading">
                             Top Loading
                         </MenuItem>
@@ -145,7 +196,7 @@ class LaundryForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_DECIMAL_MASK}
-                    label="Typical capacity of ENERGY STAR single-load washing machines."
+                    label="Typical capacity of ENERGY STAR single-load/multi-load washing machines."
                     endAdornment={<InputAdornment position="end">feet³</InputAdornment>}
                 />
             </Grid>
@@ -159,7 +210,7 @@ class LaundryForm extends React.Component {
                         component={MaterialInput}
                         type="text"
                         mask={DEFAULT_DECIMAL_MASK}
-                        label="Typical capacity of Non-ENERGY STAR single-load washing machines."
+                        label="Typical capacity of Non-ENERGY STAR single-load/multi-load washing machines."
                         endAdornment={<InputAdornment position="end">feet³</InputAdornment>}
                     />
                 </Grid>
@@ -173,7 +224,7 @@ class LaundryForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_DECIMAL_MASK}
-                    label="Water factor of the ENERGY STAR single-load washing machines."
+                    label="Water factor of the ENERGY STAR single-load/multi-load washing machines."
                     endAdornment={<InputAdornment position="end">gallons/cycle/feet³</InputAdornment>}
                 />
             </Grid>
@@ -186,7 +237,7 @@ class LaundryForm extends React.Component {
                         component={MaterialInput}
                         type="text"
                         mask={DEFAULT_DECIMAL_MASK}
-                        label="Water factor of the Non-ENERGY STAR single-load washing machines."
+                        label="Water factor of the Non-ENERGY STAR single-load/multi-load washing machines."
                         endAdornment={<InputAdornment position="end">gallons/cycle/feet³</InputAdornment>}
                     />
                 </Grid>
@@ -226,7 +277,7 @@ class LaundryForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="Weeks per year single-load washing machines are operated."
+                    label="Weeks per year single-load/multi-load washing machines are operated."
                 />
             </Grid>
             <Grid item xs={12}>
@@ -237,7 +288,7 @@ class LaundryForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="Percentage of single-load washing machines that are ENERGY STAR."
+                    label="Percentage of single-load/multi-load washing machines that are ENERGY STAR."
                     endAdornment={<InputAdornment position="end">%</InputAdornment>}
                 />
             </Grid>
@@ -255,7 +306,7 @@ class LaundryForm extends React.Component {
                 <ExpansionPanelSummary>
                     <Field
                         name="laundry.has_single_load"
-                        label="My campus has single-load washing machines."
+                        label="My campus has single-load and/or multi-load washing machines."
                         component={ToggleAdapter}
                         type="checkbox"
                     />
@@ -272,7 +323,7 @@ class LaundryForm extends React.Component {
                 <ExpansionPanelSummary>
                     <Field
                         name="laundry.has_industrial_machines"
-                        label="My campus has industrial washing machines, such as multi-load washers, tunnel washers, or washer extractors."
+                        label="My campus has industrial washing machines, such as tunnel washers or washer extractors."
                         component={ToggleAdapter}
                         type="checkbox"
                     />
@@ -313,6 +364,25 @@ class LaundryForm extends React.Component {
                                 />
                             </Grid>
                             {this.renderFacilityTypes(values)}
+                             <Grid item xs={12}>
+                                {(values.has_laundry_facility === false || values.has_laundry_facility === undefined) ? null : (
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => this.calculateWaterUse(values)}>
+                                        Calculate Water Use
+                                    </Button>
+                                )}
+                                {this.state.waterUse != '' && (
+                                    <Fab
+                                        color="primary"
+                                        aria-label="Water Use"
+                                        title="Water Use"
+                                        style={style}
+                                    >
+                                    {this.state.waterUse}
+                                    </Fab>
+                                )}
+                            </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
