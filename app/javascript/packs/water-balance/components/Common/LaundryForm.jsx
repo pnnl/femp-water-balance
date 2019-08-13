@@ -29,7 +29,7 @@ const style = {
   zIndex: '10000',
   'background-color' : 'rgb(220, 0, 78)',
   borderRadius: '11px',
-  width: '166px',
+  width: '196px',
   '&:hover': {
     opacity: '1',
   },
@@ -98,8 +98,10 @@ class LaundryForm extends React.Component {
         let singleLoad = calculateSingleLoad(values);
         let industrialLoad = calculateIndustrialLoad(values);
         let total = singleLoad + industrialLoad;
+        let roundTotal = Math.round( total * 10) / 10;
+
         this.setState({
-            waterUse: " Water Use: " + total
+            waterUse: " Water Use: " + roundTotal + " kgal"
         });
 
     };
@@ -175,7 +177,7 @@ class LaundryForm extends React.Component {
                         required
                         name={`${basePath}.machine_type`}
                         component={Select}
-                        label="Non-ENERGY STAR single-load washing machines predominately top loading or front loading?">
+                        label="Non-ENERGY STAR single-load/multi-load washing machines predominately top loading or front loading?">
                         <MenuItem value="top_loading">
                             Top Loading
                         </MenuItem>
@@ -194,7 +196,7 @@ class LaundryForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_DECIMAL_MASK}
-                    label="Typical capacity of ENERGY STAR single-load washing machines."
+                    label="Typical capacity of ENERGY STAR single-load/multi-load washing machines."
                     endAdornment={<InputAdornment position="end">feet³</InputAdornment>}
                 />
             </Grid>
@@ -208,7 +210,7 @@ class LaundryForm extends React.Component {
                         component={MaterialInput}
                         type="text"
                         mask={DEFAULT_DECIMAL_MASK}
-                        label="Typical capacity of Non-ENERGY STAR single-load washing machines."
+                        label="Typical capacity of Non-ENERGY STAR single-load/multi-load washing machines."
                         endAdornment={<InputAdornment position="end">feet³</InputAdornment>}
                     />
                 </Grid>
@@ -222,7 +224,7 @@ class LaundryForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_DECIMAL_MASK}
-                    label="Water factor of the ENERGY STAR single-load washing machines."
+                    label="Water factor of the ENERGY STAR single-load/multi-load washing machines."
                     endAdornment={<InputAdornment position="end">gallons/cycle/feet³</InputAdornment>}
                 />
             </Grid>
@@ -235,7 +237,7 @@ class LaundryForm extends React.Component {
                         component={MaterialInput}
                         type="text"
                         mask={DEFAULT_DECIMAL_MASK}
-                        label="Water factor of the Non-ENERGY STAR single-load washing machines."
+                        label="Water factor of the Non-ENERGY STAR single-load/multi-load washing machines."
                         endAdornment={<InputAdornment position="end">gallons/cycle/feet³</InputAdornment>}
                     />
                 </Grid>
@@ -275,7 +277,7 @@ class LaundryForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="Weeks per year single-load washing machines are operated."
+                    label="Weeks per year single-load/multi-load washing machines are operated."
                 />
             </Grid>
             <Grid item xs={12}>
@@ -286,7 +288,7 @@ class LaundryForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="Percentage of single-load washing machines that are ENERGY STAR."
+                    label="Percentage of single-load/multi-load washing machines that are ENERGY STAR."
                     endAdornment={<InputAdornment position="end">%</InputAdornment>}
                 />
             </Grid>
@@ -304,7 +306,7 @@ class LaundryForm extends React.Component {
                 <ExpansionPanelSummary>
                     <Field
                         name="laundry.has_single_load"
-                        label="My campus has single-load washing machines."
+                        label="My campus has single-load and/or multi-load washing machines."
                         component={ToggleAdapter}
                         type="checkbox"
                     />
@@ -321,7 +323,7 @@ class LaundryForm extends React.Component {
                 <ExpansionPanelSummary>
                     <Field
                         name="laundry.has_industrial_machines"
-                        label="My campus has industrial washing machines, such as multi-load washers, tunnel washers, or washer extractors."
+                        label="My campus has industrial washing machines, such as tunnel washers or washer extractors."
                         component={ToggleAdapter}
                         type="checkbox"
                     />

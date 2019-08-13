@@ -46,30 +46,30 @@ const validateLaundryFacility = (values, basePath) => {
     }
     valuePath = `${basePath}.single_load_weeks`;
     if (!isWithinNumericRange(valuePath, values, 1, 52)) {
-        errors['single_load_weeks'] = 'The number of weeks single-load washing machines are operated must be between 1 and 52.';
+        errors['single_load_weeks'] = 'The number of weeks single-load/multi-load washing machines are operated must be between 1 and 52.';
     }
     valuePath = `${basePath}.energy_star`;
     if (!isWithinNumericRange(valuePath, values, 0, 100)) {
-        errors['energy_star'] = 'The percentage of single-load washing machines that are ENERGY STAR must be between 0 and 100.';
+        errors['energy_star'] = 'The percentage of single-load/multi-load washing machines that are ENERGY STAR must be between 0 and 100.';
     }
     valuePath = `${basePath}.nonenergy_star_capacity`;
     if (!isWithinNumericRange(valuePath, values, 1.6, 8, true)) {
-        errors['nonenergy_star_capacity'] = 'The capacity of non-ENERGY STAR single-load washing machines must be between 1.6 and 8 feet³.';
+        errors['nonenergy_star_capacity'] = 'The capacity of non-ENERGY STAR single-load/multi-load washing machines must be between 1.6 and 8 feet³.';
     }
     valuePath = `${basePath}.energy_star_capacity`;
     if (!isWithinNumericRange(valuePath, values, 1.6, 8, true)) {
-        errors['energy_star_capacity'] = 'The capacity of ENERGY STAR single-load washing machines must be between 1.6 and 8 feet³.';
+        errors['energy_star_capacity'] = 'The capacity of ENERGY STAR single-load/multi-load washing machines must be between 1.6 and 8 feet³.';
     }
     valuePath = `${basePath}.energy_star_factor`;
     if (!isWithinNumericRange(valuePath, values, 0, 4)) {
-        errors['energy_star_factor'] = 'The water factor of ENERGY STAR single-load washing machines must be less than or equal to 4.0 gallons/cycle/cubic feet³.';
+        errors['energy_star_factor'] = 'The water factor of ENERGY STAR single-load/multi-load washing machines must be less than or equal to 4.0 gallons/cycle/cubic feet³.';
     }
 
     let machineType = resolve(`${basePath}.machine_type`, values)
     let maxWaterFactor = machineType == 'top_loading' ? 8.5 : 5.5;
     valuePath = `${basePath}.nonenergy_star_factor`;
     if (!isWithinNumericRange(valuePath, values, 0, maxWaterFactor, true)) {
-        errors['nonenergy_star_factor'] = 'Water factor of non-ENERGY STAR single-load washing machines must be between 0 and ' + maxWaterFactor +' gallons/cycle/cubic feet³.';
+        errors['nonenergy_star_factor'] = 'Water factor of non-ENERGY STAR single-load/multi-load washing machines must be between 0 and ' + maxWaterFactor +' gallons/cycle/cubic feet³.';
     }
     valuePath = `${basePath}.weight`;
     if (!isPositiveNumeric(valuePath, values)) {

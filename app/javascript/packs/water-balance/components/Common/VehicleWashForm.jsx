@@ -29,7 +29,7 @@ const style = {
   zIndex: '10000',
   'background-color' : 'rgb(220, 0, 78)',
   borderRadius: '11px',
-  width: '166px',
+  width: '196px',
   '&:hover': {
     opacity: '1',
   },
@@ -69,10 +69,18 @@ const FormRulesListener = ({handleFormChange}) => (
 );
 
 const recycledCalculation = (valuePath, values) => {
+    if(selectn(`${valuePath}.metered`)(values) == "yes") {
+        return (selectn(`${valuePath}.water_usage`)(values) * 1);
+    } 
+   
     return (selectn(`${valuePath}.vpw`)(values) * selectn(`${valuePath}.wpy`)(values) * selectn(`${valuePath}.gpv`)(values) * (1 - (selectn(`${valuePath}.recycled`)(values)/100)))/1000;
 }
 
 const nonRecycledCalculation = (valuePath, values) => {
+    if(selectn(`${valuePath}.metered`)(values) == "yes") {
+        return (selectn(`${valuePath}.water_usage`)(values) * 1);
+    } 
+   
     return (selectn(`${valuePath}.vpw`)(values) * selectn(`${valuePath}.wpy`)(values) * selectn(`${valuePath}.rating`)(values) * (selectn(`${valuePath}.wash_time`)(values)))/1000;
 }
 
@@ -101,9 +109,10 @@ class VehicleWashForm extends React.Component {
         let LargeVehicle = recycledCalculation(valuePath, values) || 0;
 
         let total = autoWash + conveyor + washPads + LargeVehicle;
+        let roundTotal = Math.round( total * 10) / 10;
 
         this.setState({
-            waterUse: " Water Use: " + total
+            waterUse: " Water Use: " + roundTotal + " kgal"
         });
 
     };
@@ -440,6 +449,8 @@ class VehicleWashForm extends React.Component {
                             </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
+                        <pre>{JSON.stringify(values, 0, 2)}</pre>
+
                     </form>
                 )}
             />
