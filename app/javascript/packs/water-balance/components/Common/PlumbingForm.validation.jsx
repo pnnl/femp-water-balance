@@ -7,9 +7,9 @@ const isPositiveNumeric = (path, values, includeZero = false, required = true) =
     if (required === true && resolvedValue) {
         const numeric = parseInt(resolvedValue.replace(/,/g,''));
         if(includeZero) {
-            return !(isNaN(numeric) || numeric <= 0);
+            return !(isNaN(numeric));
         } else {
-            return !(isNaN(numeric) || numeric < 0);
+            return !(isNaN(numeric) || numeric <= 0);
         }
     }
     return false;
@@ -67,19 +67,23 @@ const validateFacility = (values, basePath) => {
         errors['staff_weekend'] = 'Percentage of staff that work during the weekends must be between 0 and 100.';
     }
     valuePath = `${basePath}.shift_weekday`;
-    if (!isPositiveNumeric(valuePath, values, true)) {
+    if (!isPositiveNumeric(valuePath, values)) {
         errors['shift_weekday'] = 'The average length of a weekday shift.';
     }
     valuePath = `${basePath}.shift_weekend`;
-    if (!isPositiveNumeric(valuePath, values, true)) {
+    if (!isPositiveNumeric(valuePath, values)) {
         errors['shift_weekend'] = 'The average length of a weekend day shift.';
     }
     valuePath = `${basePath}.male_population`;
     if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
         errors['male_population'] = 'Percentage of population that is male be between 0 and 100.';
     }
+    valuePath = `${basePath}.shower_usage`;
+    if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
+        errors['shower_usage'] = 'Percentage of general campus occupants that use showers on a daily basis must be between 0 and 100.';
+    }
 
-    let flushRateErrors = validateFlushRates(values, basePath, 'overall campus', 'general campus occupants'); 
+    let flushRateErrors = validateFlushRates(values, basePath, 'overall campus'); 
     Object.assign(errors, flushRateErrors);
 
     return Object.keys(errors).length === 0 ? undefined : errors;
@@ -88,6 +92,7 @@ const validateFacility = (values, basePath) => {
 const validateHospital = (values, basePath) => {
     const errors = {};
     let valuePath = `${basePath}.days_per_year`;
+
     if (!isWithinNumericRange(valuePath, values, 1, 365, true)) {
         errors['days_per_year'] = 'The number of days per year the hospital/clinic is open must be between 1 and 365.';
     }
@@ -100,7 +105,7 @@ const validateHospital = (values, basePath) => {
         errors['administrative'] = 'Percentage of hospital clinic staff that are administrative must be between 0 and 100.';
     }
     valuePath = `${basePath}.staff_shift`;
-    if (!isPositiveNumeric(valuePath, values, true)) {
+    if (!isPositiveNumeric(valuePath, values)) {
         errors['staff_shift'] = 'The average length of a hospital/clinic staff shift.';
     }
     valuePath = `${basePath}.outpatient_visits`;
@@ -113,16 +118,24 @@ const validateHospital = (values, basePath) => {
     }
     valuePath = `${basePath}.inpatient_per_day`;
     if (!isPositiveNumeric(valuePath, values, true)) {
-        errors['inpatient_per_day'] = 'The average number of inpatient stays in a day.';
+        errors['inpatient_per_day'] = 'The average number of inpatients in a day. Please put 0 if no overnight patients.';
+    }
+    valuePath = `${basePath}.shower_usage_staff`;
+    if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
+        errors['shower_usage_staff'] = 'Percentage of hospital staff that use showers on a daily basis must be between 0 and 100.';
+    }
+    valuePath = `${basePath}.shower_usage_inpatient`;
+    if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
+        errors['shower_usage_inpatient'] = 'Percentage of hospital inpatents that use showers on a daily basis must be between 0 and 100.';
     }
 
-    let flushRateErrors = validateFlushRates(values, basePath, 'hospital/medical clinic', 'hospital staff and hospital inpatents'); 
+    let flushRateErrors = validateFlushRates(values, basePath, 'hospital/medical clinic'); 
     Object.assign(errors, flushRateErrors);
 
     return Object.keys(errors).length === 0 ? undefined : errors;
 }
 
-const validateFlushRates = (values, basePath, source, people) => {
+const validateFlushRates = (values, basePath, source) => {
     const errors = {};
     let valuePath = `${basePath}.typical_flush_rate`;
     if (!isWithinNumericRange(valuePath, values, 1.28, 3.5, true)) {
@@ -138,17 +151,17 @@ const validateFlushRates = (values, basePath, source, people) => {
     }
     valuePath = `${basePath}.kitchenette_flow_rate`;
     if (!isWithinNumericRange(valuePath, values, 0.5, 2.5, true)) {
-        errors['kitchenette_flow_rate'] = 'The flow rate of kitchenette faucet aerators in '+ source +' must be between 0.5 and 2.5 gpf.';
+        if(resolve(valuePath, values) != 0) {
+            errors['kitchenette_flow_rate'] = 'The flow rate of kitchenette faucet aerators in '+ source +' must be between 0.5 and 2.5 gpf. Please put 0 if no kitchenettes are present.';
+        }
     }
     valuePath = `${basePath}.shower_flow_rate`;
     if (!isWithinNumericRange(valuePath, values, 1.0, 2.5, true)) {
-        errors['shower_flow_rate'] = 'The flow rate of showers in '+ source +' must be between 1.0 and 2.5 gpf.';
+        if(resolve(valuePath, values) != 0) {
+            errors['shower_flow_rate'] = 'The flow rate of showers in '+ source +' must be between 1.0 and 2.5 gpf. Please put 0 in no showers are present.';
+        }
     }
-    valuePath = `${basePath}.shower_usage`;
-    if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
-        errors['shower_usage'] = 'Percentage of '+ people +' that use showers on a daily basis must be between 0 and 100.';
-    }
-
+    
     return Object.keys(errors).length === 0 ? undefined : errors;
 }
 
@@ -177,7 +190,6 @@ const validate = values => {
         }
     }
 
-    
     let sectionErrors = validateFacility(values, `${basePath}.facility`);
     if (sectionErrors) {
         plumbing['facility'] = sectionErrors;
