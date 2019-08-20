@@ -113,7 +113,7 @@ class WaterSupplyForm extends React.Component {
                                                 component={MaterialInput}
                                                 type="text"
                                                 mask={DEFAULT_NUMBER_MASK}
-                                                label={`${DateUtils.getMonthText(monthDate)} Potable Water Usage`}
+                                                label={`${DateUtils.getMonthText(monthDate)} Potable Water Use`}
                                                 endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                                             />
                                         </Grid>
@@ -135,7 +135,7 @@ class WaterSupplyForm extends React.Component {
                                     {values.monthly_discharge && values.monthly_usage && (
                                         <Grid item xs={12} sm={4}>
                                             <MaterialInput disabled meta={{visited: true, error: hasWarning}}
-                                                        helperText={`Difference in Water Usage & Wastewater for the month of ${DateUtils.getMonthText(monthDate)}`}
+                                                        helperText={`Difference in Potable Water Use & Wastewater Discharge for the month of ${DateUtils.getMonthText(monthDate)}`}
                                                         input={{value: numberFormat.format(rowDiff)}}
                                                         startAdornment={<InputAdornment position="start">Balance</InputAdornment>}
                                                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}/>
@@ -152,8 +152,8 @@ class WaterSupplyForm extends React.Component {
                                 name="ws_wu_total"
                                 component={MaterialInput}
                                 type="text"
-                                label={`Annual Potable Water Usage`}
-                                meta={{visited: true, error: (overallUsageOK ? null : 'Annual water usage does not match monthly water usage values.' )}}
+                                label={`Sum of Monthly Potable Water Use`}
+                                meta={{visited: true, error: (overallUsageOK ? null : 'The sum of monthly water use does not match annual total water use entered above. Please double check your input.' )}}
                                 endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                             />
                         </Grid>
@@ -167,7 +167,7 @@ class WaterSupplyForm extends React.Component {
                                 name="ws_ww_total"
                                 component={MaterialInput}
                                 type="text"
-                                label={`Annual Wastewater Discharge`}
+                                label={`Sum of Monthly Wastewater Discharge`}
                                 endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                             />
                         </Grid>
@@ -180,7 +180,7 @@ class WaterSupplyForm extends React.Component {
 
     render() {
         const {campus, applyRules} = this.props;
-       
+
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Water Supply</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information for potable water use (supply) for the campus.</Typography>
@@ -205,22 +205,10 @@ class WaterSupplyForm extends React.Component {
                                     endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                                 />
                             </Grid>
-                             <Grid item xs={12}>
-                                <Field
-                                    fullWidth
-                                    required
-                                    name={`calendar_year`}
-                                    component={MaterialInput}
-                                    type="text"
-                                    mask={DEFAULT_YEAR_MASK}
-                                    label="What calendar year does this water use represent?"
-                                />
-                            </Grid>
-                            {toNumber(values.potable_water) > 0 && values.calendar_year && (
                                 <Fragment>
                                     <Grid item xs={12}>
                                         <FormControlLabel
-                                            label= {`Is the potable water use for the campus in ${values.calendar_year} available by month?`}
+                                            label= {`Is the potable water use for the campus in ${new Date(values.survey).getFullYear()} available by month?`}
                                             control={
                                                 <Field
                                                     name="monthly_usage"
@@ -233,7 +221,7 @@ class WaterSupplyForm extends React.Component {
                                     </Grid>
                                     <Grid item xs={12}>
                                         <FormControlLabel
-                                            label={`Is the volume of wastewater discharged from the campus in ${values.calendar_year} available by month?`}
+                                            label={`Is the volume of wastewater discharged from the campus in ${new Date(values.survey).getFullYear()} available by month?`}
                                             control={
                                                 <Field
                                                     name="monthly_discharge"
@@ -246,7 +234,6 @@ class WaterSupplyForm extends React.Component {
                                     </Grid>
                                     {this.renderFormInputs(values)}
                                 </Fragment>
-                            )}
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>

@@ -69,6 +69,7 @@ class PlumbingForm extends React.Component {
     };
 
     flushRate = (basePath, values, source, people) => {
+         let flowRate = selectn(`${basePath}.shower_flow_rate`)(values);
          return (<Fragment>
             <Grid item xs={12}>
                 <Field
@@ -90,15 +91,15 @@ class PlumbingForm extends React.Component {
                     name={`${basePath}.urinals`}
                     component={Select}
                     label={"Are urinals typically present in " + source + "?"}>
-                    <MenuItem value="yes">
-                        yes
+                    <MenuItem value="Yes">
+                        Yes
                     </MenuItem>
                     <MenuItem value="No">
                         No
                     </MenuItem>
                 </Field>
             </Grid>
-            {selectn(`${basePath}.urinals`)(values) === "yes" && (
+            {selectn(`${basePath}.urinals`)(values) === "Yes" && (
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -134,7 +135,7 @@ class PlumbingForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_DECIMAL_MASK}
-                    label={"What is the typical flow rate of kitchenette faucet aerators in " + source + "?"}
+                    label={"What is the typical flow rate of kitchenette faucet aerators in " + source + "? Please put 0 if no kitchenettes are present."}
                     endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
                     >
                 </Field>
@@ -147,12 +148,12 @@ class PlumbingForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_DECIMAL_MASK}
-                    label={"What is the typical flow rate of showers in " + source + "?"}
+                    label={"What is the typical flow rate of showers in " + source + "? Please put 0 in no showers are present."}
                     endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
                     >
                 </Field>
             </Grid>
-            {source === "overall campus" || source === "hospital/medical clinic" && (
+            {source === "overall campus" && flowRate != 0 && flowRate != undefined && (
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -167,6 +168,34 @@ class PlumbingForm extends React.Component {
                     </Field>
                 </Grid>
             )}
+            {source === "hospital/medical clinic" && flowRate != 0 && flowRate != undefined && (<Fragment>
+                <Grid item xs={12}>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        required
+                        name={`${basePath}.shower_usage_staff`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_DECIMAL_MASK}
+                        label={"What is the estimated percentage of " + people[0] + " that use showers on a daily basis?"}
+                        endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                        >
+                    </Field>
+                </Grid>
+                <Grid item xs={12}>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        required
+                        name={`${basePath}.shower_usage_inpatient`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_DECIMAL_MASK}
+                        label={"What is the estimated percentage of " + people[1] + " that use showers on a daily basis?"}
+                        endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                        >
+                    </Field>
+                </Grid>
+            </Fragment>)}
         </Fragment>);
     }
 
@@ -180,7 +209,7 @@ class PlumbingForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="What is the estimated total population in all on-site lodging? "
+                    label="What is the estimated monthly average population in all on-site lodging?"
                     >
                 </Field>
             </Grid>
@@ -189,100 +218,109 @@ class PlumbingForm extends React.Component {
     }
 
     facility = (basePath, values) => {
-        return (<Fragment>
-            <Grid item xs={12}>
-                <Field
-                    formControlProps={{fullWidth: true}}
-                    required
-                    name={`${basePath}.total_population`}
-                    component={MaterialInput}
-                    type="text"
-                    mask={DEFAULT_NUMBER_MASK}
-                    label="What is the estimated overall campus staff population, excluding hospital/medical clinics? Note: hospital/medical clinic population question is below."
+        return (
+            <ExpansionPanel expanded={selectn(`${basePath}.total_population`)(values) !== undefined}>
+                <ExpansionPanelSummary>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        required
+                        name={`${basePath}.total_population`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_NUMBER_MASK}
+                        label="What is the estimated overall average daily campus staff population, excluding hospital/medical clinics? Note: hospital/medical clinic population question is below."
                     >
                 </Field>
-            </Grid>
-            {selectn(`${basePath}.total_population`)(values) !== undefined && (<Fragment>
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.operating_weeks`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label="How many week days per year does the campus typically operate?"
-                        >
-                    </Field>
-                </Grid>
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.operating_weekend`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label="How many weekend days per year does the campus typically operate?"
-                        >
-                    </Field>
-                </Grid>
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.staff_weekend`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label="What is the estimated percentage of staff that work during the weekends?"
-                        endAdornment={<InputAdornment position="end">%</InputAdornment>}
-                        >
-                    </Field>
-                </Grid>
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.shift_weekday`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label="What is the average length of a weekday shift?"
-                        endAdornment={<InputAdornment position="end">hours</InputAdornment>}
-                        >
-                    </Field>
-                </Grid>
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.shift_weekend`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label="What is the average length of a weekend day shift?"
-                        endAdornment={<InputAdornment position="end">hours</InputAdornment>}
-                        >
-                    </Field>
-                </Grid>
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.male_population`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label="Estimate the percentage of overall population that is male"
-                        endAdornment={<InputAdornment position="end">%</InputAdornment>}
-                        >
-                    </Field>
-                </Grid>
-                {this.flushRate(basePath, values, "overall campus", "general campus occupants")}
-            </Fragment>)}
-         </Fragment>);
-    }
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails>
+                <Grid container alignItems="flex-start" spacing={16}>
+                    <Grid item xs={12}>
+                        <Field
+                            formControlProps={{fullWidth: true}}
+                            required
+                            name={`${basePath}.operating_weeks`}
+                            component={MaterialInput}
+                            type="text"
+                            mask={DEFAULT_DECIMAL_MASK}
+                            label="How many week days per year does the campus typically operate?"
+                            >
+                        </Field>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Field
+                            formControlProps={{fullWidth: true}}
+                            required
+                            name={`${basePath}.operating_weekend`}
+                            component={MaterialInput}
+                            type="text"
+                            mask={DEFAULT_DECIMAL_MASK}
+                            label="How many weekend days per year does the campus typically operate?"
+                            >
+                        </Field>
+                    </Grid>
+                    {selectn(`${basePath}.operating_weekend`)(values) != 0 && (
+                        <Grid item xs={12}>
+                            <Field
+                                formControlProps={{fullWidth: true}}
+                                required
+                                name={`${basePath}.staff_weekend`}
+                                component={MaterialInput}
+                                type="text"
+                                mask={DEFAULT_DECIMAL_MASK}
+                                label="What is the estimated percentage of staff that work during the weekends?"
+                                endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                                >
+                            </Field>
+                        </Grid>
+                    )}
+                     {selectn(`${basePath}.operating_weeks`)(values) != 0 && (
+                        <Grid item xs={12}>
+                            <Field
+                                formControlProps={{fullWidth: true}}
+                                required
+                                name={`${basePath}.shift_weekday`}
+                                component={MaterialInput}
+                                type="text"
+                                mask={DEFAULT_DECIMAL_MASK}
+                                label="What is the average length of a weekday shift?"
+                                endAdornment={<InputAdornment position="end">hours</InputAdornment>}
+                                >
+                            </Field>
+                        </Grid>
+                    )}    
+                    {selectn(`${basePath}.operating_weekend`)(values) != 0 && (
+                        <Grid item xs={12}>
+                            <Field
+                                formControlProps={{fullWidth: true}}
+                                required
+                                name={`${basePath}.shift_weekend`}
+                                component={MaterialInput}
+                                type="text"
+                                mask={DEFAULT_DECIMAL_MASK}
+                                label="What is the average length of a weekend day shift?"
+                                endAdornment={<InputAdornment position="end">hours</InputAdornment>}
+                                >
+                            </Field>
+                        </Grid>
+                    )}
+                    <Grid item xs={12}>
+                        <Field
+                            formControlProps={{fullWidth: true}}
+                            required
+                            name={`${basePath}.male_population`}
+                            component={MaterialInput}
+                            type="text"
+                            mask={DEFAULT_DECIMAL_MASK}
+                            label="Estimate the percentage of overall population that is male"
+                            endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                            >
+                        </Field>
+                    </Grid>
+                    {this.flushRate(basePath, values, "overall campus", "general campus occupants")}
+                    </Grid>
+            </ExpansionPanelDetails>
+        </ExpansionPanel>
+    )}
 
     hospital = (basePath, values) => {
         return (<Fragment>
@@ -318,7 +356,7 @@ class PlumbingForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_DECIMAL_MASK}
-                    label="What is the estimated percentage of hospital clinic staff are administrative?"
+                    label="Approximately what percentage of the hospital/clinic staff are administrative?"
                     endAdornment={<InputAdornment position="end">%</InputAdornment>}
                     >
                 </Field>
@@ -369,21 +407,21 @@ class PlumbingForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="What is the average number of inpatient stays in a day?"
+                    label="What is the average number of inpatients in a day? Please put 0 if no overnight patients."
                     >
                 </Field>
             </Grid>
-            {this.flushRate(basePath, values, "hospital/medical clinic", "hospital staff and hospital inpatents")}
+            {this.flushRate(basePath, values, "hospital/medical clinic", ["hospital staff", "hospital inpatents"])}
         </Fragment>);
     }
 
     renderFacilityTypes = (values) => {
         return (<Fragment>
             <Grid item xs={12}>
-                <Grid container alignItems="flex-start" spacing={16}>
-                    {this.facility('plumbing.facility', values)}
-                </Grid>
-               <ExpansionPanel expanded={selectn(`plumbing.has_onsite_lodging`)(values) === true}>
+                {this.facility('plumbing.facility', values)}
+            </Grid>
+            <Grid item xs={12}>
+                <ExpansionPanel expanded={selectn(`plumbing.has_onsite_lodging`)(values) === true}>
                     <ExpansionPanelSummary>
                         <Field
                             name="plumbing.has_onsite_lodging"
@@ -401,19 +439,19 @@ class PlumbingForm extends React.Component {
             </Grid>
             <Grid item xs={12}>
                 <ExpansionPanel expanded={selectn(`plumbing.has_hospital`)(values) === true}>
-                <ExpansionPanelSummary>
-                    <Field
-                        name="plumbing.has_hospital"
-                        label="My campus has a hospital or medical clinic?"
-                        component={ToggleAdapter}
-                        type="checkbox"
-                    />
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
-                    <Grid container alignItems="flex-start" spacing={16}>
-                        {this.hospital('plumbing.hospital', values)}
-                    </Grid>
-                </ExpansionPanelDetails>
+                    <ExpansionPanelSummary>
+                        <Field
+                            name="plumbing.has_hospital"
+                            label="My campus has a hospital or medical clinic?"
+                            component={ToggleAdapter}
+                            type="checkbox"
+                        />
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails>
+                        <Grid container alignItems="flex-start" spacing={16}>
+                            {this.hospital('plumbing.hospital', values)}
+                        </Grid>
+                    </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
         </Fragment>);
@@ -421,7 +459,6 @@ class PlumbingForm extends React.Component {
 
     render() {
             const { campus, applyRules } = this.props;
-
             return (<Fragment>
                 <Typography variant="h5" gutterBottom>Plumbing</Typography>
                 <Typography variant="body2" gutterBottom>Enter the following information only for plumbing fixtures (toilets, urinals, bathroom faucets, kitchenette faucets and showerheads) that use potable water on the campus.</Typography>

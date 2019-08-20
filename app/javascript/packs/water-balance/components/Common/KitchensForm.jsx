@@ -60,7 +60,8 @@ class KitchensForm extends React.Component {
 
     renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
-         return (<Fragment>
+        const year = new Date(values.survey).getFullYear();
+        return (<Fragment>
             {isMetered === "yes" && (
                 <Grid item xs={12}>
                     <Field
@@ -70,7 +71,7 @@ class KitchensForm extends React.Component {
                         component={MaterialInput}
                         type="text"
                         mask={DEFAULT_NUMBER_MASK}
-                        label="Total annual water use"
+                        label={`${year} total annual water use`}
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         >
                     </Field>
@@ -335,7 +336,7 @@ class KitchensForm extends React.Component {
                                             name={`${name}.name`}
                                             component={MaterialInput}
                                             type="text"
-                                            label="Unique Identifier"
+                                            label="Enter a unique identifier for this commercial kitchen facility (such as a building name or building number)"
                                         />
                                     </Grid>
                                     {selectn(`${name}.type`)(values) && this.renderFacilityTypeResponse(values, `${name}`)}
@@ -395,7 +396,7 @@ class KitchensForm extends React.Component {
                                         variant="contained"
                                         color="primary"
                                         onClick={() => push('kitchen_facilities', undefined)}>
-                                        Add another kitchen
+                                        Add Another Commercial Kitchen
                                     </Button>
                                 )}
                             </Grid>
