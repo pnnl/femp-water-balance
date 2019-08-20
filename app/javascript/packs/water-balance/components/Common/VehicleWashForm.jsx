@@ -175,7 +175,7 @@ class VehicleWashForm extends React.Component {
                         type="text"
                         mask={DEFAULT_NUMBER_MASK}
                         label="Flow rate of the open hose"
-                        endAdornment={<InputAdornment position="end">G.P.M</InputAdornment>}
+                        endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
                     />
                 </Grid>
             )}
@@ -189,7 +189,7 @@ class VehicleWashForm extends React.Component {
                         type="text"
                         mask={DEFAULT_NUMBER_MASK}
                         label="Nozzle rating of pressure washer"
-                        endAdornment={<InputAdornment position="end">G.P.M</InputAdornment>}
+                        endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
                     />
                 </Grid>
             )}
@@ -198,6 +198,7 @@ class VehicleWashForm extends React.Component {
 
     renderFacilityForm = (values, basePath) => {
         const isMetered = selectn(`${basePath}.metered`)(values);
+        const year = new Date(values.survey).getFullYear();
         return (
             <Fragment>
                 {this.renderWaterMeteredControl(basePath,values, true)}
@@ -210,7 +211,7 @@ class VehicleWashForm extends React.Component {
                             component={MaterialInput}
                             type="text"
                             mask={DEFAULT_NUMBER_MASK}
-                            label="Total annual water use for all vehicle wash facilities on campus"
+                            label={`${year} total annual water use for all vehicle wash facilities on campus`}
                             endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         />
                     </Grid>
@@ -249,8 +250,8 @@ class VehicleWashForm extends React.Component {
                                 component={MaterialInput}
                                 type="text"
                                 mask={DEFAULT_DECIMAL_MASK}
-                                label="Estimated water use per vehicle (gpv)"
-                                endAdornment={<InputAdornment position="end">Gallons</InputAdornment>}
+                                label="Estimated water use per vehicle"
+                                endAdornment={<InputAdornment position="end">gpv</InputAdornment>}
                             />
                         </Grid>
                         <Grid item xs={12}>
