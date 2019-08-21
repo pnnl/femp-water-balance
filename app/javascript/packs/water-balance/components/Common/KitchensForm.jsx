@@ -444,14 +444,8 @@ class KitchensForm extends React.Component {
                 onSubmit={this.onSubmit}
                 initialValues={campus}
                 validate={formValidation}
-                mutators={{
-                    ...arrayMutators
-                }}
-                render={({
-                    handleSubmit,
-                    values,
-                    form: { mutators: { push, pop } }
-                }) => (
+                mutators={{...arrayMutators }}
+                render={({ handleSubmit, values, form: { mutators: { push, pop } }}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>

@@ -166,8 +166,7 @@ class LaundryForm extends React.Component {
             </Grid>
         </Fragment>)
     }
-
-
+    
     energyStar = (values, basePath) => {
         return (<Fragment>
             {selectn(`${basePath}.energy_star`)(values) < 100 && (
