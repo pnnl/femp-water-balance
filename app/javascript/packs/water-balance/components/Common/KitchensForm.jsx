@@ -2,6 +2,15 @@ import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
 import {Form, Field, FormSpy} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
+import {
+    Fab,
+    Grid,
+    Button,
+    FormControlLabel,
+    InputAdornment,
+    Switch,
+    MenuItem
+} from '@material-ui/core';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -15,14 +24,19 @@ import DeleteIcon from '@material-ui/icons/Delete';
 
 import formValidation from './kitchensForm.validation';
 
-import {
-    Grid,
-    Button,
-    FormControlLabel,
-    InputAdornment,
-    Switch,
-    MenuItem
-} from '@material-ui/core';
+const style = {
+  opacity: '.65',
+  position: 'fixed',
+  bottom: '11px',
+  right: '104px',
+  zIndex: '10000',
+  backgroundColor : 'rgb(220, 0, 78)',
+  borderRadius: '11px',
+  width: '196px',
+  '&:hover': {
+    opacity: '1',
+  },
+};
 
 const DEFAULT_NUMBER_MASK = createNumberMask({
     prefix: '',
@@ -55,6 +69,41 @@ const toNumber = (value) => {
     }
     return parseInt(value.toString().replace(/,/g, ''));
 };
+
+const calculatePerMeal = (values) => {
+    if(values == null) {
+        return 0;
+    }
+    let iceMaker = (values.ice_maker * 1) || 0;
+    let combinationOven = (values.combination_oven * 1) || 0;
+    let prepSink = values.prep_sink == true ? 1 : 0;
+    let sprayValve = (values.spray_valve * 1) || 0;
+    let dishwasher = (values.dishwasher_type * 1) || 0;
+    let handWashSink = (values.flow_rate * 1);
+    let handWashSinkValue = 0;
+    if (isNaN(handWashSink)) { 
+        handWashSinkValue = 0;
+    } else if (handWashSink > 1.5) {
+        handWashSinkValue = 4;
+    } else if ((handWashSink >= 1.1) && (handWashSink <= 1.5)) {
+        handWashSinkValue = 3;
+    } else if ((handWashSink >= 0.6) && (handWashSink <= 1.0)) {
+        handWashSinkValue = 2;
+    } else if (handWashSink <= 0.5) {
+        handWashSinkValue = 1;
+    }
+    let useIndex = iceMaker + (combinationOven * 5.9 ) + (prepSink + sprayValve + dishwasher + handWashSinkValue) * 3.1;
+    let waterUsePerMeal = 0;
+    if ((useIndex > 0) && (useIndex <= 28.3)) {
+        waterUsePerMeal = 5;
+    } else if ((useIndex >= 28.4) && (useIndex <= 40.1)) {
+        waterUsePerMeal = 10;
+    } else if ((useIndex >= 40.2) && (useIndex <= 51.7)) {
+        waterUsePerMeal = 15;
+    }
+
+    return waterUsePerMeal;
+}
 
 class KitchensForm extends React.Component {
 
@@ -91,7 +140,6 @@ class KitchensForm extends React.Component {
         });
     };
 
-
     renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
         const year = new Date(values.survey).getFullYear();
@@ -127,16 +175,16 @@ class KitchensForm extends React.Component {
                     component={Select}
                     label="Type of dishwasher"
                 >
-                    <MenuItem value="standard_continuous">
+                    <MenuItem value="3">
                         Standard Continuous
                     </MenuItem>
-                    <MenuItem value="standard_batch">
+                    <MenuItem value="2">
                         Standard Batch
                     </MenuItem>
-                    <MenuItem value="energy_star_labelled">
+                    <MenuItem value="1">
                         Energy Star Labelled
                     </MenuItem>
-                    <MenuItem value="no_dishwasher">
+                    <MenuItem value="0">
                         No Dishwasher
                     </MenuItem>
                 </Field>
@@ -149,13 +197,13 @@ class KitchensForm extends React.Component {
                     component={Select}
                     label="Type of pre-rinse spray valve"
                 >
-                    <MenuItem value="standard_flow">
+                    <MenuItem value="2">
                         Standard Flow
                     </MenuItem>
-                    <MenuItem value="watersense_labelled">
+                    <MenuItem value="1">
                         WaterSense Labelled
                     </MenuItem>
-                    <MenuItem value="no_valve">
+                    <MenuItem value="0">
                         No Pre-Rinse Spray Valves
                     </MenuItem>
                 </Field>
@@ -192,16 +240,16 @@ class KitchensForm extends React.Component {
                     component={Select}
                     label="Type of combination oven or steam cooker"
                 >
-                    <MenuItem value="standard_boiler_based">
+                    <MenuItem value="3">
                         Standard Boiler-Based
                     </MenuItem>
-                    <MenuItem value="standard_connectionless">
+                    <MenuItem value="2">
                         Standard Connectionless
                     </MenuItem>
-                    <MenuItem value="energy_star_labelled">
+                    <MenuItem value="1">
                         Energy Star Labelled
                     </MenuItem>
-                    <MenuItem value="no_combination">
+                    <MenuItem value="0">
                         No Combination Ovens or Steam Cookers
                     </MenuItem>
                 </Field>
@@ -214,16 +262,16 @@ class KitchensForm extends React.Component {
                     component={Select}
                     label="Type of ice maker"
                 >
-                    <MenuItem value="standard_water_cooled">
+                    <MenuItem value="3">
                         Standard Water-Cooled
                     </MenuItem>
-                    <MenuItem value="standard_air_cooled">
+                    <MenuItem value="2">
                         Standard Air-Cooled
                     </MenuItem>
-                    <MenuItem value="energy_star_labelled">
+                    <MenuItem value="1">
                         Energy Star Labelled
                     </MenuItem>
-                    <MenuItem value="no_ice_maker">
+                    <MenuItem value="0">
                         No Ice Maker
                     </MenuItem>
                 </Field>
@@ -424,15 +472,32 @@ class KitchensForm extends React.Component {
                                 />
                             </Grid>
                             {this.renderFacilityTypes(values)}
+                           
                             <Grid item xs={12}>
-                                {(values.has_kitchens === false || values.has_kitchens === undefined) ? null : (
+                                {(values.has_kitchens === false || values.has_kitchens === undefined) ? null : (<Fragment>
                                     <Button
                                         variant="contained"
                                         color="primary"
                                         onClick={() => push('kitchen_facilities', undefined)}>
                                         Add Another Commercial Kitchen
                                     </Button>
+                                    <Button
+                                        style={{marginLeft: '10px'}}
+                                        variant="contained"
+                                        onClick={() => this.calculateWaterUse(values)}>
+                                        Calculate Water Use
+                                    </Button>
+                                    {this.state.waterUse != '' && (
+                                        <Fab
+                                            color="primary"
+                                            aria-label="Water Use"
+                                            title="Water Use"
+                                            style={style}
+                                        >
+                                        {this.state.waterUse}
+                                        </Fab>
                                 )}
+                                </Fragment>)}
                             </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
