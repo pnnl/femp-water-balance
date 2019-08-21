@@ -54,14 +54,22 @@ const validateFacility = (values, basePath) => {
     if (!isPositiveNumeric(valuePath, values, true)) {
         errors['total_population'] = 'The estimated overall campus staff population, excluding hospital/medical clinics.';
     }
+
     valuePath = `${basePath}.operating_weeks`;
     if (!isWithinNumericRange(valuePath, values, 0, 260, true)) {
         errors['operating_weeks'] = 'The number of days per year the campus operates must be between 0 and 260.';
-    }
+    } 
     valuePath = `${basePath}.operating_weekend`;
     if (!isWithinNumericRange(valuePath, values, 0, 104, true)) {
         errors['operating_weekend'] = 'The number of weekend days per year the campus operates must be between 0 and 104.';
+    } 
+    let operatingWeeks = resolve(`${basePath}.operating_weeks`, values);
+    let operatingWeekends = resolve(`${basePath}.operating_weekend`, values);
+    if (operatingWeeks == 0 && operatingWeekends == 0) {
+        errors['operating_weeks'] = 'The number of days the campus operates per year cannot be 0 for both weekdays and weekend days.';
+        errors['operating_weekend'] = 'The number of days the campus operates per year cannot be 0 for both weekdays and weekend days.';
     }
+
     valuePath = `${basePath}.staff_weekend`;
     if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
         errors['staff_weekend'] = 'Percentage of staff that work during the weekends must be between 0 and 100.';
