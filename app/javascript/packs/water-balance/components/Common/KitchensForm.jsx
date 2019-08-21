@@ -58,6 +58,40 @@ const toNumber = (value) => {
 
 class KitchensForm extends React.Component {
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            waterUse: ''
+        };
+        this.calculateWaterUse = this.calculateWaterUse.bind(this);
+    }
+
+    calculateWaterUse = (values) => {
+        let waterUsePerMeal = 0;
+        let total = 0;
+        values.kitchen_facilities.map((facilityValues, index) => {
+            if(facilityValues) { 
+                if(facilityValues.is_metered == 'yes') {
+                    total += (facilityValues.annual_water_use || 0) * 1;
+                } else {
+                    waterUsePerMeal = calculatePerMeal(facilityValues);
+                    let weekdayMeals = facilityValues.weekday_meals || 0;
+                    let weekendMeals = facilityValues.weekend_meals || 0;
+                    let operatingWeeks = facilityValues.operating_weeks || 0;
+                    let operatingWeekends = facilityValues.operating_weekends || 0;
+                    total += (((weekdayMeals * operatingWeeks) + (weekendMeals * operatingWeekends)) * waterUsePerMeal)/1000;
+                }
+            }
+        });
+
+        let roundTotal = Math.round( total * 10) / 10;
+
+        this.setState({
+            waterUse: " Water Use: " + roundTotal + " kgal"
+        });
+    };
+
+
     renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
         const year = new Date(values.survey).getFullYear();
