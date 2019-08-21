@@ -27,7 +27,7 @@ const style = {
   bottom: '11px',
   right: '104px',
   zIndex: '10000',
-  backgroundColor : 'rgb(220, 0, 78)',
+  'background-color' : 'rgb(220, 0, 78)',
   borderRadius: '11px',
   width: '196px',
   '&:hover': {
@@ -166,7 +166,8 @@ class LaundryForm extends React.Component {
             </Grid>
         </Fragment>)
     }
-    
+
+
     energyStar = (values, basePath) => {
         return (<Fragment>
             {selectn(`${basePath}.energy_star`)(values) < 100 && (
