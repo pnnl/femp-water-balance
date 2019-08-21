@@ -58,11 +58,11 @@ const validateFacility = (values, basePath) => {
     valuePath = `${basePath}.operating_weeks`;
     if (!isWithinNumericRange(valuePath, values, 0, 260, true)) {
         errors['operating_weeks'] = 'The number of days per year the campus operates must be between 0 and 260.';
-    } 
+    }
     valuePath = `${basePath}.operating_weekend`;
     if (!isWithinNumericRange(valuePath, values, 0, 104, true)) {
         errors['operating_weekend'] = 'The number of weekend days per year the campus operates must be between 0 and 104.';
-    } 
+    }
     let operatingWeeks = resolve(`${basePath}.operating_weeks`, values);
     let operatingWeekends = resolve(`${basePath}.operating_weekend`, values);
     if (operatingWeeks == 0 && operatingWeekends == 0) {

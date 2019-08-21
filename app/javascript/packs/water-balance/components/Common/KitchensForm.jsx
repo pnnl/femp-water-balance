@@ -496,7 +496,7 @@ class KitchensForm extends React.Component {
                                         >
                                         {this.state.waterUse}
                                         </Fab>
-                                    )}
+                                )}
                                 </Fragment>)}
                             </Grid>
                         </Grid>
