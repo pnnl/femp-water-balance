@@ -72,6 +72,24 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     />
 );
 
+const continuousWaterUse = (processes) => {
+    let batchesPerWeek = (processes.average_week * 1) || 0; 
+    let weeksPerYear = (processes.week_year * 1) || 0; 
+    let waterPerBatch = (processes.water_use * 1) || 0; 
+    let recycled = (processes.recycled * 1) || 0; 
+
+    return ((batchesPerWeek * weeksPerYear * waterPerBatch) * (1 - recycled/100)) / 1000;
+}
+
+const batchWaterUse = (processes) => {
+    let batchesPerWeek = (processes.average_week * 1) || 0; 
+    let weeksPerYear = (processes.week_year * 1) || 0; 
+    let flow_rate = (processes.flow_rate * 1) || 0; 
+    let recycled = (processes.recycled * 1) || 0;
+
+    return ((batchesPerWeek * weeksPerYear * 60 * flow_rate) * (1 - recycled/100)) / 1000;
+}
+
 class OtherProcessesForm extends React.Component {
 
     constructor(props) {
@@ -83,8 +101,31 @@ class OtherProcessesForm extends React.Component {
     }   
 
     calculateWaterUse = (values) => {
+        let batchTotal = 0;
+        values.continuous_processes.map((processes, index) => {
+            if(processes) { 
+                if(processes.is_metered == 'yes') {
+                    batchTotal += (processes.annual_water_use || 0) * 1;
+                } else {
+                    batchTotal += batchWaterUse(processes);
+                }
+            }
+        });
+        let continousTotal = 0;
+        values.batch_processes.map((processes, index) => {
+            if(processes) { 
+                if(processes.is_metered == 'yes') {
+                    continousTotal += (processes.annual_water_use || 0) * 1;
+                } else {
+                    continousTotal += continuousWaterUse(processes);
+                }
+            }
+        });
+
+        let total = batchTotal + continousTotal;
+        let roundTotal = Math.round( total * 10) / 10;
         this.setState({
-            waterUse: " Water Use: test kgal"
+            waterUse: " Water Use: " + roundTotal + " kgal"
         });
 
     };
