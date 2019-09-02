@@ -41,13 +41,15 @@ const validateAutomatedFacility = (values, basePath) => {
         if (!isPositiveNumeric(valuePath, values)) {
             errors['vpw'] = 'The average number of vehicles washed per week.';
         }
-        valuePath = `${basePath}.gpv`;
-        if (!isPositiveNumeric(valuePath, values)) {
-            errors['gpv'] = 'The estimated number of gallons per vehicle.';
-        }
-        valuePath = `${basePath}.recycled`;
-        if (!isWithinNumericRange(valuePath, values, 0,100)) {
-            errors['recycled'] = 'The percentage of recycled or reused water must be between 0 and 100.';
+        if(basePath != 'vehicle_wash.wash_pads') {
+            valuePath = `${basePath}.gpv`;
+            if (!isPositiveNumeric(valuePath, values)) {
+                errors['gpv'] = 'The estimated number of gallons per vehicle.';
+            }
+            valuePath = `${basePath}.recycled`;
+            if (!isWithinNumericRange(valuePath, values, 0,100)) {
+                errors['recycled'] = 'The percentage of recycled or reused water must be between 0 and 100.';
+            }
         }
     }
     return Object.keys(errors).length === 0 ? undefined : errors;
@@ -55,6 +57,10 @@ const validateAutomatedFacility = (values, basePath) => {
 
 const validateWashPadFacility = (values, basePath) => {
     const errors = {};
+    if (!resolve(`${basePath}.type`, values)) {
+        errors['type'] = 'Please select the self-service wash pad type for this facility';
+     }
+
     const facilityErrors = validateAutomatedFacility(values, basePath);
 
     if (facilityErrors){
@@ -83,7 +89,7 @@ const validateConveyorFacility = (values, basePath) => {
 
 const validate = values => {
     const errors = {};
-    if (!values.vw_facilities) {
+    if (!selectn(`vehicle_wash.vw_facilities`)(values)) {
         errors.vw_facilities = 'An answer about vehicle wash facilities is required.';
     }
     const vehicleWash = {};
@@ -113,6 +119,7 @@ const validate = values => {
             vehicleWash['large_vehicles'] = sectionErrors;
         }
     }
+
     return errors;
 };
 export default validate;

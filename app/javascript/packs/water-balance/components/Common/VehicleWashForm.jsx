@@ -169,7 +169,6 @@ class VehicleWashForm extends React.Component {
                 <Grid item xs={12}>
                     <Field
                         fullWidth
-                        required
                         name={`${basePath}.rating`}
                         component={MaterialInput}
                         type="text"
@@ -293,12 +292,11 @@ class VehicleWashForm extends React.Component {
 
     renderFormInputs = (values) => {
         const elements = [];
-        const baseObject = values.vehicle_wash;
 
-        if (values.vw_facilities === true) {
+        if (selectn(`vehicle_wash.vw_facilities`)(values) === true) {
             return (<Fragment>
                 <Grid item xs={12}>
-                    <ExpansionPanel expanded={baseObject['auto_wash_facilities'] === true}>
+                    <ExpansionPanel expanded={selectn(`vehicle_wash.auto_wash_facilities`)(values) === true}>
                         <ExpansionPanelSummary>
                             <Field
                                 name="vehicle_wash.auto_wash_facilities"
@@ -315,7 +313,7 @@ class VehicleWashForm extends React.Component {
                     </ExpansionPanel>
                 </Grid>
                 <Grid item xs={12}>
-                    <ExpansionPanel expanded={baseObject['conveyor_facilities'] === true}>
+                    <ExpansionPanel expanded={selectn(`vehicle_wash.conveyor_facilities`)(values) === true}>
                         <ExpansionPanelSummary>
                             <Field
                                 name="vehicle_wash.conveyor_facilities"
@@ -337,7 +335,6 @@ class VehicleWashForm extends React.Component {
                                         <MenuItem value="friction">
                                             Friction Washing
                                         </MenuItem>
-
                                         <MenuItem value="frictionless">
                                             Frictionless Washing
                                         </MenuItem>
@@ -349,7 +346,7 @@ class VehicleWashForm extends React.Component {
                     </ExpansionPanel>
                 </Grid>
                 <Grid item xs={12}>
-                    <ExpansionPanel expanded={baseObject['wash_pad_facilities'] === true}>
+                    <ExpansionPanel expanded={selectn(`vehicle_wash.wash_pad_facilities`)(values) === true}>
                         <ExpansionPanelSummary>
                             <Field
                                 name="vehicle_wash.wash_pad_facilities"
@@ -368,6 +365,7 @@ class VehicleWashForm extends React.Component {
                                         component={Select}
                                         label="Are most vehicles using self-service wash pads washed with an open hose or with a pressure washer?"
                                     >
+
                                         <MenuItem value="open_hose">
                                             Open Hose
                                         </MenuItem>
@@ -382,7 +380,7 @@ class VehicleWashForm extends React.Component {
                     </ExpansionPanel>
                 </Grid>
                 <Grid item xs={12}>
-                    <ExpansionPanel expanded={baseObject['large_facilities'] === true}>
+                    <ExpansionPanel expanded={selectn(`vehicle_wash.large_facilities`)(values) === true}>
                         <ExpansionPanelSummary>
                             <Field
                                 name="vehicle_wash.large_facilities"
@@ -404,15 +402,19 @@ class VehicleWashForm extends React.Component {
     };
 
     render() {
-        const {campus, applyRules} = this.props;
+        const {createOrUpdateCampusModule, campus, applyRules} = this.props;
+
+        const module = (campus) ? campus.modules.vehicle_wash : {};
+
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Vehicle Wash </Typography>
             <Typography variant="body2" gutterBottom>Enter the following information only for vehicle wash facilities that use potable water on the campus</Typography>
             <Form
-                onSubmit={this.onSubmit}
-                initialValues={campus}
+                noValidate
+                onSubmit={createOrUpdateCampusModule}
+                initialValues={module}
                 validate={formValidation}
-                render={({handleSubmit, reset, submitting, pristine, values}) => (
+                render={({handleSubmit, reset, submitting, pristine, values, campus}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -420,9 +422,9 @@ class VehicleWashForm extends React.Component {
                                     label="My campus has vehicle wash facilities?"
                                     control={
                                         <Field
-                                            name="vw_facilities"
+                                            name="vehicle_wash.vw_facilities"
                                             component={Checkbox}
-                                            indeterminate={values.vw_facilities === undefined}
+                                            indeterminate={selectn(`vehicle_wash.vw_facilities`)(values) === undefined}
                                             type="checkbox"
                                         />
                                     }
@@ -430,13 +432,20 @@ class VehicleWashForm extends React.Component {
                             </Grid>
                             {this.renderFormInputs(values)}
                             <Grid item xs={12}>
-                                {(values.vw_facilities === false || values.vw_facilities === undefined) ? null : (
+                                {(selectn(`vehicle_wash.vw_facilities`)(values) === false || selectn(`vehicle_wash.vw_facilities`)(values) === undefined) ? null : (<Fragment>
                                     <Button
                                         variant="contained"
                                         onClick={() => this.calculateWaterUse(values)}>
                                         Calculate Water Use
                                     </Button>
-                                )}
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        style={{marginLeft: '10px'}}
+                                      >
+                                        Save 
+                                    </Button>
+                                </Fragment>)}
                                 {this.state.waterUse != '' && (
                                     <Fab
                                         color="primary"
@@ -450,6 +459,7 @@ class VehicleWashForm extends React.Component {
                             </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
+                        <pre>{JSON.stringify(values, 0, 2)}</pre>
                     </form>
                 )}
             />

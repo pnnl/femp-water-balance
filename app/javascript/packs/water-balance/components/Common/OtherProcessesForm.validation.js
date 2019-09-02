@@ -28,42 +28,48 @@ const isWithinNumericRange = (value, min, max, decimal = false, inclusive = true
     return false;
 };
 
-const validateProcesses = (values, allValues, processType) => {
+const validateProcesses = (values, allValues, allProcesses, processType) => {
     const errors = {};
-    let units = (processType == values.continuous_processes) ? "hours" : "batches";
+    let units = (processType == 'continuous_processes') ? "hours" : "batches";
 
     let valuePath = values.annual_water_use;
-    if (values.is_metered) {
+
+    if (values.is_metered == 'yes') {
         if (!isPositiveNumeric(valuePath)) {
             errors['annual_water_use'] = 'Annual water usage is required if this process is metered.';
         }
-    }
-    valuePath = values.average_week;
-    if (!isWithinNumericRange(valuePath, 1, 120)) {
-        errors['average_week'] = 'The average number of ' + units + ' per week must be between 1 and 120.';
-    }
-    valuePath = values.week_year;
-    if (!isWithinNumericRange(valuePath, 1, 52)) {
-        errors['week_year'] = 'The number of weeks per year the process runs must be between 1 and 52.';
-    }
-    valuePath = values.flow_rate;
-    if (!isPositiveNumeric(valuePath)) {
-        errors['flow_rate'] = 'The typical flow rate of the process.';
-    }
-    valuePath = values.water_use;
-    if (!isPositiveNumeric(valuePath)) {
-        errors['water_use'] = 'The water use per batch for this process.';
-    }
-    valuePath = values.recycled;
-    if (!isWithinNumericRange(valuePath, 0, 99)) {
-        errors['recycled'] = 'The percentage of water that is recycled/reused must be between 0 and 99';
+    } 
+    else if (values.is_metered == 'no') {
+        valuePath = values.average_week;
+        if (!isWithinNumericRange(valuePath, 1, 120)) {
+            errors['average_week'] = 'The average number of ' + units + ' per week must be between 1 and 120.';
+        }
+        valuePath = values.week_year;
+        if (!isWithinNumericRange(valuePath, 1, 52)) {
+            errors['week_year'] = 'The number of weeks per year the process runs must be between 1 and 52.';
+        }
+        if (processType == 'continuous_processes') {
+            valuePath = values.flow_rate;
+            if (!isPositiveNumeric(valuePath)) {
+                errors['flow_rate'] = 'The typical flow rate of the process.';
+            }
+        } else {
+            valuePath = values.water_use;
+            if (!isPositiveNumeric(valuePath)) {
+                errors['water_use'] = 'The water use per batch for this process.';
+            }
+        }
+        valuePath = values.recycled;
+        if (!isWithinNumericRange(valuePath, 0, 99)) {
+            errors['recycled'] = 'The percentage of water that is recycled/reused must be between 0 and 99';
+        }
     }
 
     valuePath = values.name;
     let isUsed = false;
     let resolvedValue = undefined;
 
-    processType.map((processes, index) => {
+    allProcesses.map((processes, index) => {
         if(processes != undefined) {
             let resolvedValue = processes.name;
             if (resolvedValue == valuePath && isUsed == true && valuePath != undefined) {
@@ -76,21 +82,29 @@ const validateProcesses = (values, allValues, processType) => {
         }
     })
 
+    
+
     return Object.keys(errors).length === 0 ? undefined : errors;
 }
 
 const validate = values => {
     const errors = {};
+    const batchErrors = [];
+    const continuousErrors = [];
+
     if (!values.other_processes) {
         errors.other_processes = 'An answer about other processes is required.';
     }
-    const batchErrors = [];
-    const continuousErrors = [];
+    
+    if(values.batch_processes[0] == null && values.continuous_processes[0] == null) {
+        return errors;
+    }
+
     const allProcesses = values.batch_processes.concat(values.continuous_processes);
 
     values.batch_processes.map((processes, index) => {
         if(processes) {
-            let sectionErrors = validateProcesses(processes, values, allProcesses);
+            let sectionErrors = validateProcesses(processes, values, allProcesses, "batch_processes");
             if (sectionErrors) {
                 batchErrors[index] = sectionErrors;
             }
@@ -103,7 +117,7 @@ const validate = values => {
 
     values.continuous_processes.map((processes, index) => {
         if(processes) {
-            let sectionErrors = validateProcesses(processes, values, allProcesses);
+            let sectionErrors = validateProcesses(processes, values, allProcesses, "continuous_processes");
             if (sectionErrors) {
                 continuousErrors[index] = sectionErrors;
             }
@@ -114,6 +128,7 @@ const validate = values => {
         errors['continuous_processes'] = continuousErrors;
     }
 
+    console.log('%o', errors);
     return errors;
 };
 export default validate;
