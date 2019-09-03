@@ -20,7 +20,8 @@ import {Engine} from 'json-rules-engine';
 const moduleKeys = [
     'water_supply',
     'vehicle_wash',
-    'other_processes'
+    'other_processes',
+    'plumbing'
 ];
 
 
@@ -191,6 +192,7 @@ class CampusDisplay extends React.Component {
                 tabContent: (
                     <TabContainer>
                         <PlumbingForm
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
                             campus={campus}
                             events={events}
                             applyRules={this.executeRules}
