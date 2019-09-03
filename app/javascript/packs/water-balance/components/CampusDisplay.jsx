@@ -22,6 +22,7 @@ const moduleKeys = [
     'vehicle_wash',
     'other_processes',
     'plumbing',
+    'laundry',
     'kitchen_facilities'
 ];
 
@@ -271,6 +272,7 @@ class CampusDisplay extends React.Component {
                 tabContent: (
                     <TabContainer>
                         <LaundryForm 
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule} 
                             campus={campus} 
                             events={events}
                             applyRules={this.executeRules}

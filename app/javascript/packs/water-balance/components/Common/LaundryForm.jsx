@@ -339,13 +339,15 @@ class LaundryForm extends React.Component {
     }
 
     render() {
-        const {campus, applyRules} = this.props;
+        const {createOrUpdateCampusModule, campus, applyRules} = this.props;
+        const module = (campus) ? campus.modules.laundry : {};
+
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Laundry (Washing Machines)</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information for laundry (washing machines) on the campus</Typography>
             <Form
-                onSubmit={this.onSubmit}
-                initialValues={campus}
+                onSubmit={createOrUpdateCampusModule}
+                initialValues={module}
                 validate={formValidation}
                 render={({handleSubmit, reset, submitting, pristine, values}) => (
                     <form onSubmit={handleSubmit} noValidate>
@@ -365,13 +367,20 @@ class LaundryForm extends React.Component {
                             </Grid>
                             {this.renderFacilityTypes(values)}
                              <Grid item xs={12}>
-                                {(values.has_laundry_facility === false || values.has_laundry_facility === undefined) ? null : (
+                                {(values.has_laundry_facility === false || values.has_laundry_facility === undefined) ? null : (<Fragment>
                                     <Button
                                         variant="contained"
                                         onClick={() => this.calculateWaterUse(values)}>
                                         Calculate Water Use
                                     </Button>
-                                )}
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        style={{marginLeft: '10px'}}
+                                        >
+                                        Save 
+                                    </Button>
+                                </Fragment>)}
                                 {this.state.waterUse != '' && (
                                     <Fab
                                         color="primary"
@@ -385,6 +394,7 @@ class LaundryForm extends React.Component {
                             </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
+                        <pre>{JSON.stringify(values, 0, 2)}</pre>
                     </form>
                 )}
            />
