@@ -168,7 +168,6 @@ class CampusDisplay extends React.Component {
 
     executeRules = async (facts) => {
         const { engine } = this.state;
-        console.log(facts);
         this.setState({events: await engine.run(facts)});
     };
 
@@ -288,7 +287,9 @@ class CampusDisplay extends React.Component {
             (data) => {
                 campus.modules = {};
                 for (let i = 0; i < data.length; i++) {
-                    campus.modules[data[i].name] = data[i].data;
+                    const module = data[i];
+                    campus.modules[module.name] = module.data;
+                    campus.modules[module.name].id = module.id;
                 }
                 for (let i = 0; i < moduleKeys.length; i++) {
                     const moduleKey = moduleKeys[i];

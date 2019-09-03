@@ -459,7 +459,6 @@ class VehicleWashForm extends React.Component {
                             </Grid>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
-                        <pre>{JSON.stringify(values, 0, 2)}</pre>
                     </form>
                 )}
             />

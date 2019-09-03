@@ -111,7 +111,7 @@ const validate = values => {
             errors['laundry'] = sectionErrors;
         }
     }
-    console.log('%o', errors);
+    
     return errors;
 };
 export default validate;

@@ -244,7 +244,6 @@ class WaterSupplyForm extends React.Component {
                                 </Fragment>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
-                        <pre>{JSON.stringify(values, 0, 2)}</pre>
                     </form>
                 )}
             />

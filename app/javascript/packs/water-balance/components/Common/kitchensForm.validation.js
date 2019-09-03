@@ -106,7 +106,7 @@ const validate = values => {
     if(facilitiesErrors.length > 0) {
         errors['kitchen_facilities'] = facilitiesErrors;
     }
-    console.log('%o', errors );
+
     return errors;
 };
 export default validate;

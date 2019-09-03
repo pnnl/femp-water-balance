@@ -480,7 +480,6 @@ class PlumbingForm extends React.Component {
                                     Save 
                                 </Button>
                             <FormRulesListener handleFormChange={applyRules}/>
-                            <pre>{JSON.stringify(values, 0, 2)}</pre>
                         </form>
                     )}
                 /> 
