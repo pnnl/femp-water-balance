@@ -433,13 +433,13 @@ class OtherProcessesForm extends React.Component {
                                         onClick={() => this.calculateWaterUse(values)}>
                                         Calculate Water Use
                                     </Button>
-                                      <Button
-                                        variant="contained"
-                                        type="submit"
+                                    <Button
+                                    variant="contained"
+                                    type="submit"
                                         style={{marginLeft: '10px'}}
-                                      >
-                                        Save 
-                                    </Button>
+                                    >
+                                    Save 
+                                </Button>
                                 </Fragment>)}
                                 {this.state.waterUse != '' && (
                                     <Fab

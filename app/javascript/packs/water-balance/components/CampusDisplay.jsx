@@ -21,7 +21,8 @@ const moduleKeys = [
     'water_supply',
     'vehicle_wash',
     'other_processes',
-    'plumbing'
+    'plumbing',
+    'kitchen_facilities'
 ];
 
 
