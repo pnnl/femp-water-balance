@@ -370,23 +370,25 @@ class OtherProcessesForm extends React.Component {
     }
 
     render() {
-        const {campus, applyRules} = this.props;
+        const {createOrUpdateCampusModule, campus, applyRules} = this.props;
 
-        if (!('batch_processes' in campus)) {
-            campus.batch_processes = [];
-            campus.batch_processes.push(null);
+        const module = (campus) ? campus.modules.other_processes : {};
+
+        if (!('batch_processes' in module)) {
+            module.batch_processes = [];
+            module.batch_processes.push({});
         }
-        if (!('continuous_processes' in campus)) {
-            campus.continuous_processes = [];
-            campus.continuous_processes.push(null);
+        if (!('continuous_processes' in module)) {
+            module.continuous_processes = [];
+            module.continuous_processes.push({});
         }
 
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Other Processes</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information only for other processes that use potable water on the campus</Typography>
             <Form
-                onSubmit={this.onSubmit}
-                initialValues={campus}
+                onSubmit={createOrUpdateCampusModule}
+                initialValues={module}
                 validate={formValidation}
                 mutators={{...arrayMutators }}
                 render={({ handleSubmit, values, form: { mutators: { push, pop } }}) => (
@@ -424,14 +426,21 @@ class OtherProcessesForm extends React.Component {
                                         Add Another Batch Process
                                     </Button>
                                 ))}
-                                {(values.has_other_processes === false || values.has_other_processes === undefined) ? null : (
+                                {(values.has_other_processes === false || values.has_other_processes === undefined) ? null : (<Fragment>
                                     <Button
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
                                         onClick={() => this.calculateWaterUse(values)}>
                                         Calculate Water Use
                                     </Button>
-                                )}
+                                    <Button
+                                    variant="contained"
+                                    type="submit"
+                                        style={{marginLeft: '10px'}}
+                                    >
+                                    Save 
+                                </Button>
+                                </Fragment>)}
                                 {this.state.waterUse != '' && (
                                     <Fab
                                         color="primary"

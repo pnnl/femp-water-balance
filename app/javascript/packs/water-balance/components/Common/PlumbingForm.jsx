@@ -458,19 +458,27 @@ class PlumbingForm extends React.Component {
     }
 
     render() {
-            const { campus, applyRules } = this.props;
+            const {createOrUpdateCampusModule, campus, applyRules} = this.props;
+            const module = (campus) ? campus.modules.plumbing : {};
             return (<Fragment>
                 <Typography variant="h5" gutterBottom>Plumbing</Typography>
                 <Typography variant="body2" gutterBottom>Enter the following information only for plumbing fixtures (toilets, urinals, bathroom faucets, kitchenette faucets and showerheads) that use potable water on the campus.</Typography>
                 <Form
-                    onSubmit={this.onSubmit}
-                    initialValues={campus}
+                    onSubmit={createOrUpdateCampusModule}
+                    initialValues={module}
                     validate={formValidation}
                     render={({handleSubmit, reset, submitting, pristine, values}) => (
                         <form onSubmit={handleSubmit} noValidate>
                             <Grid container alignItems="flex-start" spacing={16}>
                                 {this.renderFacilityTypes(values)}
                             </Grid>
+                                <Button
+                                    variant="contained"
+                                    type="submit"
+                                    style={{marginLeft: '10px', marginTop: '15px'}}
+                                    >
+                                    Save 
+                                </Button>
                             <FormRulesListener handleFormChange={applyRules}/>
                         </form>
                     )}

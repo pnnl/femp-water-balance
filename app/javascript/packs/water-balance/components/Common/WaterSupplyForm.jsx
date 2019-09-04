@@ -4,6 +4,7 @@ import {Form, Field, FormSpy} from 'react-final-form';
 import {Checkbox} from 'final-form-material-ui';
 import {
     Grid,
+    Button,
     FormControlLabel,
     InputAdornment,
 } from '@material-ui/core';
@@ -13,7 +14,6 @@ import createDecorator from 'final-form-calculate';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import selectn from 'selectn';
 import MaterialInput from './MaterialInput';
-import formValidation from './WaterSupplyForm.validation.js';
 
 const DEFAULT_NUMBER_MASK = createNumberMask({
     prefix: '',
@@ -179,17 +179,18 @@ class WaterSupplyForm extends React.Component {
     };
 
     render() {
-        const {campus, applyRules} = this.props;
+        const {createOrUpdateCampusModule, campus, applyRules} = this.props;
+
+        const module = (campus) ? campus.modules.water_supply : {};
 
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Water Supply</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information for potable water use (supply) for the campus.</Typography>
             <Typography variant="body2" gutterBottom>Optional - Enter the following information for wastewater discharge for the campus if it is available.</Typography>
             <Form
-                onSubmit={this.onSubmit}
+                onSubmit={createOrUpdateCampusModule}
                 decorators={[calculator]}
-                initialValues={campus}
-                validate={formValidation}
+                initialValues={module}
                 render={({handleSubmit, reset, submitting, pristine, values}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
@@ -233,6 +234,13 @@ class WaterSupplyForm extends React.Component {
                                         />
                                     </Grid>
                                     {this.renderFormInputs(values)}
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        style={{marginLeft: '10px'}}
+                                      >
+                                        Save 
+                                    </Button>
                                 </Fragment>
                         </Grid>
                         <FormRulesListener handleFormChange={applyRules}/>
