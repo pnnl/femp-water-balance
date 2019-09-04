@@ -14,6 +14,7 @@ import KitchensForm from "./Common/KitchensForm";
 import LaundryForm from "./Common/LaundryForm";
 import PlumbingForm from "./Common/PlumbingForm";
 import OtherProcessesForm from "./Common/OtherProcessesForm";
+import SteamBoilersForm from "./Common/SteamBoilersForm";
 
 import {Engine} from 'json-rules-engine';
 
@@ -194,11 +195,12 @@ class CampusDisplay extends React.Component {
             {
                 tabName: 'Steam Boilers',
                 tabContent: (
-                    <TabContainer>
-                        <Typography variant="h5" gutterBottom>Steam Boilers</Typography>
-                        <Typography variant="body2" gutterBottom>
-                            Enter the following information only for steam boilers that use potable water on the campus
-                        </Typography>
+                     <TabContainer>
+                        <SteamBoilersForm 
+                            campus={campus} 
+                            events={events}
+                            applyRules={this.executeRules} {...this.props} 
+                        />
                     </TabContainer>
                 ),
             },
