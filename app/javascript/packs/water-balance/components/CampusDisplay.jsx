@@ -7,7 +7,7 @@ import Paper from '@material-ui/core/Paper';
 import RemoteApi from '../RemoteApi';
 import MaterialTabs from './Common/TabContainer/MaterialTabs';
 import CampusForm from './Common/CampusForm';
-
+import selectn from 'selectn';
 import VehicleWashForm from "./Common/VehicleWashForm";
 import WaterSupplyForm from "./Common/WaterSupplyForm";
 import KitchensForm from "./Common/KitchensForm";
@@ -17,6 +17,16 @@ import OtherProcessesForm from "./Common/OtherProcessesForm";
 import SteamBoilersForm from "./Common/SteamBoilersForm";
 
 import {Engine} from 'json-rules-engine';
+
+const moduleKeys = [
+    'water_supply',
+    'vehicle_wash',
+    'other_processes',
+    'plumbing',
+    'laundry',
+    'kitchen_facilities'
+];
+
 
 const formRules = [
     {
@@ -137,20 +147,45 @@ class CampusDisplay extends React.Component {
         );
     };
 
+    updateModuleState = (data) => {
+        const { campus } = this.state;
+        campus.modules[data.name] = data.data;
+        campus.modules[data.name].id = data.id;
+        this.setState({
+            isLoaded: true,
+            campus: campus
+        })
+    }
+
+    createOrUpdateCampusModule = (module) => {
+            let campus = {};
+            campus.id = module.campus_id;
+            RemoteApi.createOrUpdateCampusModule(campus,
+                {name: module.name, data: module, id: module.id},
+                (data) => this.updateModuleState(data),
+                (data) => console.log(data)
+           );
+    };
+
     executeRules = async (facts) => {
         const { engine } = this.state;
         this.setState({events: await engine.run(facts)});
     };
 
     getCampusTabs = () => {
-        const {campus, events} = this.state;
+        const { campus, events } = this.state;
+
         return [
                {
                 tabName: 'Water Supply',
                 tabContent: (
                     <TabContainer>
-                        <WaterSupplyForm campus={campus} events={events}
-                                         applyRules={this.executeRules} {...this.props} />
+                        <WaterSupplyForm 
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                            campus={campus} 
+                            events={events}
+                            applyRules={this.executeRules} 
+                            {...this.props} />
                     </TabContainer>
                 ),
             },
@@ -158,17 +193,27 @@ class CampusDisplay extends React.Component {
                 tabName: 'Plumbing',
                 tabContent: (
                     <TabContainer>
-                        <PlumbingForm campus={campus} events={events}
-                                         applyRules={this.executeRules} {...this.props} />
+                        <PlumbingForm
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            {...this.props}
+                        />
                     </TabContainer>
                 ),
             },
-             {
+             { 
                 tabName: 'Vehicle Wash',
                 tabContent: (
                     <TabContainer>
-                        <VehicleWashForm campus={campus} events={events}
-                                         applyRules={this.executeRules} {...this.props} />
+                        <VehicleWashForm
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            {...this.props}
+                        />
                     </TabContainer>
                 ),
             },
@@ -176,8 +221,12 @@ class CampusDisplay extends React.Component {
                 tabName: 'Other Processes',
                 tabContent: (
                     <TabContainer>
-                        <OtherProcessesForm campus={campus} events={events}
-                            applyRules={this.executeRules} {...this.props} />
+                        <OtherProcessesForm 
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules} 
+                            {...this.props} />
                     </TabContainer>
                 ),
             },
@@ -197,9 +246,11 @@ class CampusDisplay extends React.Component {
                 tabContent: (
                      <TabContainer>
                         <SteamBoilersForm 
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
                             campus={campus} 
                             events={events}
-                            applyRules={this.executeRules} {...this.props} 
+                            applyRules={this.executeRules} 
+                            {...this.props} 
                         />
                     </TabContainer>
                 ),
@@ -208,8 +259,13 @@ class CampusDisplay extends React.Component {
                 tabName: 'Commercial Kitchen',
                 tabContent: (
                     <TabContainer>
-                        <KitchensForm campus={campus} events={events}
-                            applyRules={this.executeRules} {...this.props} />
+                        <KitchensForm 
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule} 
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules} 
+                            {...this.props} 
+                        />
                     </TabContainer>
                 ),
             },
@@ -217,13 +273,44 @@ class CampusDisplay extends React.Component {
                 tabName: 'Laundry (Washing Machines)',
                 tabContent: (
                     <TabContainer>
-                        <LaundryForm campus={campus} events={events}
-                            applyRules={this.executeRules} {...this.props} />
+                        <LaundryForm 
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule} 
+                            campus={campus} 
+                            events={events}
+                            applyRules={this.executeRules}
+                            {...this.props} />
                     </TabContainer>
                 ),
             },
         ];
     };
+
+    getModules(campus) { 
+        RemoteApi.getCampusModules(campus, 
+            (data) => {
+                campus.modules = {};
+                for (let i = 0; i < data.length; i++) {
+                    const module = data[i];
+                    campus.modules[module.name] = module.data;
+                    campus.modules[module.name].id = module.id;
+                }
+                for (let i = 0; i < moduleKeys.length; i++) {
+                    const moduleKey = moduleKeys[i];
+                    if (!campus.modules[moduleKey]) {
+                        campus.modules[moduleKey] = {
+                            name: moduleKey,
+                            survey: campus.survey,
+                            campus_id: campus.id
+                        };
+                    }
+                }
+                this.setState({ 
+                    isLoaded: true,
+                    campus: campus
+                });
+            },
+        )
+    }
 
     componentDidMount() {
         const {engine} = this.state;
@@ -231,24 +318,26 @@ class CampusDisplay extends React.Component {
         formRules.forEach((rule) => engine.addRule(rule));
 
         RemoteApi.getCampus(id, (campus) => (
-            this.setState({
-                isLoaded: true,
-                campus: Object.assign({}, {vehicle_wash: {}}, campus)
-            })
-        ), (error) => (
+            this.getModules(campus),
+            (error) => (
             this.setState({
                 isLoaded: true,
                 error
             })
-        ), this);
+        )));
     }
 
     render() {
         const {campus} = this.state;
         return (
             <div>
-                <Typography variant="h4" gutterBottom>{campus ? campus.name : ''}</Typography>
-                <MaterialTabs headerColor="primary" tabs={this.getCampusTabs()}/>
+                <Typography variant="h4" gutterBottom>
+                    {campus ? campus.name : ''}
+                </Typography>
+                <MaterialTabs
+                    headerColor="primary"
+                    tabs={this.getCampusTabs()}
+                />
             </div>
         )
     }

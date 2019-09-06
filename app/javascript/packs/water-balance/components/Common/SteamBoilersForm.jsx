@@ -312,19 +312,21 @@ class SteamBoilersForm extends React.Component {
 
 
     render() {
-        const {campus, applyRules} = this.props;
+        const {createOrUpdateCampusModule, campus, applyRules} = this.props;
 
-        if (!('steam_boilers' in campus)) {
-            campus.steam_boilers = [];
-            campus.steam_boilers.push(null);
+        const module = (campus) ? campus.modules.vehicle_wash : {};
+
+        if (!('steam_boilers' in module)) {
+            module.steam_boilers = [];
+            module.steam_boilers.push(null);
         }
 
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Steam Boilers</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information only for steam boilers that use potable water on the campus</Typography>
             <Form
-                onSubmit={this.onSubmit}
-                initialValues={campus}
+                onSubmit={createOrUpdateCampusModule}
+                initialValues={module}
                 validate={formValidation}
                 mutators={{...arrayMutators }}
                 render={({ handleSubmit, values, form: { mutators: { push, pop } }}) => (
@@ -353,14 +355,21 @@ class SteamBoilersForm extends React.Component {
                                         Add Another Steam Boiler
                                     </Button>
                                 )}
-                                {(values.has_steam_boilers === false || values.has_steam_boilers === undefined) ? null : (
+                                {(values.has_steam_boilers === false || values.has_steam_boilers === undefined) ? null : (<Fragment>
                                     <Button
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
                                         onClick={() => this.calculateWaterUse(values)}>
                                         Calculate Water Use
                                     </Button>
-                                )}
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        style={{marginLeft: '10px'}}
+                                    >
+                                        Save 
+                                    </Button>
+                                </Fragment>)}
                                 {this.state.waterUse != '' && (
                                     <Fab
                                         color="primary"

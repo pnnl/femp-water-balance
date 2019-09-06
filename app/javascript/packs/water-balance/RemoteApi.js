@@ -13,8 +13,9 @@ class RemoteApi {
     };
 
     static captureAuthorization(response) {
-        if (sessionStorage) {
-            sessionStorage.setItem('asset-score:water-balance/auth', response.headers.get('Authorization'));
+        const bearer = response.headers.get('Authorization');
+        if (sessionStorage && bearer) {
+            sessionStorage.setItem('asset-score:water-balance/auth', bearer);
         }
         return response.json();
     }

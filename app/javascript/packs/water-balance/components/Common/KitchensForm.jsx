@@ -434,19 +434,21 @@ class KitchensForm extends React.Component {
     }
 
     render() {
-        const { campus, applyRules } = this.props;
-       
-        if (!('kitchen_facilities' in campus)) {
-            campus.kitchen_facilities = [];
-            campus.kitchen_facilities.push(null);
+        const { createOrUpdateCampusModule, campus, applyRules } = this.props;
+
+        const module = (campus) ? campus.modules.kitchen_facilities : {};
+
+        if (!('kitchen_facilities' in module)) {
+            module.kitchen_facilities = [];
+            module.kitchen_facilities.push({});
         }
 
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Commercial Kitchen</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information for commercial kitchens on the campus</Typography>
             <Form
-                onSubmit={this.onSubmit}
-                initialValues={campus}
+                onSubmit={createOrUpdateCampusModule}
+                initialValues={module}
                 validate={formValidation}
                 mutators={{
                     ...arrayMutators
@@ -486,6 +488,12 @@ class KitchensForm extends React.Component {
                                         variant="contained"
                                         onClick={() => this.calculateWaterUse(values)}>
                                         Calculate Water Use
+                                    </Button>
+                                    <Button
+                                        style={{marginLeft: '10px'}}
+                                        variant="contained"
+                                        type="submit">
+                                        Save 
                                     </Button>
                                     {this.state.waterUse != '' && (
                                         <Fab
