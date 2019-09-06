@@ -24,7 +24,8 @@ const moduleKeys = [
     'other_processes',
     'plumbing',
     'laundry',
-    'kitchen_facilities'
+    'kitchen_facilities',
+    'steam_boilers'
 ];
 
 

@@ -17,12 +17,10 @@ import formValidation from './SteamBoilersForm.validation';
 
 import {
     Fab, 
-    Icon,
     Grid,
     Button,
     FormControlLabel,
     InputAdornment,
-    Switch,
     MenuItem
 } from '@material-ui/core';
 
@@ -65,6 +63,16 @@ const FormRulesListener = ({handleFormChange}) => (
     />
 );
 
+const steamBoilerCalculation = (boiler) => {
+    let softenerPerformance = ((boiler.water_regeneration * boiler.regeneration_per_week * boiler.operating_weeks)/ 1000) || 0;
+    let steamGenerationRate = (boiler.steam_generation / 8.314) || 0;
+    let feedwaterRate = (steamGenerationRate / (1-(1/boiler.cycles_concentration))) || 0;
+    let totalWaterUse =  ([[(feedwaterRate)-(steamGenerationRate * boiler.condensate_percentage/100)]*(boiler.hours_week * boiler.operating_weeks)]/1000) || 0;
+    
+    let total = softenerPerformance + totalWaterUse;
+    return total;
+}
+
 
 class SteamBoilersForm extends React.Component {
 
@@ -77,8 +85,23 @@ class SteamBoilersForm extends React.Component {
     }   
 
     calculateWaterUse = (values) => {
+       
+        let total = 0;
+        values.steam_boilers.map((boiler, index) => {
+            if(boiler) { 
+                if(boiler.is_metered == 'yes') {
+                    total += (boiler.annual_water_use || 0) * 1;
+                } else {
+                   
+                    total += steamBoilerCalculation(boiler);
+                }
+            }
+        });
+
+        let roundTotal = Math.round( total * 10) / 10;
+
         this.setState({
-            waterUse: " Water Use: test kgal"
+            waterUse: " Water Use: " + roundTotal + " kgal"
         });
     }
 
@@ -91,7 +114,7 @@ class SteamBoilersForm extends React.Component {
         }
     };
 
-    weeksPerYear = (values, basePath) => {
+    weeksPerYear = (basePath) => {
         return(
             <Grid item xs={12}>
                 <Field
@@ -136,7 +159,7 @@ class SteamBoilersForm extends React.Component {
                     >
                 </Field>
             </Grid>
-            {this.weeksPerYear(values, basePath)}
+            {this.weeksPerYear(basePath)}
         </Fragment>)
     }
 
@@ -194,7 +217,7 @@ class SteamBoilersForm extends React.Component {
                     >
                 </Field>
             </Grid>
-            {this.weeksPerYear(values, basePath)}
+            {this.weeksPerYear(basePath)}
         </Fragment>)
     }
 
@@ -314,7 +337,7 @@ class SteamBoilersForm extends React.Component {
     render() {
         const {createOrUpdateCampusModule, campus, applyRules} = this.props;
 
-        const module = (campus) ? campus.modules.vehicle_wash : {};
+        const module = (campus) ? campus.modules.steam_boilers : {};
 
         if (!('steam_boilers' in module)) {
             module.steam_boilers = [];
