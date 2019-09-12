@@ -15,6 +15,7 @@ import LaundryForm from "./Common/LaundryForm";
 import PlumbingForm from "./Common/PlumbingForm";
 import OtherProcessesForm from "./Common/OtherProcessesForm";
 
+
 import {Engine} from 'json-rules-engine';
 
 const moduleKeys = [
@@ -154,6 +155,8 @@ class CampusDisplay extends React.Component {
             isLoaded: true,
             campus: campus
         })
+        window.alert("Values saved");
+        
     }
 
     createOrUpdateCampusModule = (module) => {

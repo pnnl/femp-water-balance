@@ -18,6 +18,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
+import createDecorator from 'final-form-focus';
 
 import formValidation from './VehicleWashForm.validation';
 
@@ -48,6 +49,8 @@ const DEFAULT_DECIMAL_MASK = createNumberMask({
     integerLimit: 10,
     allowDecimal: true
 });
+
+const focusOnError = createDecorator ()
 
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     <FormControlLabel
@@ -94,8 +97,10 @@ class VehicleWashForm extends React.Component {
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }
 
-    calculateWaterUse = (values) => {
-
+    calculateWaterUse = (values, valid) => {
+        if(!valid) {
+            return;
+        }
         let valuePath = 'vehicle_wash.auto_wash';
         let autoWash = recycledCalculation(valuePath, values) || 0;
         
@@ -118,12 +123,12 @@ class VehicleWashForm extends React.Component {
     };
 
     onSubmit = values => {
-        const {onSubmit} = this.props;
-        if (onSubmit) {
-            onSubmit(values);
-        } else {
-            window.alert(JSON.stringify(values, 0, 2));
-        }
+        // const {onSubmit} = this.props;
+        // if (onSubmit) {
+        //     onSubmit(values);
+        // } else {
+        //     window.alert("Values saved");
+        // }
     };
 
     renderWashpadForm = (values, basePath) => {
@@ -169,6 +174,7 @@ class VehicleWashForm extends React.Component {
                 <Grid item xs={12}>
                     <Field
                         fullWidth
+                        required
                         name={`${basePath}.rating`}
                         component={MaterialInput}
                         type="text"
@@ -411,10 +417,11 @@ class VehicleWashForm extends React.Component {
             <Typography variant="body2" gutterBottom>Enter the following information only for vehicle wash facilities that use potable water on the campus</Typography>
             <Form
                 noValidate
-                onSubmit={createOrUpdateCampusModule}
+                onSubmit={this.onSubmit}
                 initialValues={module}
                 validate={formValidation}
-                render={({handleSubmit, reset, submitting, pristine, values, campus}) => (
+                decorators={[focusOnError]}
+                render={({handleSubmit, reset, submitting, pristine, values, valid}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -435,12 +442,15 @@ class VehicleWashForm extends React.Component {
                                 {(selectn(`vehicle_wash.vw_facilities`)(values) === false || selectn(`vehicle_wash.vw_facilities`)(values) === undefined) ? null : (<Fragment>
                                     <Button
                                         variant="contained"
-                                        onClick={() => this.calculateWaterUse(values)}>
+                                        type="submit"
+                                        onClick={() => this.calculateWaterUse(values, valid)}
+                                    >
                                         Calculate Water Use
                                     </Button>
                                     <Button
                                         variant="contained"
                                         type="submit"
+                                        onClick={valid ? () => createOrUpdateCampusModule(values) : null}
                                         style={{marginLeft: '10px'}}
                                       >
                                         Save 
