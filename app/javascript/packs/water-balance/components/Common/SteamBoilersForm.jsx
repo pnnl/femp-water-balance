@@ -12,6 +12,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
+import createDecorator from 'final-form-focus';
+import {submitAlert} from './submitAlert'
 
 import formValidation from './SteamBoilersForm.validation';
 
@@ -51,6 +53,8 @@ const DEFAULT_DECIMAL_MASK = createNumberMask({
     integerLimit: 10,
     allowDecimal: true
 });
+
+const focusOnError = createDecorator ()
 
 const FormRulesListener = ({handleFormChange}) => (
     <FormSpy
@@ -105,14 +109,7 @@ class SteamBoilersForm extends React.Component {
         });
     }
 
-    onSubmit = (values) => {
-        const {onSubmit} = this.props;
-        if (onSubmit) {
-            onSubmit(values);
-        } else {
-            window.alert(JSON.stringify(values, 0, 2));
-        }
-    };
+    onSubmit = (values) => {};
 
     weeksPerYear = (basePath) => {
         return(
@@ -300,7 +297,7 @@ class SteamBoilersForm extends React.Component {
         if(!values.has_steam_boilers) {
             return null;
         }
-        return(  
+        return(<Fragment>
             <FieldArray name="steam_boilers"> 
                 {({ fields }) => fields.map((name, index) => (
                     <Grid item xs={12} key={index}>
@@ -330,7 +327,17 @@ class SteamBoilersForm extends React.Component {
                     </Grid>
                 ))}
             </FieldArray>
-            )
+            <Grid item xs={12} sm={4}>
+                <Field
+                    fullWidth
+                    disabled
+                    name="vehicle_wash.water_use"
+                    label="Water use"
+                    component={MaterialInput}
+                    type="text"
+                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+            />
+        <Fragment/>)
     }
 
 
@@ -348,11 +355,11 @@ class SteamBoilersForm extends React.Component {
             <Typography variant="h5" gutterBottom>Steam Boilers</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information only for steam boilers that use potable water on the campus</Typography>
             <Form
-                onSubmit={createOrUpdateCampusModule}
+                onSubmit={this.onSubmit}
                 initialValues={module}
                 validate={formValidation}
                 mutators={{...arrayMutators }}
-                render={({ handleSubmit, values, form: { mutators: { push, pop } }}) => (
+                render={({ handleSubmit, values, valid, form: { mutators: { push, pop } }}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -382,12 +389,14 @@ class SteamBoilersForm extends React.Component {
                                     <Button
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
+                                        type="submit"
                                         onClick={() => this.calculateWaterUse(values)}>
                                         Calculate Water Use
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        type="submit"
+                                        type="button"
+                                        onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
                                         style={{marginLeft: '10px'}}
                                     >
                                         Save 

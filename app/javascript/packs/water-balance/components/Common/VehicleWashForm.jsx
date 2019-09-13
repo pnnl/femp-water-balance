@@ -19,6 +19,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import createDecorator from 'final-form-focus';
+import {submitAlert} from './submitAlert'
 
 import formValidation from './VehicleWashForm.validation';
 
@@ -91,14 +92,17 @@ class VehicleWashForm extends React.Component {
 
      constructor(props) {
         super(props);
+        let waterUse = selectn(`campus.modules.vehicle_wash.vehicle_wash.water_use`)(props);
+        
         this.state = {
-            waterUse: ''
+            waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }
 
     calculateWaterUse = (values, valid) => {
         if(!valid) {
+            window.alert("Missing or incorrect values.");
             return;
         }
         let valuePath = 'vehicle_wash.auto_wash';
@@ -116,20 +120,15 @@ class VehicleWashForm extends React.Component {
         let total = autoWash + conveyor + washPads + LargeVehicle;
         let roundTotal = Math.round( total * 10) / 10;
 
+        values.vehicle_wash.water_use = roundTotal; 
+
         this.setState({
             waterUse: " Water Use: " + roundTotal + " kgal"
         });
 
     };
 
-    onSubmit = values => {
-        // const {onSubmit} = this.props;
-        // if (onSubmit) {
-        //     onSubmit(values);
-        // } else {
-        //     window.alert("Values saved");
-        // }
-    };
+    onSubmit = values => {};
 
     renderWashpadForm = (values, basePath) => {
         const washpadType = selectn(`${basePath}.type`)(values);
@@ -402,6 +401,17 @@ class VehicleWashForm extends React.Component {
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
+                <Grid item xs={12} sm={4}>
+                    <Field
+                        fullWidth
+                        disabled
+                        name="vehicle_wash.water_use"
+                        label="Water use"
+                        component={MaterialInput}
+                        type="text"
+                        endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+                </Grid>
             </Fragment>);
         }
         return elements;
@@ -449,10 +459,10 @@ class VehicleWashForm extends React.Component {
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        type="submit"
-                                        onClick={valid ? () => createOrUpdateCampusModule(values) : null}
+                                        type="button"
+                                        onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
                                         style={{marginLeft: '10px'}}
-                                      >
+                                    >
                                         Save 
                                     </Button>
                                 </Fragment>)}

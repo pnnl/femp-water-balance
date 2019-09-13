@@ -27,6 +27,11 @@ const isWithinNumericRange = (path, values, min, max, inclusive = true, required
 
 const validateAutomatedFacility = (values, basePath) => {
     const errors = {};
+    if(basePath != 'vehicle_wash.wash_pads') {
+        if (resolve(`${basePath}.metered`, values) === undefined) {
+            errors['metered'] = "Is the water use metered?"
+        }
+    }
     if (resolve(`${basePath}.metered`, values) === "yes") {
         let valuePath = `${basePath}.water_usage`;
         if (!isPositiveNumeric(valuePath, values)) {
@@ -70,6 +75,19 @@ const validateWashPadFacility = (values, basePath) => {
     let valuePath = `${basePath}.wash_time`;
     if (!isPositiveNumeric(valuePath, values)) {
         errors['wash_time'] = 'The approximate wash time per vehicle.';
+    }
+
+    valuePath = `${basePath}.rating`;
+    if(resolve(`${basePath}.type`, values) == 'pressure_washer') {
+        if (!isPositiveNumeric(valuePath, values)) {
+            errors['rating'] = "The nozzle rating of pressure washer.";
+        }
+    }
+
+    if(resolve(`${basePath}.type`, values) == 'open_hose') {
+        if (!isPositiveNumeric(valuePath, values)) {
+            errors['rating'] = "The flow rate of the open hose.";
+        } 
     }
 
     return Object.keys(errors).length === 0 ? undefined : errors;
@@ -119,7 +137,7 @@ const validate = values => {
             vehicleWash['large_vehicles'] = sectionErrors;
         }
     }
-    
+    console.log("%o", errors);
     return errors;
 };
 export default validate;

@@ -33,7 +33,6 @@ const validateProcesses = (values, allValues, allProcesses, processType) => {
     let units = (processType == 'continuous_processes') ? "hours" : "batches";
 
     let valuePath = values.annual_water_use;
-
     if (values.is_metered == 'yes') {
         if (!isPositiveNumeric(valuePath)) {
             errors['annual_water_use'] = 'Annual water usage is required if this process is metered.';
@@ -81,9 +80,44 @@ const validateProcesses = (values, allValues, allProcesses, processType) => {
             } 
         }
     })
+    return Object.keys(errors).length === 0 ? undefined : errors;
+}
 
-    
+const batchProcessesErrors = (values, allValues, allProcesses) => {
+    let errors = {};
+    if(!resolve('other_processes.has_batch_processes', allValues)) {
+        return errors;
+    }
+    const processErrors = validateProcesses(values, allValues, allProcesses, "batch_processes");
+    if (processErrors){
+        Object.assign(errors, processErrors);
+    }
+    if(!values.name) {
+        errors['name'] = "Enter a unique identifier (such as name of the process)"
+    }
+    if (!values.is_metered) {
+        errors['is_metered'] = "Is the water use metered?"
+    }
 
+    return Object.keys(errors).length === 0 ? undefined : errors;
+}
+
+const continuousProcessesErrors = (values, allValues, allProcesses) => {
+    let errors = {};
+    if(!resolve('other_processes.has_continuous_processes', allValues)) {
+        return errors;
+    }
+    const processErrors = validateProcesses(values, allValues, allProcesses, "continuous_processes");
+    if (processErrors){
+        Object.assign(errors, processErrors);
+    }
+
+    if(!values.name) {
+        errors['name'] = "Enter a unique identifier (such as name of the process)"
+    }
+    if (!values.is_metered) {
+        errors['is_metered'] = "Is the water use metered?"
+    }
     return Object.keys(errors).length === 0 ? undefined : errors;
 }
 
@@ -91,20 +125,18 @@ const validate = values => {
     const errors = {};
     const batchErrors = [];
     const continuousErrors = [];
+    const sectionErrors = {};
 
     if (!values.other_processes) {
         errors.other_processes = 'An answer about other processes is required.';
     }
-    
     if(values.batch_processes[0] == null && values.continuous_processes[0] == null) {
         return errors;
     }
-
     const allProcesses = values.batch_processes.concat(values.continuous_processes);
-
     values.batch_processes.map((processes, index) => {
         if(processes) {
-            let sectionErrors = validateProcesses(processes, values, allProcesses, "batch_processes");
+            let sectionErrors = batchProcessesErrors(processes, values, allProcesses);
             if (sectionErrors) {
                 batchErrors[index] = sectionErrors;
             }
@@ -117,7 +149,7 @@ const validate = values => {
 
     values.continuous_processes.map((processes, index) => {
         if(processes) {
-            let sectionErrors = validateProcesses(processes, values, allProcesses, "continuous_processes");
+            let sectionErrors = continuousProcessesErrors(processes, values, allProcesses);
             if (sectionErrors) {
                 continuousErrors[index] = sectionErrors;
             }
@@ -128,6 +160,7 @@ const validate = values => {
         errors['continuous_processes'] = continuousErrors;
     }
 
+    console.log('%o', errors)
     return errors;
 };
 export default validate;

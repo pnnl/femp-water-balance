@@ -158,7 +158,6 @@ class CampusDisplay extends React.Component {
             campus: campus
         })
         window.alert("Values saved");
-        
     }
 
     createOrUpdateCampusModule = (module) => {

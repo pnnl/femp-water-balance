@@ -12,6 +12,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
+import createDecorator from 'final-form-focus';
+import {submitAlert} from './submitAlert'
 
 import formValidation from './OtherProcessesForm.validation';
 import {
@@ -64,6 +66,8 @@ const FormRulesListener = ({handleFormChange}) => (
     />
 );
 
+const focusOnError = createDecorator ()
+
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     <FormControlLabel
         control={<Switch checked={value} onChange={(event, isInputChecked) => onChange(isInputChecked)}
@@ -94,13 +98,20 @@ class OtherProcessesForm extends React.Component {
 
     constructor(props) {
         super(props);
+        let waterUse = selectn(`campus.modules.other_processes.other_processes.water_use`)(props);
+        
         this.state = {
-            waterUse: ''
+            waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }   
 
-    calculateWaterUse = (values) => {
+    calculateWaterUse = (values, valid) => {
+         if(!valid) {
+            window.alert("Missing or incorrect values.");
+            return;
+        }
+
         let batchTotal = 0;
         values.continuous_processes.map((processes, index) => {
             if(processes) { 
@@ -124,20 +135,16 @@ class OtherProcessesForm extends React.Component {
 
         let total = batchTotal + continousTotal;
         let roundTotal = Math.round( total * 10) / 10;
+
+        values.other_processes.water_use = roundTotal; 
+
         this.setState({
             waterUse: " Water Use: " + roundTotal + " kgal"
         });
 
     };
 
-    onSubmit = values => {
-        const {onSubmit} = this.props;
-        if (onSubmit) {
-            onSubmit(values);
-        } else {
-            window.alert(JSON.stringify(values, 0, 2));
-        }
-    };
+    onSubmit = values => {};
 
     waterUse = (values, basePath, source) => {
         let prompt = (source == "continuous_processes") ? "hours per week the process runs" : "batches per week";
@@ -365,7 +372,17 @@ class OtherProcessesForm extends React.Component {
                 </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
-              
+            <Grid item xs={12} sm={4}>
+                <Field
+                    fullWidth
+                    disabled
+                    name="other_processes.water_use"
+                    label="Water use"
+                    component={MaterialInput}
+                    type="text"
+                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
         </Fragment>);
     }
 
@@ -387,11 +404,12 @@ class OtherProcessesForm extends React.Component {
             <Typography variant="h5" gutterBottom>Other Processes</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information only for other processes that use potable water on the campus</Typography>
             <Form
-                onSubmit={createOrUpdateCampusModule}
+                onSubmit={this.onSubmit}
                 initialValues={module}
                 validate={formValidation}
                 mutators={{...arrayMutators }}
-                render={({ handleSubmit, values, form: { mutators: { push, pop } }}) => (
+                decorators={[focusOnError]}
+                render={({ handleSubmit, values, valid, form: { mutators: { push, pop } }}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -430,12 +448,14 @@ class OtherProcessesForm extends React.Component {
                                     <Button
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
-                                        onClick={() => this.calculateWaterUse(values)}>
+                                        type="submit"
+                                        onClick={() => this.calculateWaterUse(values, valid)}>
                                         Calculate Water Use
                                     </Button>
                                     <Button
-                                    variant="contained"
-                                    type="submit"
+                                        variant="contained"
+                                        type="button"
+                                        onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
                                         style={{marginLeft: '10px'}}
                                     >
                                     Save 
