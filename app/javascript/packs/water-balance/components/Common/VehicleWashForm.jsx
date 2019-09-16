@@ -119,7 +119,6 @@ class VehicleWashForm extends React.Component {
 
         let total = autoWash + conveyor + washPads + LargeVehicle;
         let roundTotal = Math.round( total * 10) / 10;
-
         values.vehicle_wash.water_use = roundTotal; 
 
         this.setState({
@@ -276,7 +275,7 @@ class VehicleWashForm extends React.Component {
         );
     };
 
-    renderWaterMeteredControl = (basePath, values, indeterminate = false) => (
+    renderWaterMeteredControl = (basePath) => (
         <Grid item xs={12}>
               <Field
                     formControlProps={{fullWidth: true}}

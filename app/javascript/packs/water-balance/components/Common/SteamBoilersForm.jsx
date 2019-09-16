@@ -81,28 +81,31 @@ const steamBoilerCalculation = (boiler) => {
 class SteamBoilersForm extends React.Component {
 
     constructor(props) {
+        let waterUse = selectn(`campus.modules.steam_boilers.water_use`)(props);
         super(props);
         this.state = {
-            waterUse: ''
+            waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }   
 
-    calculateWaterUse = (values) => {
-       
+    calculateWaterUse = (values, valid) => {
+        if(!valid) {
+            window.alert("Missing or incorrect values.");
+            return;
+        }
         let total = 0;
         values.steam_boilers.map((boiler, index) => {
             if(boiler) { 
                 if(boiler.is_metered == 'yes') {
                     total += (boiler.annual_water_use || 0) * 1;
                 } else {
-                   
                     total += steamBoilerCalculation(boiler);
                 }
             }
         });
-
         let roundTotal = Math.round( total * 10) / 10;
+        values.water_use = roundTotal; 
 
         this.setState({
             waterUse: " Water Use: " + roundTotal + " kgal"
@@ -328,29 +331,28 @@ class SteamBoilersForm extends React.Component {
                 ))}
             </FieldArray>
             <Grid item xs={12} sm={4}>
-                <Field
-                    fullWidth
-                    disabled
-                    name="vehicle_wash.water_use"
-                    label="Water use"
-                    component={MaterialInput}
-                    type="text"
-                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
-            />
-        <Fragment/>)
-    }
+                    <Field
+                        fullWidth
+                        disabled
+                        name="water_use"
+                        label="Water use"
+                        component={MaterialInput}
+                        type="text"
+                        endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
+            </Fragment>)
+        }
 
 
     render() {
         const {createOrUpdateCampusModule, campus, applyRules} = this.props;
-
         const module = (campus) ? campus.modules.steam_boilers : {};
 
         if (!('steam_boilers' in module)) {
             module.steam_boilers = [];
             module.steam_boilers.push(null);
         }
-
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Steam Boilers</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information only for steam boilers that use potable water on the campus</Typography>
@@ -358,6 +360,7 @@ class SteamBoilersForm extends React.Component {
                 onSubmit={this.onSubmit}
                 initialValues={module}
                 validate={formValidation}
+                decorators={[focusOnError]}
                 mutators={{...arrayMutators }}
                 render={({ handleSubmit, values, valid, form: { mutators: { push, pop } }}) => (
                     <form onSubmit={handleSubmit} noValidate>
@@ -390,7 +393,8 @@ class SteamBoilersForm extends React.Component {
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
                                         type="submit"
-                                        onClick={() => this.calculateWaterUse(values)}>
+                                        onClick={() => this.calculateWaterUse(values, valid)}
+                                    >
                                         Calculate Water Use
                                     </Button>
                                     <Button

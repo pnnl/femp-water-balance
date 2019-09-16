@@ -18,7 +18,6 @@ import {submitAlert} from './submitAlert'
 import formValidation from './OtherProcessesForm.validation';
 import {
     Fab, 
-    Icon,
     Grid,
     Button,
     FormControlLabel,
@@ -99,7 +98,6 @@ class OtherProcessesForm extends React.Component {
     constructor(props) {
         super(props);
         let waterUse = selectn(`campus.modules.other_processes.other_processes.water_use`)(props);
-        
         this.state = {
             waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
@@ -107,7 +105,7 @@ class OtherProcessesForm extends React.Component {
     }   
 
     calculateWaterUse = (values, valid) => {
-         if(!valid) {
+        if(!valid) {
             window.alert("Missing or incorrect values.");
             return;
         }
@@ -135,7 +133,6 @@ class OtherProcessesForm extends React.Component {
 
         let total = batchTotal + continousTotal;
         let roundTotal = Math.round( total * 10) / 10;
-
         values.other_processes.water_use = roundTotal; 
 
         this.setState({

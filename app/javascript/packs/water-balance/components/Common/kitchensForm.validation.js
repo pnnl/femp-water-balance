@@ -31,6 +31,17 @@ const isWithinNumericRange = (value, min, max, decimal = false, inclusive = true
 const validatekitchenFacility = (values, allValues) => {
     
     const errors = {};
+    if(!values.type) {
+        errors['type'] = "Is the commercial kitchen a stand-alone facility or is it incorporated into another building?"
+    }
+    if(!values.name) {
+        errors['name'] = "Enter a unique identifier for this commercial kitchen facility (such as a building name or building number)."
+    }
+    if(values.stand_alone == 'yes') {
+        if (!values.is_metered) {
+            errors['is_metered'] = "Is the water use metered?"
+        }
+    } 
     let valuePath = values.annual_water_use;
     if (values.is_metered == "yes") {
         if (!isPositiveNumeric(valuePath)) {
@@ -61,10 +72,27 @@ const validatekitchenFacility = (values, allValues) => {
                 errors['operating_weekends'] = 'The number of weekends per year commercial kitchens are operated must be between 1 and 52.';
             }
         }
+        valuePath = values.dishwasher_type;
+        if(!valuePath) {
+            errors['dishwasher_type'] = 'Select type of dishwasher.';
+        }
+        valuePath = values.spray_valve;
+        if(!valuePath) {
+            errors['spray_valve'] = 'Select type of type of pre-rinse spray valve.';
+        }
         valuePath = values.flow_rate;
         if (!isWithinNumericRange(valuePath, .3, 4, true)) {
-            errors['flow_rate'] = 'The flow rate must be between 0.3 and 4.0 gpm';
+            errors['flow_rate'] = 'The flow rate must be between 0.3 and 4.0 gpm.';
         }
+        valuePath = values.combination_oven;
+        if(!valuePath) {
+            errors['combination_oven'] = 'Select type of combination oven or steam cooker.';
+        }
+        valuePath = values.ice_maker;
+        if(!valuePath) {
+            errors['ice_maker'] = 'Select type of ice maker.';
+        }
+
     }
 
     valuePath = values.name;
@@ -106,7 +134,7 @@ const validate = values => {
     if(facilitiesErrors.length > 0) {
         errors['kitchen_facilities'] = facilitiesErrors;
     }
-
+    
     return errors;
 };
 export default validate;

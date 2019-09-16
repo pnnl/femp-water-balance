@@ -8,7 +8,6 @@ import {
     Button,
     FormControlLabel,
     InputAdornment,
-    Switch,
     MenuItem
 } from '@material-ui/core';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
@@ -21,6 +20,8 @@ import selectn from 'selectn';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import createDecorator from 'final-form-focus';
+import {submitAlert} from './submitAlert'
 
 import formValidation from './kitchensForm.validation';
 
@@ -62,6 +63,8 @@ const FormRulesListener = ({handleFormChange}) => (
         }}
     />
 );
+
+const focusOnError = createDecorator ()
 
 const toNumber = (value) => {
     if (value === undefined || value === null) {
@@ -109,13 +112,18 @@ class KitchensForm extends React.Component {
 
     constructor(props) {
         super(props);
+        let waterUse = selectn(`campus.modules.kitchen_facilities.water_use`)(props);
         this.state = {
-            waterUse: ''
+            waterUse: waterUse? " Water Use: " + waterUse + " kgal" : ''
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }
 
-    calculateWaterUse = (values) => {
+    calculateWaterUse = (values, valid) => {
+        if(!valid) {
+            window.alert("Missing or incorrect values.");
+            return;
+        }
         let waterUsePerMeal = 0;
         let total = 0;
         values.kitchen_facilities.map((facilityValues, index) => {
@@ -134,7 +142,7 @@ class KitchensForm extends React.Component {
         });
 
         let roundTotal = Math.round( total * 10) / 10;
-
+        values.water_use = roundTotal; 
         this.setState({
             waterUse: " Water Use: " + roundTotal + " kgal"
         });
@@ -369,14 +377,7 @@ class KitchensForm extends React.Component {
         </Fragment>);
     };
 
-    onSubmit = values => {
-        const {onSubmit} = this.props;
-        if (onSubmit) {
-            onSubmit(values);
-        } else {
-            window.alert(JSON.stringify(values, 0, 2));
-        }
-    };
+    onSubmit = values => {};
 
     renderFacilityTypes = (values) => {
         if(!values.has_kitchens) {
@@ -426,10 +427,20 @@ class KitchensForm extends React.Component {
                             </ExpansionPanelDetails>
                         </ExpansionPanel>
                     </Grid>
-                    
                 ))
                 }
             </FieldArray>
+            <Grid item xs={12} sm={4}>
+                <Field
+                    fullWidth
+                    disabled
+                    name="water_use"
+                    label="Water use"
+                    component={MaterialInput}
+                    type="text"
+                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
             </Fragment>);
     }
 
@@ -447,15 +458,17 @@ class KitchensForm extends React.Component {
             <Typography variant="h5" gutterBottom>Commercial Kitchen</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information for commercial kitchens on the campus</Typography>
             <Form
-                onSubmit={createOrUpdateCampusModule}
+                onSubmit={this.onSubmit}
                 initialValues={module}
                 validate={formValidation}
                 mutators={{
                     ...arrayMutators
                 }}
+                decorators={[focusOnError]}
                 render={({
                     handleSubmit,
                     values,
+                    valid,
                     form: { mutators: { push, pop } }
                 }) => (
                     <form onSubmit={handleSubmit} noValidate>
@@ -486,13 +499,16 @@ class KitchensForm extends React.Component {
                                     <Button
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
-                                        onClick={() => this.calculateWaterUse(values)}>
+                                        type="submit"
+                                        onClick={() => this.calculateWaterUse(values, valid)}>
                                         Calculate Water Use
                                     </Button>
                                     <Button
-                                        style={{marginLeft: '10px'}}
                                         variant="contained"
-                                        type="submit">
+                                        type="button"
+                                        onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
+                                        style={{marginLeft: '10px'}}
+                                    >
                                         Save 
                                     </Button>
                                     {this.state.waterUse != '' && (

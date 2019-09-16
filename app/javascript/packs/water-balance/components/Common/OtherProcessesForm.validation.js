@@ -160,7 +160,6 @@ const validate = values => {
         errors['continuous_processes'] = continuousErrors;
     }
 
-    console.log('%o', errors)
     return errors;
 };
 export default validate;

@@ -137,7 +137,6 @@ const validate = values => {
             vehicleWash['large_vehicles'] = sectionErrors;
         }
     }
-    console.log("%o", errors);
     return errors;
 };
 export default validate;
