@@ -23,6 +23,26 @@ import {
     MenuItem
 } from '@material-ui/core';
 
+const singleLoadFields = [
+    'people',
+    'loads_per_person', 
+    'single_load_weeks',    
+    'energy_star',
+    'energy_star_capacity',
+    'energy_star_factor',
+    'machine_type',
+    'nonenergy_star_factor',
+    'nonenergy_star_capacity'
+];
+
+const industrialLoadFields = [
+    'weight',
+    'industrial_weeks', 
+    'single_load_weeks',    
+    'water_use',
+    'recycled'
+];
+
 const style = {
   opacity: '.65',
   position: 'fixed',
@@ -66,8 +86,16 @@ const focusOnError = createDecorator ()
 
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     <FormControlLabel
-        control={<Switch checked={value} onChange={(event, isInputChecked) => onChange(isInputChecked)}
-                         value={value} {...rest} />}
+        control={<Switch checked={value} onChange={(event, isInputChecked) => {
+            let proceed = true; 
+            if(value == true) {
+                proceed = window.confirm("Deactivating this toggle will clear values. Do you want to proceed?");
+            }
+            if(proceed == true) {
+                onChange(isInputChecked);
+            }
+        }}
+        value={value} {...rest}/>}
         label={label}
     />
 );
@@ -98,6 +126,13 @@ class LaundryForm extends React.Component {
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }   
+
+    clearValues = (clearValues, values) => {
+        for(let i = 0; i < clearValues.length; i++) {
+            values.laundry[clearValues[i]] = null;  
+        }
+    }
+
 
     calculateWaterUse = (values, valid) => {
         if(!valid) {
@@ -244,6 +279,9 @@ class LaundryForm extends React.Component {
                     />
                 </Grid>
             )}
+            {selectn(`${basePath}.energy_star`)(values) == 100 && (
+                this.clearValues(['machine_type', 'nonenergy_star_factor', 'nonenergy_star_capacity'], values)
+            )}
             </Fragment>)
     }
 
@@ -320,6 +358,7 @@ class LaundryForm extends React.Component {
                 </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
+            {selectn(`laundry.has_single_load`)(values) == false && (this.clearValues( singleLoadFields, values))}
             <Grid item xs={12}>
                 <ExpansionPanel expanded={selectn(`laundry.has_industrial_machines`)(values) === true}>
                 <ExpansionPanelSummary>
@@ -337,6 +376,7 @@ class LaundryForm extends React.Component {
                 </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
+            {selectn(`laundry.has_industrial_machines`)(values) == false && (this.clearValues(industrialLoadFields, values))}
             <Grid item xs={12} sm={4}>
                 <Field
                     fullWidth

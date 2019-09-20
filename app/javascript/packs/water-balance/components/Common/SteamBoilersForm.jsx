@@ -87,7 +87,27 @@ class SteamBoilersForm extends React.Component {
             waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
-    }   
+    } 
+    
+    clearValues = (clearValues, basePath, values) => {
+        let field = basePath.split('[');
+        let path = field[0];
+        let index = field[1].replace(']', '');
+        for(let i = 0; i < clearValues.length; i++) {
+            if(values[path] != undefined) {  
+                values[path][index][clearValues[i]] = null; 
+            }
+        }    
+    }
+
+    clearSection = (values, name) => {
+        if(values[name] != undefined) {
+            if(!(Object.keys(values[name]).length === 0)) {
+                values[name] = [];  
+                values[name].push({});
+            }
+        }
+    }
 
     calculateWaterUse = (values, valid) => {
         if(!valid) {
@@ -240,11 +260,18 @@ class SteamBoilersForm extends React.Component {
                     </MenuItem>
                 </Field>
             </Grid>
+
             {softenerUse === "no" && (
                 this.noSoftner(values, basePath)
             )}
+            {softenerUse === "no" && (
+                this.clearValues(['water_regeneration', 'regeneration_per_week'], basePath, values)
+            )}
             {softenerUse === "yes" && (
-               this.softener(values, basePath)
+                this.softener(values, basePath)
+            )}
+            {softenerUse === "yes" 
+                && (this.clearValues(['steam_generation', 'condensate_percentage', 'cycles_concentration', 'hours_week'], basePath, values)
             )}
         </Fragment>)
     }
@@ -268,9 +295,15 @@ class SteamBoilersForm extends React.Component {
                     </Field>
                 </Grid>
             )}
-            {isMetered === "no" 
-                && (this.nonMetered(values, basePath))
-            }
+            {isMetered == 'yes' && (
+                this.clearValues(['water_regeneration', 'regeneration_per_week', 'steam_generation', 'condensate_percentage', 'cycles_concentration', 'hours_week', 'softener', 'operating_weeks'], basePath, values)
+            )}
+            {isMetered == 'no' && (
+                this.clearValues(['annual_water_use'], basePath, values) 
+            )}
+            {isMetered == 'no' && (
+                this.nonMetered(values, basePath)
+            )}
         </Fragment>)
     }
 

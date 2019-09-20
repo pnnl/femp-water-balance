@@ -39,6 +39,17 @@ const style = {
   },
 };
 
+const nonMeteredFields = ['weekend_meals', 
+                    'weekday_meals', 
+                    'operating_weeks', 
+                    'operating_weekends', 
+                    'dishwasher_type', 
+                    'spray_valve', 
+                    'flow_rate', 
+                    'prep_sink', 
+                    'combination_oven', 
+                    'ice_maker'];
+
 const DEFAULT_NUMBER_MASK = createNumberMask({
     prefix: '',
     includeThousandsSeparator: true,
@@ -119,6 +130,27 @@ class KitchensForm extends React.Component {
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }
 
+
+    clearValues = (clearValues, basePath, values) => {
+        let field = basePath.split('[');
+        let path = field[0];
+        let index = field[1].replace(']', '');
+        for(let i = 0; i < clearValues.length; i++) {
+            if(values[path] != undefined) {  
+                values[path][index][clearValues[i]] = null; 
+            }
+        }    
+    }
+
+    clearSection = (values, name) => {
+        if(values[name] != undefined) {
+            if(!(Object.keys(values[name]).length === 0)) {
+                values[name] = [];  
+                values[name].push({});
+            }
+        }
+    }
+
     calculateWaterUse = (values, valid) => {
         if(!valid) {
             window.alert("Missing or incorrect values.");
@@ -168,8 +200,14 @@ class KitchensForm extends React.Component {
                 </Grid>
             )}
             {isMetered === "no" 
-                && (this.averageMeals(basePath, values))
-            }
+                && (this.clearValues(['annual_water_use'], basePath, values)
+            )}
+            {isMetered === "no" 
+                && (this.averageMeals(basePath, values)
+            )}
+            {isMetered === "yes" 
+                && (this.clearValues( nonMeteredFields, basePath, values)
+            )}
         </Fragment>);
     }
 
@@ -303,7 +341,7 @@ class KitchensForm extends React.Component {
                     >
                 </Field>
             </Grid>
-            {weekdayMeals != undefined && weekdayMeals != 0 && (
+            {toNumber(weekdayMeals) != 0 && weekdayMeals != undefined  && (
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -317,7 +355,9 @@ class KitchensForm extends React.Component {
                     </Field>
                 </Grid>
             )}
-
+            {toNumber(weekdayMeals) == 0 && weekdayMeals != undefined && (
+               this.clearValues(['operating_weeks'], basePath, values)
+            )}
             <Grid item xs={12}>
                 <Field
                     formControlProps={{fullWidth: true}}
@@ -330,7 +370,6 @@ class KitchensForm extends React.Component {
                     >
                 </Field>
             </Grid>
-
             {toNumber(weekendMeals) != 0 && weekendMeals != undefined && (
                 <Grid item xs={12}>
                     <Field
@@ -345,10 +384,12 @@ class KitchensForm extends React.Component {
                     </Field>
                 </Grid>
             )}
+            {toNumber(weekendMeals) == 0 && weekendMeals != undefined && (
+               this.clearValues(['operating_weekends'], basePath, values)
+            )}
             {this.kitchenComponents(basePath, values)}
         </Fragment>)
     }
-
     renderFacilityTypeResponse = (values, basePath) => {
        const facilityType = selectn(`${basePath}.type`)(values);
         return (<Fragment>
@@ -370,6 +411,9 @@ class KitchensForm extends React.Component {
                         </Field>
                         {this.renderMetered(values, basePath)}
                     </Grid>
+            )}
+            {facilityType === 'incorporated' && (
+                this.clearValues(['is_metered', 'annual_water_use'], basePath, values)
             )}
             {facilityType === 'incorporated' && (
                 this.averageMeals(basePath, values)

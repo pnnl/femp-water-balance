@@ -55,8 +55,16 @@ const focusOnError = createDecorator ()
 
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     <FormControlLabel
-        control={<Switch checked={value} onChange={(event, isInputChecked) => onChange(isInputChecked)}
-                         value={value} {...rest} />}
+        control={<Switch checked={value} onChange={(event, isInputChecked) => {
+            let proceed = true; 
+            if(value == true) {
+                proceed = window.confirm("Deactivating this toggle will clear values. Do you want to proceed?");
+            }
+            if(proceed == true) {
+                onChange(isInputChecked);
+            }
+        }}
+        value={value} {...rest}/>}
         label={label}
     />
 );
@@ -99,6 +107,22 @@ class VehicleWashForm extends React.Component {
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }
+
+    clearValues = (clearValues, basePath, values) => {
+        let field = basePath.replace("vehicle_wash.", '');
+        for(let i = 0; i < clearValues.length; i++) {
+            values['vehicle_wash'][field][clearValues[i]] = null;  
+        }
+    }
+    
+    clearSection = (values, name) => {
+        if(values['vehicle_wash'][name] != undefined) {
+            if(!(Object.keys(values['vehicle_wash'][name]).length === 0)) {
+                values['vehicle_wash'][name] = null;  
+            }
+        }
+    }
+
 
     calculateWaterUse = (values, valid) => {
         if(!valid) {
@@ -275,7 +299,7 @@ class VehicleWashForm extends React.Component {
         );
     };
 
-    renderWaterMeteredControl = (basePath) => (
+    renderWaterMeteredControl = (basePath, values) => (
         <Grid item xs={12}>
               <Field
                     formControlProps={{fullWidth: true}}
@@ -291,6 +315,12 @@ class VehicleWashForm extends React.Component {
                         No
                     </MenuItem>
                 </Field>
+                {selectn(`${basePath}.metered`)(values) == 'yes' && (
+                    this.clearValues( ['vpw', 'wpy', 'gpv', 'recycled'], basePath, values)
+                )}
+                {selectn(`${basePath}.metered`)(values) == 'no' && (
+                    this.clearValues( ['water_usage'], basePath, values)
+                )}
         </Grid>
     );
 
@@ -316,6 +346,7 @@ class VehicleWashForm extends React.Component {
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
+                {selectn(`vehicle_wash.auto_wash_facilities`)(values) == false && (this.clearSection(values,"auto_wash"))}
                 <Grid item xs={12}>
                     <ExpansionPanel expanded={selectn(`vehicle_wash.conveyor_facilities`)(values) === true}>
                         <ExpansionPanelSummary>
@@ -349,6 +380,7 @@ class VehicleWashForm extends React.Component {
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
+                {selectn(`vehicle_wash.conveyor_facilities`)(values) == false && (this.clearSection(values,"conveyor"))}
                 <Grid item xs={12}>
                     <ExpansionPanel expanded={selectn(`vehicle_wash.wash_pad_facilities`)(values) === true}>
                         <ExpansionPanelSummary>
@@ -383,6 +415,7 @@ class VehicleWashForm extends React.Component {
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
+                {selectn(`vehicle_wash.wash_pad_facilities`)(values) == false && (this.clearSection(values,"wash_pads"))}
                 <Grid item xs={12}>
                     <ExpansionPanel expanded={selectn(`vehicle_wash.large_facilities`)(values) === true}>
                         <ExpansionPanelSummary>
@@ -400,6 +433,7 @@ class VehicleWashForm extends React.Component {
                         </ExpansionPanelDetails>
                     </ExpansionPanel>
                 </Grid>
+                {selectn(`vehicle_wash.large_facilities`)(values) == false && (this.clearSection(values,"large_vehicles"))}
                 <Grid item xs={12} sm={4}>
                     <Field
                         fullWidth

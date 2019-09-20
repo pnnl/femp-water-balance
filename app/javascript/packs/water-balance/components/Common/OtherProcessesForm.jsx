@@ -69,8 +69,16 @@ const focusOnError = createDecorator ()
 
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     <FormControlLabel
-        control={<Switch checked={value} onChange={(event, isInputChecked) => onChange(isInputChecked)}
-                    value={value} {...rest} />}
+        control={<Switch checked={value} onChange={(event, isInputChecked) => {
+            let proceed = true; 
+            if(value == true) {
+                proceed = window.confirm("Deactivating this toggle will clear values. Do you want to proceed?");
+            }
+            if(proceed == true) {
+                onChange(isInputChecked);
+            }
+        }}
+        value={value} {...rest}/>}
         label={label}
     />
 );
@@ -102,7 +110,27 @@ class OtherProcessesForm extends React.Component {
             waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
-    }   
+    }  
+    
+    clearValues = (clearValues, basePath, values) => {
+        let field = basePath.split('[');
+        let path = field[0];
+        let index = field[1].replace(']', '');
+        for(let i = 0; i < clearValues.length; i++) {
+            if(values[path] != undefined) {  
+                values[path][index][clearValues[i]] = null; 
+            }
+        }    
+    }
+
+    clearSection = (values, name) => {
+        if(values[name] != undefined) {
+            if(!(Object.keys(values[name]).length === 0)) {
+                values[name] = [];  
+                values[name].push({});
+            }
+        }
+    }
 
     calculateWaterUse = (values, valid) => {
         if(!valid) {
@@ -312,6 +340,12 @@ class OtherProcessesForm extends React.Component {
                     </MenuItem>
                 </Field>
             </Grid>
+            {isMetered == 'yes' && (
+                this.clearValues( ['average_week', 'week_year', 'flow_rate', 'water_use', 'recycled'], basePath, values)
+            )}
+            {isMetered == 'no' && (
+                this.clearValues( ['annual_water_use'], basePath, values)
+            )}
             {isMetered === "yes" && (
                 <Grid item xs={12}>
                     <Field
@@ -347,11 +381,12 @@ class OtherProcessesForm extends React.Component {
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
                     <Grid container alignItems="flex-start" spacing={16}>
-                        {this.batchProcesses(values, `other_processes`)}
+                        {this.batchProcesses(values, `batch_processes`)}
                     </Grid>
                 </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
+            {selectn(`other_processes.has_batch_processes`)(values) == false && (this.clearSection(values,"batch_processes"))}
             <Grid item xs={12}>
                 <ExpansionPanel expanded={selectn(`other_processes.has_continuous_processes`)(values) === true}>
                 <ExpansionPanelSummary>
@@ -364,11 +399,12 @@ class OtherProcessesForm extends React.Component {
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
                     <Grid container alignItems="flex-start" spacing={16}>
-                        {this.continuousProcesses(values, "other_processes")}
+                        {this.continuousProcesses(values, "continuous_processes")}
                     </Grid>
                 </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
+            {selectn(`other_processes.has_continuous_processes`)(values) == false && (this.clearSection(values,"continuous_processes"))}
             <Grid item xs={12} sm={4}>
                 <Field
                     fullWidth
