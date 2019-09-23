@@ -71,6 +71,13 @@ const DEFAULT_DECIMAL_MASK = createNumberMask({
     allowDecimal: true
 });
 
+const toNumber = (value) => {
+    if (value === undefined || value === null) {
+        return 0;
+    }
+    return parseFloat(value.replace(/,/g, ''));
+};
+
 const FormRulesListener = ({handleFormChange}) => (
     <FormSpy
         subscription={{values: true, valid: true}}
@@ -101,17 +108,30 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
 );
 
  const calculateSingleLoad = (values) => {
-    let esPercent = selectn(`laundry.energy_star`)(values) || 0;
-    let loadsPerYear = (selectn(`laundry.people`)(values) * selectn(`laundry.loads_per_person`)(values) * selectn(`laundry.single_load_weeks`)(values)) || 0;
-    let esGalPerCycle = (selectn(`laundry.energy_star_capacity`)(values) * selectn(`laundry.energy_star_factor`)(values)) || 0;
-    let nesGalPerCycle = (selectn(`laundry.nonenergy_star_capacity`)(values) * selectn(`laundry.nonenergy_star_factor`)(values)) || 0;
+    let esPercent = toNumber(selectn(`laundry.energy_star`)(values));
+    let people = toNumber(selectn(`laundry.people`)(values));
+    let loadsPerPerson = toNumber(selectn(`laundry.loads_per_person`)(values));
+    let singleLoadWeeks = toNumber(selectn(`laundry.single_load_weeks`)(values));
+    let energyStarCapacity = toNumber(selectn(`laundry.energy_star_capacity`)(values));
+    let energyStarFactor = toNumber(selectn(`laundry.energy_star_factor`)(values));
+    let nonenergyStarCapacity = toNumber(selectn(`laundry.nonenergy_star_capacity`)(values));
+    let nonenergyStarFactor = toNumber(selectn(`laundry.nonenergy_star_factor`)(values))
+
+    let loadsPerYear = people * loadsPerPerson * singleLoadWeeks;
+    let esGalPerCycle = energyStarCapacity * energyStarFactor;
+
+    let nesGalPerCycle = nonenergyStarCapacity * nonenergyStarFactor;
     let totalSingleLoad = (((esGalPerCycle * loadsPerYear * esPercent) + nesGalPerCycle * loadsPerYear * (100 - esPercent))/1000)|| 0;
 
     return totalSingleLoad;
 } 
 
 const calculateIndustrialLoad = (values) => {
-    let totalIndustrialLoad = (((selectn(`laundry.weight`)(values) * selectn(`laundry.industrial_weeks`)(values)) * (selectn(`laundry.water_use`)(values) * (1- selectn(`laundry.recycled`)(values)/100)))/1000) || 0;
+    let weight = toNumber(selectn(`laundry.weight`)(values));
+    let industrialWeeks = toNumber(selectn(`laundry.industrial_weeks`)(values));
+    let laundryRecycled = toNumber(selectn(`laundry.recycled`)(values));
+
+    let totalIndustrialLoad = ((( weight * industrialWeeks * ( 1 - laundryRecycled/100)))/1000);
     
     return totalIndustrialLoad;
 }

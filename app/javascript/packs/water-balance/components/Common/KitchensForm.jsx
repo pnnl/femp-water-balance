@@ -75,25 +75,26 @@ const FormRulesListener = ({handleFormChange}) => (
     />
 );
 
+
 const focusOnError = createDecorator ()
 
 const toNumber = (value) => {
     if (value === undefined || value === null) {
         return -1;
     }
-    return parseInt(value.toString().replace(/,/g, ''));
+    return parseFloat(value.toString().replace(/,/g, ''));
 };
 
 const calculatePerMeal = (values) => {
     if(values == null) {
         return 0;
     }
-    let iceMaker = (values.ice_maker * 1) || 0;
-    let combinationOven = (values.combination_oven * 1) || 0;
+    let iceMaker = toNumber(values.ice_maker);
+    let combinationOven = toNumber(values.combination_oven);
     let prepSink = values.prep_sink == true ? 1 : 0;
-    let sprayValve = (values.spray_valve * 1) || 0;
-    let dishwasher = (values.dishwasher_type * 1) || 0;
-    let handWashSink = (values.flow_rate * 1);
+    let sprayValve = toNumber(values.spray_valve);
+    let dishwasher = toNumber(values.dishwasher_type);
+    let handWashSink = toNumber(values.flow_rate);
     let handWashSinkValue = 0;
     if (isNaN(handWashSink)) { 
         handWashSinkValue = 0;
@@ -161,13 +162,14 @@ class KitchensForm extends React.Component {
         values.kitchen_facilities.map((facilityValues, index) => {
             if(facilityValues) { 
                 if(facilityValues.is_metered == 'yes') {
-                    total += (facilityValues.annual_water_use || 0) * 1;
+                    total += toNumber(facilityValues.annual_water_use);
                 } else {
                     waterUsePerMeal = calculatePerMeal(facilityValues);
-                    let weekdayMeals = facilityValues.weekday_meals || 0;
-                    let weekendMeals = facilityValues.weekend_meals || 0;
-                    let operatingWeeks = facilityValues.operating_weeks || 0;
-                    let operatingWeekends = facilityValues.operating_weekends || 0;
+                    let weekdayMeals = toNumber(facilityValues.weekday_meals);
+                    let weekendMeals = toNumber(facilityValues.weekend_meals);
+                    let operatingWeeks = toNumber(facilityValues.operating_weeks);
+                    let operatingWeekends = toNumber(facilityValues.operating_weekends);
+
                     total += (((weekdayMeals * operatingWeeks) + (weekendMeals * operatingWeekends)) * waterUsePerMeal)/1000;
                 }
             }

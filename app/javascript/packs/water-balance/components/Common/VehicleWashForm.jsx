@@ -51,6 +51,13 @@ const DEFAULT_DECIMAL_MASK = createNumberMask({
     allowDecimal: true
 });
 
+const toNumber = (value) => {
+    if (value === undefined || value === null) {
+        return 0;
+    }
+    return parseFloat(value.replace(/,/g, ''));
+};
+
 const focusOnError = createDecorator ()
 
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
@@ -81,19 +88,35 @@ const FormRulesListener = ({handleFormChange}) => (
 );
 
 const recycledCalculation = (valuePath, values) => {
-    if(selectn(`${valuePath}.metered`)(values) == "yes") {
-        return (selectn(`${valuePath}.water_usage`)(values) * 1);
+    let waterUsage = toNumber(selectn(`${valuePath}.water_usage`)(values));
+    let metered = selectn(`${valuePath}.metered`)(values)
+    
+    if(metered == "yes") {
+        return (waterUsage);
     } 
-   
-    return (selectn(`${valuePath}.vpw`)(values) * selectn(`${valuePath}.wpy`)(values) * selectn(`${valuePath}.gpv`)(values) * (1 - (selectn(`${valuePath}.recycled`)(values)/100)))/1000;
+
+    let vpw = toNumber(selectn(`${valuePath}.vpw`)(values));
+    let gpv = toNumber(selectn(`${valuePath}.gpv`)(values));
+    let wpy = toNumber(selectn(`${valuePath}.wpy`)(values));
+    let recycled = toNumber(selectn(`${valuePath}.recycled`)(values));
+
+    return (vpw * wpy * gpv * (1 - (recycled)/100))/1000;
 }
 
 const nonRecycledCalculation = (valuePath, values) => {
-    if(selectn(`${valuePath}.metered`)(values) == "yes") {
-        return (selectn(`${valuePath}.water_usage`)(values) * 1);
+    let waterUsage = toNumber(selectn(`${valuePath}.water_usage`)(values));
+    let metered = selectn(`${valuePath}.metered`)(values)
+    
+    if(metered == "yes") {
+        return (waterUsage);
     } 
-   
-    return (selectn(`${valuePath}.vpw`)(values) * selectn(`${valuePath}.wpy`)(values) * selectn(`${valuePath}.rating`)(values) * (selectn(`${valuePath}.wash_time`)(values)))/1000;
+
+    let vpw = toNumber(selectn(`${valuePath}.vpw`)(values));
+    let rating = toNumber(selectn(`${valuePath}.rating`)(values));
+    let washTime = toNumber(selectn(`${valuePath}.wash_time`)(values));
+    let wpy = toNumber(selectn(`${valuePath}.wpy`)(values));
+
+    return (vpw * wpy * rating * washTime)/1000;
 }
 
 class VehicleWashForm extends React.Component {

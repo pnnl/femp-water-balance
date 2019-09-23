@@ -54,6 +54,13 @@ const DEFAULT_DECIMAL_MASK = createNumberMask({
     allowDecimal: true
 });
 
+const toNumber = (value) => {
+    if (value === undefined || value === null) {
+        return 0;
+    }
+    return parseFloat(value.replace(/,/g, ''));
+};
+
 const FormRulesListener = ({handleFormChange}) => (
     <FormSpy
         subscription={{values: true, valid: true}}
@@ -84,19 +91,19 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
 );
 
 const continuousWaterUse = (processes) => {
-    let batchesPerWeek = (processes.average_week * 1) || 0; 
-    let weeksPerYear = (processes.week_year * 1) || 0; 
-    let waterPerBatch = (processes.water_use * 1) || 0; 
-    let recycled = (processes.recycled * 1) || 0; 
+    let batchesPerWeek = toNumber(processes.average_week); 
+    let weeksPerYear = toNumber(processes.week_year); 
+    let waterPerBatch = toNumber(processes.water_use); 
+    let recycled = toNumber(processes.recycled); 
 
     return ((batchesPerWeek * weeksPerYear * waterPerBatch) * (1 - recycled/100)) / 1000;
 }
 
 const batchWaterUse = (processes) => {
-    let batchesPerWeek = (processes.average_week * 1) || 0; 
-    let weeksPerYear = (processes.week_year * 1) || 0; 
-    let flow_rate = (processes.flow_rate * 1) || 0; 
-    let recycled = (processes.recycled * 1) || 0;
+    let batchesPerWeek = toNumber(processes.average_week); 
+    let weeksPerYear = toNumber(processes.week_year); 
+    let flow_rate = toNumber(processes.flow_rate); 
+    let recycled = toNumber(processes.recycled);
 
     return ((batchesPerWeek * weeksPerYear * 60 * flow_rate) * (1 - recycled/100)) / 1000;
 }
@@ -142,7 +149,7 @@ class OtherProcessesForm extends React.Component {
         values.continuous_processes.map((processes, index) => {
             if(processes) { 
                 if(processes.is_metered == 'yes') {
-                    batchTotal += (processes.annual_water_use || 0) * 1;
+                    batchTotal += toNumber(processes.annual_water_use);
                 } else {
                     batchTotal += batchWaterUse(processes);
                 }
@@ -152,7 +159,7 @@ class OtherProcessesForm extends React.Component {
         values.batch_processes.map((processes, index) => {
             if(processes) { 
                 if(processes.is_metered == 'yes') {
-                    continousTotal += (processes.annual_water_use || 0) * 1;
+                    continousTotal += toNumber(processes.annual_water_use);
                 } else {
                     continousTotal += continuousWaterUse(processes);
                 }

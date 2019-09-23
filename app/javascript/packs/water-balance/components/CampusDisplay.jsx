@@ -284,7 +284,7 @@ class CampusDisplay extends React.Component {
                             {...this.props} />
                     </TabContainer>
                 ),
-            },
+            }
         ];
     };
 

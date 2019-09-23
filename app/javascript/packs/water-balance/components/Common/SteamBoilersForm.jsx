@@ -68,15 +68,31 @@ const FormRulesListener = ({handleFormChange}) => (
 );
 
 const steamBoilerCalculation = (boiler) => {
-    let softenerPerformance = ((boiler.water_regeneration * boiler.regeneration_per_week * boiler.operating_weeks)/ 1000) || 0;
-    let steamGenerationRate = (boiler.steam_generation / 8.314) || 0;
-    let feedwaterRate = (steamGenerationRate / (1-(1/boiler.cycles_concentration))) || 0;
-    let totalWaterUse =  ([[(feedwaterRate)-(steamGenerationRate * boiler.condensate_percentage/100)]*(boiler.hours_week * boiler.operating_weeks)]/1000) || 0;
+    let waterRegeneration = toNumber(boiler.water_regeneration);
+    let regenerationPerWeek = toNumber(boiler.regeneration_per_week);
+    let operatingWeeks = toNumber(boiler.operating_weeks);
+    let steamGeneration = toNumber(boiler.steam_generation);
+    let cyclesConcentration = toNumber(boiler.cycles_concentration);
+    let condensatePercentage = toNumber(boiler.condensate_percentage);
+    let hoursWeek = toNumber(boiler.hours_week);
+
+
+    let softenerPerformance = ((waterRegeneration * regenerationPerWeek * operatingWeeks)/ 1000);
+    let steamGenerationRate = (steamGeneration / 8.314);
+    let feedwaterRate = (steamGenerationRate / (1-(1/cyclesConcentration)));
+    let totalWaterUse =  ([[(feedwaterRate)-(steamGenerationRate * condensatePercentage/100)] 
+                * (hoursWeek * operatingWeeks)]/1000);
     
     let total = softenerPerformance + totalWaterUse;
     return total;
 }
 
+const toNumber = (value) => {
+    if (value === undefined || value === null) {
+        return 0;
+    }
+    return parseFloat(value.replace(/,/g, ''));
+};
 
 class SteamBoilersForm extends React.Component {
 
@@ -118,7 +134,7 @@ class SteamBoilersForm extends React.Component {
         values.steam_boilers.map((boiler, index) => {
             if(boiler) { 
                 if(boiler.is_metered == 'yes') {
-                    total += (boiler.annual_water_use || 0) * 1;
+                    total += toNumber(boiler.annual_water_use);
                 } else {
                     total += steamBoilerCalculation(boiler);
                 }
