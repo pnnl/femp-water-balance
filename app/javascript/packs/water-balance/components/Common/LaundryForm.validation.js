@@ -64,7 +64,10 @@ const validateLaundryFacility = (values, basePath) => {
         }
         valuePath = `${basePath}.energy_star`;
         if(resolve(valuePath, values) < 100 ) {
-            let machineType = resolve(`${basePath}.machine_type`, values)
+            let machineType = resolve(`${basePath}.machine_type`, values);
+            if(machineType == undefined) {
+                errors['machine_type'] = 'Are washing machines predominately top loading or front loading?';
+            }
             let maxWaterFactor = machineType == 'top_loading' ? 8.5 : 5.5;
             valuePath = `${basePath}.nonenergy_star_factor`;
             if (!isWithinNumericRange(valuePath, values, 0, maxWaterFactor, true)) {

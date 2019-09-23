@@ -8,7 +8,6 @@ import {
     Button,
     FormControlLabel,
     InputAdornment,
-    Switch,
     MenuItem
 } from '@material-ui/core';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
@@ -21,6 +20,8 @@ import selectn from 'selectn';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import createDecorator from 'final-form-focus';
+import {submitAlert} from './submitAlert'
 
 import formValidation from './kitchensForm.validation';
 
@@ -37,6 +38,17 @@ const style = {
     opacity: '1',
   },
 };
+
+const nonMeteredFields = ['weekend_meals', 
+                    'weekday_meals', 
+                    'operating_weeks', 
+                    'operating_weekends', 
+                    'dishwasher_type', 
+                    'spray_valve', 
+                    'flow_rate', 
+                    'prep_sink', 
+                    'combination_oven', 
+                    'ice_maker'];
 
 const DEFAULT_NUMBER_MASK = createNumberMask({
     prefix: '',
@@ -63,23 +75,26 @@ const FormRulesListener = ({handleFormChange}) => (
     />
 );
 
+
+const focusOnError = createDecorator ()
+
 const toNumber = (value) => {
     if (value === undefined || value === null) {
         return -1;
     }
-    return parseInt(value.toString().replace(/,/g, ''));
+    return parseFloat(value.toString().replace(/,/g, ''));
 };
 
 const calculatePerMeal = (values) => {
     if(values == null) {
         return 0;
     }
-    let iceMaker = (values.ice_maker * 1) || 0;
-    let combinationOven = (values.combination_oven * 1) || 0;
+    let iceMaker = toNumber(values.ice_maker);
+    let combinationOven = toNumber(values.combination_oven);
     let prepSink = values.prep_sink == true ? 1 : 0;
-    let sprayValve = (values.spray_valve * 1) || 0;
-    let dishwasher = (values.dishwasher_type * 1) || 0;
-    let handWashSink = (values.flow_rate * 1);
+    let sprayValve = toNumber(values.spray_valve);
+    let dishwasher = toNumber(values.dishwasher_type);
+    let handWashSink = toNumber(values.flow_rate);
     let handWashSinkValue = 0;
     if (isNaN(handWashSink)) { 
         handWashSinkValue = 0;
@@ -109,32 +124,59 @@ class KitchensForm extends React.Component {
 
     constructor(props) {
         super(props);
+        let waterUse = selectn(`campus.modules.kitchen_facilities.water_use`)(props);
         this.state = {
-            waterUse: ''
+            waterUse: waterUse? " Water Use: " + waterUse + " kgal" : ''
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }
 
-    calculateWaterUse = (values) => {
+
+    clearValues = (clearValues, basePath, values) => {
+        let field = basePath.split('[');
+        let path = field[0];
+        let index = field[1].replace(']', '');
+        for(let i = 0; i < clearValues.length; i++) {
+            if(values[path] != undefined) {  
+                values[path][index][clearValues[i]] = null; 
+            }
+        }    
+    }
+
+    clearSection = (values, name) => {
+        if(values[name] != undefined) {
+            if(!(Object.keys(values[name]).length === 0)) {
+                values[name] = [];  
+                values[name].push({});
+            }
+        }
+    }
+
+    calculateWaterUse = (values, valid) => {
+        if(!valid) {
+            window.alert("Missing or incorrect values.");
+            return;
+        }
         let waterUsePerMeal = 0;
         let total = 0;
         values.kitchen_facilities.map((facilityValues, index) => {
             if(facilityValues) { 
                 if(facilityValues.is_metered == 'yes') {
-                    total += (facilityValues.annual_water_use || 0) * 1;
+                    total += toNumber(facilityValues.annual_water_use);
                 } else {
                     waterUsePerMeal = calculatePerMeal(facilityValues);
-                    let weekdayMeals = facilityValues.weekday_meals || 0;
-                    let weekendMeals = facilityValues.weekend_meals || 0;
-                    let operatingWeeks = facilityValues.operating_weeks || 0;
-                    let operatingWeekends = facilityValues.operating_weekends || 0;
+                    let weekdayMeals = toNumber(facilityValues.weekday_meals);
+                    let weekendMeals = toNumber(facilityValues.weekend_meals);
+                    let operatingWeeks = toNumber(facilityValues.operating_weeks);
+                    let operatingWeekends = toNumber(facilityValues.operating_weekends);
+
                     total += (((weekdayMeals * operatingWeeks) + (weekendMeals * operatingWeekends)) * waterUsePerMeal)/1000;
                 }
             }
         });
 
         let roundTotal = Math.round( total * 10) / 10;
-
+        values.water_use = roundTotal; 
         this.setState({
             waterUse: " Water Use: " + roundTotal + " kgal"
         });
@@ -160,8 +202,14 @@ class KitchensForm extends React.Component {
                 </Grid>
             )}
             {isMetered === "no" 
-                && (this.averageMeals(basePath, values))
-            }
+                && (this.clearValues(['annual_water_use'], basePath, values)
+            )}
+            {isMetered === "no" 
+                && (this.averageMeals(basePath, values)
+            )}
+            {isMetered === "yes" 
+                && (this.clearValues( nonMeteredFields, basePath, values)
+            )}
         </Fragment>);
     }
 
@@ -295,7 +343,7 @@ class KitchensForm extends React.Component {
                     >
                 </Field>
             </Grid>
-            {weekdayMeals != undefined && weekdayMeals != 0 && (
+            {toNumber(weekdayMeals) != 0 && weekdayMeals != undefined  && (
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -309,7 +357,9 @@ class KitchensForm extends React.Component {
                     </Field>
                 </Grid>
             )}
-
+            {toNumber(weekdayMeals) == 0 && weekdayMeals != undefined && (
+               this.clearValues(['operating_weeks'], basePath, values)
+            )}
             <Grid item xs={12}>
                 <Field
                     formControlProps={{fullWidth: true}}
@@ -322,7 +372,6 @@ class KitchensForm extends React.Component {
                     >
                 </Field>
             </Grid>
-
             {toNumber(weekendMeals) != 0 && weekendMeals != undefined && (
                 <Grid item xs={12}>
                     <Field
@@ -337,10 +386,12 @@ class KitchensForm extends React.Component {
                     </Field>
                 </Grid>
             )}
+            {toNumber(weekendMeals) == 0 && weekendMeals != undefined && (
+               this.clearValues(['operating_weekends'], basePath, values)
+            )}
             {this.kitchenComponents(basePath, values)}
         </Fragment>)
     }
-
     renderFacilityTypeResponse = (values, basePath) => {
        const facilityType = selectn(`${basePath}.type`)(values);
         return (<Fragment>
@@ -364,19 +415,15 @@ class KitchensForm extends React.Component {
                     </Grid>
             )}
             {facilityType === 'incorporated' && (
+                this.clearValues(['is_metered', 'annual_water_use'], basePath, values)
+            )}
+            {facilityType === 'incorporated' && (
                 this.averageMeals(basePath, values)
             )}
         </Fragment>);
     };
 
-    onSubmit = values => {
-        const {onSubmit} = this.props;
-        if (onSubmit) {
-            onSubmit(values);
-        } else {
-            window.alert(JSON.stringify(values, 0, 2));
-        }
-    };
+    onSubmit = values => {};
 
     renderFacilityTypes = (values) => {
         if(!values.has_kitchens) {
@@ -426,10 +473,20 @@ class KitchensForm extends React.Component {
                             </ExpansionPanelDetails>
                         </ExpansionPanel>
                     </Grid>
-                    
                 ))
                 }
             </FieldArray>
+            <Grid item xs={12} sm={4}>
+                <Field
+                    fullWidth
+                    disabled
+                    name="water_use"
+                    label="Water use"
+                    component={MaterialInput}
+                    type="text"
+                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
             </Fragment>);
     }
 
@@ -447,15 +504,17 @@ class KitchensForm extends React.Component {
             <Typography variant="h5" gutterBottom>Commercial Kitchen</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information for commercial kitchens on the campus</Typography>
             <Form
-                onSubmit={createOrUpdateCampusModule}
+                onSubmit={this.onSubmit}
                 initialValues={module}
                 validate={formValidation}
                 mutators={{
                     ...arrayMutators
                 }}
+                decorators={[focusOnError]}
                 render={({
                     handleSubmit,
                     values,
+                    valid,
                     form: { mutators: { push, pop } }
                 }) => (
                     <form onSubmit={handleSubmit} noValidate>
@@ -486,13 +545,16 @@ class KitchensForm extends React.Component {
                                     <Button
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
-                                        onClick={() => this.calculateWaterUse(values)}>
+                                        type="submit"
+                                        onClick={() => this.calculateWaterUse(values, valid)}>
                                         Calculate Water Use
                                     </Button>
                                     <Button
-                                        style={{marginLeft: '10px'}}
                                         variant="contained"
-                                        type="submit">
+                                        type="button"
+                                        onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
+                                        style={{marginLeft: '10px'}}
+                                    >
                                         Save 
                                     </Button>
                                     {this.state.waterUse != '' && (

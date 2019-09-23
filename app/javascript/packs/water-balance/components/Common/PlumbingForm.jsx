@@ -12,6 +12,7 @@ import selectn from 'selectn';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import {submitAlert} from './submitAlert'
 
 import formValidation from './PlumbingForm.validation';
 
@@ -59,14 +60,7 @@ const FormRulesListener = ({handleFormChange}) => (
 );
 
 class PlumbingForm extends React.Component {
-    onSubmit = values => {
-        const {onSubmit} = this.props;
-        if (onSubmit) {
-            onSubmit(values);
-        } else {
-            window.alert(JSON.stringify(values, 0, 2));
-        }
-    };
+    onSubmit = values => {};
 
     flushRate = (basePath, values, source, people) => {
          let flowRate = selectn(`${basePath}.shower_flow_rate`)(values);
@@ -480,10 +474,10 @@ class PlumbingForm extends React.Component {
                 <Typography variant="h5" gutterBottom>Plumbing</Typography>
                 <Typography variant="body2" gutterBottom>Enter the following information only for plumbing fixtures (toilets, urinals, bathroom faucets, kitchenette faucets and showerheads) that use potable water on the campus.</Typography>
                 <Form
-                    onSubmit={createOrUpdateCampusModule}
+                    onSubmit={this.onSubmit}
                     initialValues={module}
                     validate={formValidation}
-                    render={({handleSubmit, reset, submitting, pristine, values}) => (
+                    render={({handleSubmit, reset, submitting, pristine, values, valid}) => (
                         <form onSubmit={handleSubmit} noValidate>
                             <Grid container alignItems="flex-start" spacing={16}>
                                 {this.renderFacilityTypes(values)}
@@ -491,6 +485,7 @@ class PlumbingForm extends React.Component {
                                 <Button
                                     variant="contained"
                                     type="submit"
+                                    onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
                                     style={{marginLeft: '10px', marginTop: '15px'}}
                                     >
                                     Save 

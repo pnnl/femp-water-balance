@@ -12,6 +12,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
+import createDecorator from 'final-form-focus';
+import {submitAlert} from './submitAlert'
 
 import formValidation from './SteamBoilersForm.validation';
 
@@ -52,6 +54,8 @@ const DEFAULT_DECIMAL_MASK = createNumberMask({
     allowDecimal: true
 });
 
+const focusOnError = createDecorator ()
+
 const FormRulesListener = ({handleFormChange}) => (
     <FormSpy
         subscription={{values: true, valid: true}}
@@ -64,55 +68,87 @@ const FormRulesListener = ({handleFormChange}) => (
 );
 
 const steamBoilerCalculation = (boiler) => {
-    let softenerPerformance = ((boiler.water_regeneration * boiler.regeneration_per_week * boiler.operating_weeks)/ 1000) || 0;
-    let steamGenerationRate = (boiler.steam_generation / 8.314) || 0;
-    let feedwaterRate = (steamGenerationRate / (1-(1/boiler.cycles_concentration))) || 0;
-    let totalWaterUse =  ([[(feedwaterRate)-(steamGenerationRate * boiler.condensate_percentage/100)]*(boiler.hours_week * boiler.operating_weeks)]/1000) || 0;
+    let waterRegeneration = toNumber(boiler.water_regeneration);
+    let regenerationPerWeek = toNumber(boiler.regeneration_per_week);
+    let operatingWeeks = toNumber(boiler.operating_weeks);
+    let steamGeneration = toNumber(boiler.steam_generation);
+    let cyclesConcentration = toNumber(boiler.cycles_concentration);
+    let condensatePercentage = toNumber(boiler.condensate_percentage);
+    let hoursWeek = toNumber(boiler.hours_week);
+
+
+    let softenerPerformance = ((waterRegeneration * regenerationPerWeek * operatingWeeks)/ 1000);
+    let steamGenerationRate = (steamGeneration / 8.314);
+    let feedwaterRate = (steamGenerationRate / (1-(1/cyclesConcentration)));
+    let totalWaterUse =  ([[(feedwaterRate)-(steamGenerationRate * condensatePercentage/100)] 
+                * (hoursWeek * operatingWeeks)]/1000);
     
     let total = softenerPerformance + totalWaterUse;
     return total;
 }
 
+const toNumber = (value) => {
+    if (value === undefined || value === null) {
+        return 0;
+    }
+    return parseFloat(value.replace(/,/g, ''));
+};
 
 class SteamBoilersForm extends React.Component {
 
     constructor(props) {
+        let waterUse = selectn(`campus.modules.steam_boilers.water_use`)(props);
         super(props);
         this.state = {
-            waterUse: ''
+            waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
-    }   
+    } 
+    
+    clearValues = (clearValues, basePath, values) => {
+        let field = basePath.split('[');
+        let path = field[0];
+        let index = field[1].replace(']', '');
+        for(let i = 0; i < clearValues.length; i++) {
+            if(values[path] != undefined) {  
+                values[path][index][clearValues[i]] = null; 
+            }
+        }    
+    }
 
-    calculateWaterUse = (values) => {
-       
+    clearSection = (values, name) => {
+        if(values[name] != undefined) {
+            if(!(Object.keys(values[name]).length === 0)) {
+                values[name] = [];  
+                values[name].push({});
+            }
+        }
+    }
+
+    calculateWaterUse = (values, valid) => {
+        if(!valid) {
+            window.alert("Missing or incorrect values.");
+            return;
+        }
         let total = 0;
         values.steam_boilers.map((boiler, index) => {
             if(boiler) { 
                 if(boiler.is_metered == 'yes') {
-                    total += (boiler.annual_water_use || 0) * 1;
+                    total += toNumber(boiler.annual_water_use);
                 } else {
-                   
                     total += steamBoilerCalculation(boiler);
                 }
             }
         });
-
         let roundTotal = Math.round( total * 10) / 10;
+        values.water_use = roundTotal; 
 
         this.setState({
             waterUse: " Water Use: " + roundTotal + " kgal"
         });
     }
 
-    onSubmit = (values) => {
-        const {onSubmit} = this.props;
-        if (onSubmit) {
-            onSubmit(values);
-        } else {
-            window.alert(JSON.stringify(values, 0, 2));
-        }
-    };
+    onSubmit = (values) => {};
 
     weeksPerYear = (basePath) => {
         return(
@@ -240,11 +276,18 @@ class SteamBoilersForm extends React.Component {
                     </MenuItem>
                 </Field>
             </Grid>
+
             {softenerUse === "no" && (
                 this.noSoftner(values, basePath)
             )}
+            {softenerUse === "no" && (
+                this.clearValues(['water_regeneration', 'regeneration_per_week'], basePath, values)
+            )}
             {softenerUse === "yes" && (
-               this.softener(values, basePath)
+                this.softener(values, basePath)
+            )}
+            {softenerUse === "yes" 
+                && (this.clearValues(['steam_generation', 'condensate_percentage', 'cycles_concentration', 'hours_week'], basePath, values)
             )}
         </Fragment>)
     }
@@ -268,9 +311,15 @@ class SteamBoilersForm extends React.Component {
                     </Field>
                 </Grid>
             )}
-            {isMetered === "no" 
-                && (this.nonMetered(values, basePath))
-            }
+            {isMetered == 'yes' && (
+                this.clearValues(['water_regeneration', 'regeneration_per_week', 'steam_generation', 'condensate_percentage', 'cycles_concentration', 'hours_week', 'softener', 'operating_weeks'], basePath, values)
+            )}
+            {isMetered == 'no' && (
+                this.clearValues(['annual_water_use'], basePath, values) 
+            )}
+            {isMetered == 'no' && (
+                this.nonMetered(values, basePath)
+            )}
         </Fragment>)
     }
 
@@ -300,7 +349,7 @@ class SteamBoilersForm extends React.Component {
         if(!values.has_steam_boilers) {
             return null;
         }
-        return(  
+        return(<Fragment>
             <FieldArray name="steam_boilers"> 
                 {({ fields }) => fields.map((name, index) => (
                     <Grid item xs={12} key={index}>
@@ -330,29 +379,39 @@ class SteamBoilersForm extends React.Component {
                     </Grid>
                 ))}
             </FieldArray>
-            )
-    }
+            <Grid item xs={12} sm={4}>
+                    <Field
+                        fullWidth
+                        disabled
+                        name="water_use"
+                        label="Water use"
+                        component={MaterialInput}
+                        type="text"
+                        endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
+            </Fragment>)
+        }
 
 
     render() {
         const {createOrUpdateCampusModule, campus, applyRules} = this.props;
-
         const module = (campus) ? campus.modules.steam_boilers : {};
 
         if (!('steam_boilers' in module)) {
             module.steam_boilers = [];
             module.steam_boilers.push(null);
         }
-
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Steam Boilers</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information only for steam boilers that use potable water on the campus</Typography>
             <Form
-                onSubmit={createOrUpdateCampusModule}
+                onSubmit={this.onSubmit}
                 initialValues={module}
                 validate={formValidation}
+                decorators={[focusOnError]}
                 mutators={{...arrayMutators }}
-                render={({ handleSubmit, values, form: { mutators: { push, pop } }}) => (
+                render={({ handleSubmit, values, valid, form: { mutators: { push, pop } }}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -382,12 +441,15 @@ class SteamBoilersForm extends React.Component {
                                     <Button
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
-                                        onClick={() => this.calculateWaterUse(values)}>
+                                        type="submit"
+                                        onClick={() => this.calculateWaterUse(values, valid)}
+                                    >
                                         Calculate Water Use
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        type="submit"
+                                        type="button"
+                                        onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
                                         style={{marginLeft: '10px'}}
                                     >
                                         Save 
