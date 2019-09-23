@@ -70,137 +70,141 @@ class PlumbingForm extends React.Component {
 
     flushRate = (basePath, values, source, people) => {
          let flowRate = selectn(`${basePath}.shower_flow_rate`)(values);
-         return (<Fragment>
-            <Grid item xs={12}>
-                <Field
-                    formControlProps={{fullWidth: true}}
-                    required
-                    name={`${basePath}.typical_flush_rate`}
-                    component={MaterialInput}
-                    type="text"
-                    mask={DEFAULT_DECIMAL_MASK}
-                    label={"What is the typical flush rate of toilets in " + source + "?"}
-                    endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
-                    >
-                </Field>
-            </Grid>
-            <Grid item xs={12}>
-                <Field
-                    formControlProps={{fullWidth: true}}
-                    required
-                    name={`${basePath}.urinals`}
-                    component={Select}
-                    label={"Are urinals typically present in " + source + "?"}>
-                    <MenuItem value="Yes">
-                        Yes
-                    </MenuItem>
-                    <MenuItem value="No">
-                        No
-                    </MenuItem>
-                </Field>
-            </Grid>
-            {selectn(`${basePath}.urinals`)(values) === "Yes" && (
-                <Grid item xs={12}>
+         return (
+            <ExpansionPanel expanded={selectn(`${basePath}.typical_flush_rate`)(values) !== undefined}>
+                <ExpansionPanelSummary>
                     <Field
                         formControlProps={{fullWidth: true}}
                         required
-                        name={`${basePath}.urinal_flush_rate`}
+                        name={`${basePath}.typical_flush_rate`}
                         component={MaterialInput}
                         type="text"
                         mask={DEFAULT_DECIMAL_MASK}
-                        label={"What is the typical flush rate of urinals in " + source + "?"}
+                        label={"What is the typical flush rate of toilets in " + source + "?"}
                         endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
-                    >
-                    </Field>
-                </Grid>
-            )}
-            <Grid item xs={12}>
-                <Field
-                    formControlProps={{fullWidth: true}}
-                    required
-                    name={`${basePath}.aerator_flow_rate`}
-                    component={MaterialInput}
-                    type="text"
-                    mask={DEFAULT_DECIMAL_MASK}
-                    label={"What is the typical flow rate of restroom faucet aerators in " + source + "?"}
-                    endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
-                    >
-                </Field>
-            </Grid>
-            <Grid item xs={12}>
-                <Field
-                    formControlProps={{fullWidth: true}}
-                    required
-                    name={`${basePath}.kitchenette_flow_rate`}
-                    component={MaterialInput}
-                    type="text"
-                    mask={DEFAULT_DECIMAL_MASK}
-                    label={"What is the typical flow rate of kitchenette faucet aerators in " + source + "? Please put 0 if no kitchenettes are present."}
-                    endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
-                    >
-                </Field>
-            </Grid>
-            <Grid item xs={12}>
-                <Field
-                    formControlProps={{fullWidth: true}}
-                    required
-                    name={`${basePath}.shower_flow_rate`}
-                    component={MaterialInput}
-                    type="text"
-                    mask={DEFAULT_DECIMAL_MASK}
-                    label={"What is the typical flow rate of showers in " + source + "? Please put 0 in no showers are present."}
-                    endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
-                    >
-                </Field>
-            </Grid>
-            {source === "overall campus" && flowRate != 0 && flowRate != undefined && (
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.shower_usage`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label={"What is the estimated percentage of " + people + " that use showers on a daily basis?"}
-                        endAdornment={<InputAdornment position="end">%</InputAdornment>}
                         >
                     </Field>
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails>
+                <Grid container alignItems="flex-start" spacing={16}>
+                    <Grid item xs={12}>
+                        <Field
+                            formControlProps={{fullWidth: true}}
+                            required
+                            name={`${basePath}.urinals`}
+                            component={Select}
+                            label={"Are urinals typically present in " + source + "?"}>
+                            <MenuItem value="Yes">
+                                Yes
+                            </MenuItem>
+                            <MenuItem value="No">
+                                No
+                            </MenuItem>
+                        </Field>
+                    </Grid>
+                    {selectn(`${basePath}.urinals`)(values) === "Yes" && (
+                        <Grid item xs={12}>
+                            <Field
+                                formControlProps={{fullWidth: true}}
+                                required
+                                name={`${basePath}.urinal_flush_rate`}
+                                component={MaterialInput}
+                                type="text"
+                                mask={DEFAULT_DECIMAL_MASK}
+                                label={"What is the typical flush rate of urinals in " + source + "?"}
+                                endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
+                            >
+                            </Field>
+                        </Grid>
+                    )}
+                    <Grid item xs={12}>
+                        <Field
+                            formControlProps={{fullWidth: true}}
+                            required
+                            name={`${basePath}.aerator_flow_rate`}
+                            component={MaterialInput}
+                            type="text"
+                            mask={DEFAULT_DECIMAL_MASK}
+                            label={"What is the typical flow rate of restroom faucet aerators in " + source + "?"}
+                            endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
+                            >
+                        </Field>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Field
+                            formControlProps={{fullWidth: true}}
+                            required
+                            name={`${basePath}.kitchenette_flow_rate`}
+                            component={MaterialInput}
+                            type="text"
+                            mask={DEFAULT_DECIMAL_MASK}
+                            label={"What is the typical flow rate of kitchenette faucet aerators in " + source + "? Please put 0 if no kitchenettes are present."}
+                            endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
+                            >
+                        </Field>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Field
+                            formControlProps={{fullWidth: true}}
+                            required
+                            name={`${basePath}.shower_flow_rate`}
+                            component={MaterialInput}
+                            type="text"
+                            mask={DEFAULT_DECIMAL_MASK}
+                            label={"What is the typical flow rate of showers in " + source + "? Please put 0 in no showers are present."}
+                            endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
+                            >
+                        </Field>
+                    </Grid>
+                    {source === "overall campus" && flowRate != 0 && flowRate != undefined && (
+                        <Grid item xs={12}>
+                            <Field
+                                formControlProps={{fullWidth: true}}
+                                required
+                                name={`${basePath}.shower_usage`}
+                                component={MaterialInput}
+                                type="text"
+                                mask={DEFAULT_DECIMAL_MASK}
+                                label={"What is the estimated percentage of " + people + " that use showers on a daily basis?"}
+                                endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                                >
+                            </Field>
+                        </Grid>
+                )}
+                {source === "hospital/medical clinic" && flowRate != 0 && flowRate != undefined && (<Fragment>
+                    <Grid item xs={12}>
+                        <Field
+                            formControlProps={{fullWidth: true}}
+                            required
+                            name={`${basePath}.shower_usage_staff`}
+                            component={MaterialInput}
+                            type="text"
+                            mask={DEFAULT_DECIMAL_MASK}
+                            label={"What is the estimated percentage of " + people[0] + " that use showers on a daily basis?"}
+                            endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                            >
+                        </Field>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Field
+                            formControlProps={{fullWidth: true}}
+                            required
+                            name={`${basePath}.shower_usage_inpatient`}
+                            component={MaterialInput}
+                            type="text"
+                            mask={DEFAULT_DECIMAL_MASK}
+                            label={"What is the estimated percentage of " + people[1] + " that use showers on a daily basis?"}
+                            endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                            >
+                        </Field>
+                    </Grid>
+                </Fragment>)}
                 </Grid>
-            )}
-            {source === "hospital/medical clinic" && flowRate != 0 && flowRate != undefined && (<Fragment>
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.shower_usage_staff`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label={"What is the estimated percentage of " + people[0] + " that use showers on a daily basis?"}
-                        endAdornment={<InputAdornment position="end">%</InputAdornment>}
-                        >
-                    </Field>
-                </Grid>
-                <Grid item xs={12}>
-                    <Field
-                        formControlProps={{fullWidth: true}}
-                        required
-                        name={`${basePath}.shower_usage_inpatient`}
-                        component={MaterialInput}
-                        type="text"
-                        mask={DEFAULT_DECIMAL_MASK}
-                        label={"What is the estimated percentage of " + people[1] + " that use showers on a daily basis?"}
-                        endAdornment={<InputAdornment position="end">%</InputAdornment>}
-                        >
-                    </Field>
-                </Grid>
-            </Fragment>)}
-        </Fragment>);
-    }
+            </ExpansionPanelDetails>
+        </ExpansionPanel>)};
 
     onsiteLodging = (basePath, values) => {
-        return (<Fragment>
+        return (
             <Grid item xs={12}>
                 <Field
                     formControlProps={{fullWidth: true}}
@@ -213,8 +217,7 @@ class PlumbingForm extends React.Component {
                     >
                 </Field>
             </Grid>
-            {this.flushRate(basePath, values, "onsite lodging")}
-        </Fragment>);
+       );
     }
 
     facility = (basePath, values) => {
@@ -273,7 +276,7 @@ class PlumbingForm extends React.Component {
                             </Field>
                         </Grid>
                     )}
-                     {selectn(`${basePath}.operating_weeks`)(values) != 0 && (
+                    {selectn(`${basePath}.operating_weeks`)(values) != 0 && (
                         <Grid item xs={12}>
                             <Field
                                 formControlProps={{fullWidth: true}}
@@ -316,11 +319,10 @@ class PlumbingForm extends React.Component {
                             >
                         </Field>
                     </Grid>
-                    {this.flushRate(basePath, values, "overall campus", "general campus occupants")}
-                    </Grid>
-            </ExpansionPanelDetails>
-        </ExpansionPanel>
-    )}
+                </Grid>
+                </ExpansionPanelDetails>
+            </ExpansionPanel>
+        )}
 
     hospital = (basePath, values) => {
         return (<Fragment>
@@ -411,16 +413,13 @@ class PlumbingForm extends React.Component {
                     >
                 </Field>
             </Grid>
-            {this.flushRate(basePath, values, "hospital/medical clinic", ["hospital staff", "hospital inpatents"])}
         </Fragment>);
     }
 
     renderFacilityTypes = (values) => {
         return (<Fragment>
             <Grid item xs={12}>
-                {this.facility('plumbing.facility', values)}
-            </Grid>
-            <Grid item xs={12}>
+                <Typography variant="subtitle1" gutterBottom>Occupancy Information</Typography>
                 <ExpansionPanel expanded={selectn(`plumbing.has_onsite_lodging`)(values) === true}>
                     <ExpansionPanelSummary>
                         <Field
@@ -454,6 +453,23 @@ class PlumbingForm extends React.Component {
                     </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
+            <Grid item xs={12}>
+                {this.facility('plumbing.facility', values)}
+            </Grid>
+            <Grid item xs={12}>
+                <Typography variant="subtitle1" gutterBottom>Fixture Information</Typography><br/>
+                {this.flushRate('plumbing.facility', values, "overall campus", "general campus occupants")}
+            </Grid>
+            {selectn(`plumbing.has_onsite_lodging`)(values) && (
+                <Grid item xs={12}>
+                    {this.flushRate('plumbing.lodging', values, "onsite lodging")}
+                </Grid>
+            )}
+            {selectn(`plumbing.has_hospital`)(values) && (
+                <Grid item xs={12}>
+                    {this.flushRate('plumbing.hospital', values, "hospital/medical clinic", ["hospital staff", "hospital inpatents"])}
+                </Grid> 
+            )}
         </Fragment>);
     }
 
