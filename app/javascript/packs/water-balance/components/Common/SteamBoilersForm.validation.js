@@ -65,6 +65,12 @@ const validateNoSoftner = (values) => {
 
 const validateProcesses = (values, allBoilers) => {
     const errors = {};
+    if(!values.name) {
+        errors['name'] = "Enter a unique identifier for this steam boiler system (such as the building name/number it is associated)"
+    }
+    if (!values.is_metered) {
+        errors['is_metered'] = "Is the makeup water metered?"
+    }
     let valuePath = values.annual_water_use;
     if (values.is_metered == 'yes') {
         if (!isPositiveNumeric(valuePath)) {
@@ -72,6 +78,9 @@ const validateProcesses = (values, allBoilers) => {
         }
     } else {
         valuePath = values.softener;
+        if(valuePath == undefined) {
+            errors['softener']= 'Does the system have a softener or water conditioning system?';
+        }
         if(valuePath == 'yes') {
             const softenerErrors = validateSoftner(values); 
             if (softenerErrors) {
@@ -84,7 +93,6 @@ const validateProcesses = (values, allBoilers) => {
                 Object.assign(errors, noSoftenerErrors);
             } 
         }
-
         if (valuePath != undefined) {
             valuePath = values.operating_weeks;
             if (!isWithinNumericRange(valuePath, 1, 52)) {

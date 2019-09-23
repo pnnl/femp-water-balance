@@ -12,11 +12,12 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
+import createDecorator from 'final-form-focus';
+import {submitAlert} from './submitAlert'
 
 import formValidation from './OtherProcessesForm.validation';
 import {
     Fab, 
-    Icon,
     Grid,
     Button,
     FormControlLabel,
@@ -53,6 +54,13 @@ const DEFAULT_DECIMAL_MASK = createNumberMask({
     allowDecimal: true
 });
 
+const toNumber = (value) => {
+    if (value === undefined || value === null) {
+        return 0;
+    }
+    return parseFloat(value.replace(/,/g, ''));
+};
+
 const FormRulesListener = ({handleFormChange}) => (
     <FormSpy
         subscription={{values: true, valid: true}}
@@ -64,28 +72,38 @@ const FormRulesListener = ({handleFormChange}) => (
     />
 );
 
+const focusOnError = createDecorator ()
+
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     <FormControlLabel
-        control={<Switch checked={value} onChange={(event, isInputChecked) => onChange(isInputChecked)}
-                    value={value} {...rest} />}
+        control={<Switch checked={value} onChange={(event, isInputChecked) => {
+            let proceed = true; 
+            if(value == true) {
+                proceed = window.confirm("Deactivating this toggle will clear values. Do you want to proceed?");
+            }
+            if(proceed == true) {
+                onChange(isInputChecked);
+            }
+        }}
+        value={value} {...rest}/>}
         label={label}
     />
 );
 
 const continuousWaterUse = (processes) => {
-    let batchesPerWeek = (processes.average_week * 1) || 0; 
-    let weeksPerYear = (processes.week_year * 1) || 0; 
-    let waterPerBatch = (processes.water_use * 1) || 0; 
-    let recycled = (processes.recycled * 1) || 0; 
+    let batchesPerWeek = toNumber(processes.average_week); 
+    let weeksPerYear = toNumber(processes.week_year); 
+    let waterPerBatch = toNumber(processes.water_use); 
+    let recycled = toNumber(processes.recycled); 
 
     return ((batchesPerWeek * weeksPerYear * waterPerBatch) * (1 - recycled/100)) / 1000;
 }
 
 const batchWaterUse = (processes) => {
-    let batchesPerWeek = (processes.average_week * 1) || 0; 
-    let weeksPerYear = (processes.week_year * 1) || 0; 
-    let flow_rate = (processes.flow_rate * 1) || 0; 
-    let recycled = (processes.recycled * 1) || 0;
+    let batchesPerWeek = toNumber(processes.average_week); 
+    let weeksPerYear = toNumber(processes.week_year); 
+    let flow_rate = toNumber(processes.flow_rate); 
+    let recycled = toNumber(processes.recycled);
 
     return ((batchesPerWeek * weeksPerYear * 60 * flow_rate) * (1 - recycled/100)) / 1000;
 }
@@ -94,18 +112,44 @@ class OtherProcessesForm extends React.Component {
 
     constructor(props) {
         super(props);
+        let waterUse = selectn(`campus.modules.other_processes.other_processes.water_use`)(props);
         this.state = {
-            waterUse: ''
+            waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
-    }   
+    }  
+    
+    clearValues = (clearValues, basePath, values) => {
+        let field = basePath.split('[');
+        let path = field[0];
+        let index = field[1].replace(']', '');
+        for(let i = 0; i < clearValues.length; i++) {
+            if(values[path] != undefined) {  
+                values[path][index][clearValues[i]] = null; 
+            }
+        }    
+    }
 
-    calculateWaterUse = (values) => {
+    clearSection = (values, name) => {
+        if(values[name] != undefined) {
+            if(!(Object.keys(values[name]).length === 0)) {
+                values[name] = [];  
+                values[name].push({});
+            }
+        }
+    }
+
+    calculateWaterUse = (values, valid) => {
+        if(!valid) {
+            window.alert("Missing or incorrect values.");
+            return;
+        }
+
         let batchTotal = 0;
         values.continuous_processes.map((processes, index) => {
             if(processes) { 
                 if(processes.is_metered == 'yes') {
-                    batchTotal += (processes.annual_water_use || 0) * 1;
+                    batchTotal += toNumber(processes.annual_water_use);
                 } else {
                     batchTotal += batchWaterUse(processes);
                 }
@@ -115,7 +159,7 @@ class OtherProcessesForm extends React.Component {
         values.batch_processes.map((processes, index) => {
             if(processes) { 
                 if(processes.is_metered == 'yes') {
-                    continousTotal += (processes.annual_water_use || 0) * 1;
+                    continousTotal += toNumber(processes.annual_water_use);
                 } else {
                     continousTotal += continuousWaterUse(processes);
                 }
@@ -124,20 +168,15 @@ class OtherProcessesForm extends React.Component {
 
         let total = batchTotal + continousTotal;
         let roundTotal = Math.round( total * 10) / 10;
+        values.other_processes.water_use = roundTotal; 
+
         this.setState({
             waterUse: " Water Use: " + roundTotal + " kgal"
         });
 
     };
 
-    onSubmit = values => {
-        const {onSubmit} = this.props;
-        if (onSubmit) {
-            onSubmit(values);
-        } else {
-            window.alert(JSON.stringify(values, 0, 2));
-        }
-    };
+    onSubmit = values => {};
 
     waterUse = (values, basePath, source) => {
         let prompt = (source == "continuous_processes") ? "hours per week the process runs" : "batches per week";
@@ -308,6 +347,12 @@ class OtherProcessesForm extends React.Component {
                     </MenuItem>
                 </Field>
             </Grid>
+            {isMetered == 'yes' && (
+                this.clearValues( ['average_week', 'week_year', 'flow_rate', 'water_use', 'recycled'], basePath, values)
+            )}
+            {isMetered == 'no' && (
+                this.clearValues( ['annual_water_use'], basePath, values)
+            )}
             {isMetered === "yes" && (
                 <Grid item xs={12}>
                     <Field
@@ -343,11 +388,12 @@ class OtherProcessesForm extends React.Component {
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
                     <Grid container alignItems="flex-start" spacing={16}>
-                        {this.batchProcesses(values, `other_processes`)}
+                        {this.batchProcesses(values, `batch_processes`)}
                     </Grid>
                 </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
+            {selectn(`other_processes.has_batch_processes`)(values) == false && (this.clearSection(values,"batch_processes"))}
             <Grid item xs={12}>
                 <ExpansionPanel expanded={selectn(`other_processes.has_continuous_processes`)(values) === true}>
                 <ExpansionPanelSummary>
@@ -360,12 +406,23 @@ class OtherProcessesForm extends React.Component {
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
                     <Grid container alignItems="flex-start" spacing={16}>
-                        {this.continuousProcesses(values, "other_processes")}
+                        {this.continuousProcesses(values, "continuous_processes")}
                     </Grid>
                 </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
-              
+            {selectn(`other_processes.has_continuous_processes`)(values) == false && (this.clearSection(values,"continuous_processes"))}
+            <Grid item xs={12} sm={4}>
+                <Field
+                    fullWidth
+                    disabled
+                    name="other_processes.water_use"
+                    label="Water use"
+                    component={MaterialInput}
+                    type="text"
+                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
         </Fragment>);
     }
 
@@ -387,11 +444,12 @@ class OtherProcessesForm extends React.Component {
             <Typography variant="h5" gutterBottom>Other Processes</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information only for other processes that use potable water on the campus</Typography>
             <Form
-                onSubmit={createOrUpdateCampusModule}
+                onSubmit={this.onSubmit}
                 initialValues={module}
                 validate={formValidation}
                 mutators={{...arrayMutators }}
-                render={({ handleSubmit, values, form: { mutators: { push, pop } }}) => (
+                decorators={[focusOnError]}
+                render={({ handleSubmit, values, valid, form: { mutators: { push, pop } }}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -430,12 +488,14 @@ class OtherProcessesForm extends React.Component {
                                     <Button
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
-                                        onClick={() => this.calculateWaterUse(values)}>
+                                        type="submit"
+                                        onClick={() => this.calculateWaterUse(values, valid)}>
                                         Calculate Water Use
                                     </Button>
                                     <Button
-                                    variant="contained"
-                                    type="submit"
+                                        variant="contained"
+                                        type="button"
+                                        onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
                                         style={{marginLeft: '10px'}}
                                     >
                                     Save 

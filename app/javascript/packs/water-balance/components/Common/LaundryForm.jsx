@@ -8,6 +8,8 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
+import createDecorator from 'final-form-focus';
+import {submitAlert} from './submitAlert'
 
 import formValidation from './LaundryForm.validation';
 import {
@@ -20,6 +22,26 @@ import {
     Switch,
     MenuItem
 } from '@material-ui/core';
+
+const singleLoadFields = [
+    'people',
+    'loads_per_person', 
+    'single_load_weeks',    
+    'energy_star',
+    'energy_star_capacity',
+    'energy_star_factor',
+    'machine_type',
+    'nonenergy_star_factor',
+    'nonenergy_star_capacity'
+];
+
+const industrialLoadFields = [
+    'weight',
+    'industrial_weeks', 
+    'single_load_weeks',    
+    'water_use',
+    'recycled'
+];
 
 const style = {
   opacity: '.65',
@@ -49,6 +71,13 @@ const DEFAULT_DECIMAL_MASK = createNumberMask({
     allowDecimal: true
 });
 
+const toNumber = (value) => {
+    if (value === undefined || value === null) {
+        return 0;
+    }
+    return parseFloat(value.replace(/,/g, ''));
+};
+
 const FormRulesListener = ({handleFormChange}) => (
     <FormSpy
         subscription={{values: true, valid: true}}
@@ -60,26 +89,49 @@ const FormRulesListener = ({handleFormChange}) => (
     />
 );
 
+const focusOnError = createDecorator ()
+
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     <FormControlLabel
-        control={<Switch checked={value} onChange={(event, isInputChecked) => onChange(isInputChecked)}
-                         value={value} {...rest} />}
+        control={<Switch checked={value} onChange={(event, isInputChecked) => {
+            let proceed = true; 
+            if(value == true) {
+                proceed = window.confirm("Deactivating this toggle will clear values. Do you want to proceed?");
+            }
+            if(proceed == true) {
+                onChange(isInputChecked);
+            }
+        }}
+        value={value} {...rest}/>}
         label={label}
     />
 );
 
  const calculateSingleLoad = (values) => {
-    let esPercent = selectn(`laundry.energy_star`)(values) || 0;
-    let loadsPerYear = (selectn(`laundry.people`)(values) * selectn(`laundry.loads_per_person`)(values) * selectn(`laundry.single_load_weeks`)(values)) || 0;
-    let esGalPerCycle = (selectn(`laundry.energy_star_capacity`)(values) * selectn(`laundry.energy_star_factor`)(values)) || 0;
-    let nesGalPerCycle = (selectn(`laundry.nonenergy_star_capacity`)(values) * selectn(`laundry.nonenergy_star_factor`)(values)) || 0;
+    let esPercent = toNumber(selectn(`laundry.energy_star`)(values));
+    let people = toNumber(selectn(`laundry.people`)(values));
+    let loadsPerPerson = toNumber(selectn(`laundry.loads_per_person`)(values));
+    let singleLoadWeeks = toNumber(selectn(`laundry.single_load_weeks`)(values));
+    let energyStarCapacity = toNumber(selectn(`laundry.energy_star_capacity`)(values));
+    let energyStarFactor = toNumber(selectn(`laundry.energy_star_factor`)(values));
+    let nonenergyStarCapacity = toNumber(selectn(`laundry.nonenergy_star_capacity`)(values));
+    let nonenergyStarFactor = toNumber(selectn(`laundry.nonenergy_star_factor`)(values))
+
+    let loadsPerYear = people * loadsPerPerson * singleLoadWeeks;
+    let esGalPerCycle = energyStarCapacity * energyStarFactor;
+
+    let nesGalPerCycle = nonenergyStarCapacity * nonenergyStarFactor;
     let totalSingleLoad = (((esGalPerCycle * loadsPerYear * esPercent) + nesGalPerCycle * loadsPerYear * (100 - esPercent))/1000)|| 0;
 
     return totalSingleLoad;
 } 
 
 const calculateIndustrialLoad = (values) => {
-    let totalIndustrialLoad = (((selectn(`laundry.weight`)(values) * selectn(`laundry.industrial_weeks`)(values)) * (selectn(`laundry.water_use`)(values) * (1- selectn(`laundry.recycled`)(values)/100)))/1000) || 0;
+    let weight = toNumber(selectn(`laundry.weight`)(values));
+    let industrialWeeks = toNumber(selectn(`laundry.industrial_weeks`)(values));
+    let laundryRecycled = toNumber(selectn(`laundry.recycled`)(values));
+
+    let totalIndustrialLoad = ((( weight * industrialWeeks * ( 1 - laundryRecycled/100)))/1000);
     
     return totalIndustrialLoad;
 }
@@ -88,32 +140,37 @@ class LaundryForm extends React.Component {
 
     constructor(props) {
         super(props);
+        let waterUse = selectn(`campus.modules.laundry.laundry.water_usage`)(props);
         this.state = {
-            waterUse: ''
+            waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }   
 
-    calculateWaterUse = (values) => {
+    clearValues = (clearValues, values) => {
+        for(let i = 0; i < clearValues.length; i++) {
+            values.laundry[clearValues[i]] = null;  
+        }
+    }
+
+
+    calculateWaterUse = (values, valid) => {
+        if(!valid) {
+            window.alert("Missing or incorrect values.");
+            return;
+        }
         let singleLoad = calculateSingleLoad(values);
         let industrialLoad = calculateIndustrialLoad(values);
         let total = singleLoad + industrialLoad;
         let roundTotal = Math.round( total * 10) / 10;
-
+        values.laundry.water_usage = roundTotal;
         this.setState({
             waterUse: " Water Use: " + roundTotal + " kgal"
         });
 
     };
 
-    onSubmit = values => {
-        const {onSubmit} = this.props;
-        if (onSubmit) {
-            onSubmit(values);
-        } else {
-            window.alert(JSON.stringify(values, 0, 2));
-        }
-    };
+    onSubmit = values => {};
 
     industrialMachines = (values, basePath) => {
         return (<Fragment>
@@ -242,6 +299,9 @@ class LaundryForm extends React.Component {
                     />
                 </Grid>
             )}
+            {selectn(`${basePath}.energy_star`)(values) == 100 && (
+                this.clearValues(['machine_type', 'nonenergy_star_factor', 'nonenergy_star_capacity'], values)
+            )}
             </Fragment>)
     }
 
@@ -318,6 +378,7 @@ class LaundryForm extends React.Component {
                 </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
+            {selectn(`laundry.has_single_load`)(values) == false && (this.clearValues( singleLoadFields, values))}
             <Grid item xs={12}>
                 <ExpansionPanel expanded={selectn(`laundry.has_industrial_machines`)(values) === true}>
                 <ExpansionPanelSummary>
@@ -335,6 +396,18 @@ class LaundryForm extends React.Component {
                 </ExpansionPanelDetails>
                 </ExpansionPanel>
             </Grid>
+            {selectn(`laundry.has_industrial_machines`)(values) == false && (this.clearValues(industrialLoadFields, values))}
+            <Grid item xs={12} sm={4}>
+                <Field
+                    fullWidth
+                    disabled
+                    name="laundry.water_usage"
+                    label="Water use"
+                    component={MaterialInput}
+                    type="text"
+                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
         </Fragment>);
     }
 
@@ -346,10 +419,11 @@ class LaundryForm extends React.Component {
             <Typography variant="h5" gutterBottom>Laundry (Washing Machines)</Typography>
             <Typography variant="body2" gutterBottom>Enter the following information for laundry (washing machines) on the campus</Typography>
             <Form
-                onSubmit={createOrUpdateCampusModule}
+                onSubmit={this.onSubmit}
                 initialValues={module}
                 validate={formValidation}
-                render={({handleSubmit, reset, submitting, pristine, values}) => (
+                decorators={[focusOnError]}
+                render={({handleSubmit, reset, submitting, pristine, values, valid}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -370,12 +444,14 @@ class LaundryForm extends React.Component {
                                 {(values.has_laundry_facility === false || values.has_laundry_facility === undefined) ? null : (<Fragment>
                                     <Button
                                         variant="contained"
-                                        onClick={() => this.calculateWaterUse(values)}>
+                                        type="submit"
+                                        onClick={() => this.calculateWaterUse(values, valid)}>
                                         Calculate Water Use
                                     </Button>
                                     <Button
                                         variant="contained"
-                                        type="submit"
+                                        type="button"
+                                        onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
                                         style={{marginLeft: '10px'}}
                                         >
                                         Save 
