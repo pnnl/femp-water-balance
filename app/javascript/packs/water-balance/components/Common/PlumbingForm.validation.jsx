@@ -221,7 +221,7 @@ const validate = values => {
     if (sectionErrors) {
         plumbing['facility'] = sectionErrors;
     }
-    console.log("%o", errors);
+    
     return errors;
 };
 export default validate;

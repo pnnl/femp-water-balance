@@ -94,46 +94,151 @@ const FormRulesListener = ({handleFormChange}) => (
 
 const focusOnError = createDecorator ()
 
+
+ 
 const caluclateOccupancy = (values, basePath, subgroup) => {
     let hoursPerDay = null;
-    let daysPerYear = null;
-    let occupants = null;
+    let daysPerYear = getDaysPerYear(basePath, values, subgroup);
+    let occupants = getOccupants(basePath, values, subgroup);
+
     if(basePath == 'plumbing.lodging') {
-        occupants = toNumber(selectn(`${basePath}.total_population`)(values));
         hoursPerDay = 8;
-        daysPerYear = 350;
     }
-    if(basePath == 'plumbing.hospital') {
-        let dailyStaff = toNumber(selectn(`${basePath}.daily_staff`)(values));
-        let administrative = toNumber(selectn(`${basePath}.administrative`)(values))/100;
+    if(subgroup == 'admin' ||subgroup == 'staff') {
         hoursPerDay = toNumber(selectn(`${basePath}.staff_shift`)(values));
-        daysPerYear = toNumber(selectn(`${basePath}.days_per_year`)(values));
-        occupants = dailyStaff * administrative;
-        if(subgroup == 'staff') { 
-            occupants = dailyStaff - occupants;
-        }
-        if(subgroup == "outPatient"){
-            occupants = toNumber(selectn(`${basePath}.outpatient_visits`)(values));
+    }
+    if(subgroup == "outPatient"){
             hoursPerDay = toNumber(selectn(`${basePath}.outpatient_duration`)(values));
-        }
-        if(subgroup == "inPatient"){
-            occupants = toNumber(selectn(`${basePath}.inpatient_per_day`)(values));
-            hoursPerDay = 1;
-        }
+    }
+    if(subgroup == "inPatient"){
+        hoursPerDay = 1;
     }
     if(subgroup == "weekday") {
-        occupants = toNumber(selectn(`${basePath}.total_population`)(values));
         hoursPerDay = toNumber(selectn(`${basePath}.shift_weekday`)(values));
-        daysPerYear = toNumber(selectn(`${basePath}.operating_weeks`)(values));
     }
     if(subgroup == "weekend") {
-        occupants = toNumber(selectn(`${basePath}.total_population_weekends`)(values));
         hoursPerDay = toNumber(selectn(`${basePath}.shift_weekend`)(values));
-        daysPerYear = toNumber(selectn(`${basePath}.operating_weekend`)(values));
     }
     let totalOccupied = occupants * hoursPerDay * daysPerYear;
 
    return totalOccupied;
+}
+
+const calculateUrinals = (occupancy, basePath, values, subgroup) => {
+    let waterUse = 0;
+    if(selectn(`${basePath}.urinals`)(values) == 'Yes') {
+        let flushRatePerHour = subgroup == 'inPatient'? 4 : .25;
+        let malePercent = toNumber(selectn(`plumbing.facility.male_population`)(values));
+        let flushRate = toNumber(selectn(`${basePath}.urinal_flush_rate`)(values));
+        let flushesPerYear = occupancy * (malePercent/100) * flushRatePerHour;
+        waterUse = (flushesPerYear * flushRate)/1000;
+    } 
+    return waterUse;
+}
+
+const calculateToilets = (occupancy, basePath, values, subgroup) => {
+    let maleFlush = 0;
+    let femaleFlush = 0; 
+    if(subgroup == 'inPatient') {
+        maleFlush = selectn(`${basePath}.urinals`)(values) == 'Yes'? 3 : 7;
+        femaleFlush = 7; 
+    } else {
+        maleFlush = selectn(`${basePath}.urinals`)(values) == 'Yes'? 0.125 : 0.375;
+        femaleFlush = 0.375;
+    }
+    let averageFlushRate = toNumber(selectn(`${basePath}.typical_flush_rate`)(values));
+    let malePercent = toNumber(selectn(`plumbing.facility.male_population`)(values))/100;
+    let maleFlushesPerYear = occupancy * maleFlush * malePercent;
+    let femaleFlushesPerYear = occupancy * femaleFlush * (1 - malePercent);
+
+    let totalToiletWater = ((maleFlushesPerYear + femaleFlushesPerYear) * averageFlushRate)/1000; 
+
+    return totalToiletWater;
+}
+
+const calculateRestroomSink = (occupancy, basePath, values, minutesPerHour) => {
+    let minuresPerYear = minutesPerHour * occupancy;
+    let averageFlow = toNumber(selectn(`${basePath}.aerator_flow_rate`)(values));
+    let totalWaterUse = (minuresPerYear * averageFlow)/1000;
+     
+    return totalWaterUse;
+}
+const getDaysPerYear = (basePath, values, subgroup) => {
+    let daysPerYear = null;
+    if(basePath == 'plumbing.lodging') {
+       daysPerYear = 350; 
+    }
+    if(basePath == 'plumbing.hospital') { 
+        daysPerYear = toNumber(selectn(`${basePath}.days_per_year`)(values));
+    }
+    if(subgroup == "weekday") {
+        daysPerYear = toNumber(selectn(`${basePath}.operating_weeks`)(values));
+    }
+    if(subgroup == "weekend") {
+        daysPerYear = toNumber(selectn(`${basePath}.operating_weekend`)(values));
+    }
+    return daysPerYear;
+}
+
+const getOccupants = (basePath, values, subgroup) => {
+    let occupants = null;
+    if(basePath == 'plumbing.lodging') { 
+         occupants = toNumber(selectn(`${basePath}.total_population`)(values));
+    }
+    if(basePath == 'plumbing.hospital') {
+        let dailyStaff = toNumber(selectn(`${basePath}.daily_staff`)(values));
+        let administrative = toNumber(selectn(`${basePath}.administrative`)(values))/100;
+        occupants = dailyStaff * administrative;
+        if(subgroup == 'staff') { 
+            occupants = dailyStaff - occupants;
+        }
+    }
+    if(subgroup == "outPatient"){
+        occupants = toNumber(selectn(`${basePath}.outpatient_visits`)(values));
+    }
+    if(subgroup == "inPatient"){
+        occupants = toNumber(selectn(`${basePath}.inpatient_per_day`)(values));
+    }
+    if(subgroup == "weekday") {
+        occupants = toNumber(selectn(`${basePath}.total_population`)(values));
+    }
+    if(subgroup == "weekend") {
+        occupants = toNumber(selectn(`${basePath}.total_population_weekends`)(values));
+    }
+    return occupants; 
+}
+
+const calculateKitchenSink = (basePath, values, subgroup, minutesPerHour) => {
+    let occupants = getOccupants(basePath, values, subgroup);
+    let flowRate = toNumber(selectn(`${basePath}.kitchenette_flow_rate`)(values));
+    let minutesPerYear = occupants * minutesPerHour;
+    let totalWaterUse = (minutesPerYear * flowRate)/1000;  
+    return totalWaterUse;
+}
+
+const calculateShowers = (basePath, values, subgroup, timeUsed)  => {
+    let occupants = getOccupants(basePath, values, subgroup);
+    let daysPerYear = getDaysPerYear(basePath, values, subgroup);
+    let showerUsage = null;
+    if(subgroup == 'lodging') {
+        showerUsage = 69;
+    } 
+    if(subgroup == 'inPatient'){
+        showerUsage = toNumber(selectn(`${basePath}.shower_usage_inpatient`)(values));
+    }
+    if(subgroup == 'staff' || subgroup == 'admin'){
+        showerUsage = toNumber(selectn(`${basePath}.shower_usage_staff`)(values));
+    }
+    if(subgroup == 'weekday' || subgroup == 'weekend'){
+        showerUsage = toNumber(selectn(`${basePath}.shower_usage`)(values));
+    }
+    if(subgroup == 'outPatient'){
+        showerUsage = 0;
+    }
+    let flowRate = toNumber(selectn(`${basePath}.shower_flow_rate`)(values));
+    let showersPerYear = (showerUsage/100) * occupants * daysPerYear;
+    let totalWaterUse = (showersPerYear * flowRate * timeUsed)/1000;
+    return totalWaterUse;
 }
 
 class PlumbingForm extends React.Component {
@@ -145,6 +250,10 @@ class PlumbingForm extends React.Component {
             waterUse: waterUse? " Water Use: " + waterUse + " kgal" : '' 
         };
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
+    }
+
+    calulateTotalOccupants = (values, basePath) => {
+        values.plumbing.hospital.total_occupants = toNumber(selectn(`${basePath}.inpatient_per_day`)(values)) + toNumber(selectn(`${basePath}.daily_staff`)(values));
     }
 
     clearValues = (clearValues, basePath, values) => {
@@ -168,6 +277,7 @@ class PlumbingForm extends React.Component {
             return;
         }
 
+        //Occupancy 
         let lodgingOccupancy = caluclateOccupancy(values, 'plumbing.lodging');
         let hospitalAdminOccupancy = caluclateOccupancy(values, 'plumbing.hospital', 'admin');
         let hospitalStaffOccupancy = caluclateOccupancy(values, 'plumbing.hospital', 'staff');
@@ -176,12 +286,66 @@ class PlumbingForm extends React.Component {
         let weekDaygeneralCampusOccupancy = caluclateOccupancy(values, 'plumbing.facility', 'weekday');
         let weekendDaygeneralCampusOccupancy = caluclateOccupancy(values, 'plumbing.facility', 'weekend');
 
-        let total = hospitalAdminOccupancy + hospitalStaffOccupancy + hospitalOutPatientOccupancy + hospitalInPatientOccupancy + weekDaygeneralCampusOccupancy + weekendDaygeneralCampusOccupancy;
+        // Urinals
+        let lodgingUrinals = calculateUrinals(lodgingOccupancy, 'plumbing.lodging', values);
+        let hospitalAdminUrinals = calculateUrinals(hospitalAdminOccupancy, 'plumbing.hospital', values);
+        let hospitalStaffUrinals = calculateUrinals(hospitalStaffOccupancy, 'plumbing.hospital', values);
+        let hospitalOutPatientUrinals = calculateUrinals(hospitalOutPatientOccupancy, 'plumbing.hospital', values);
+        let hospitalInPatientUrinals = calculateUrinals(hospitalInPatientOccupancy, 'plumbing.hospital', values, 'inPatient');
+        let weekDaygeneralCampusUrinals = calculateUrinals(weekDaygeneralCampusOccupancy, 'plumbing.facility', values);
+        let weekendDaygeneralCampusUrinals = calculateUrinals(weekendDaygeneralCampusOccupancy, 'plumbing.facility', values);
 
-        values.plumbing.water_usage = total; 
+        //Toilets
+        let lodgingToilets = calculateToilets(lodgingOccupancy, 'plumbing.lodging', values);
+        let hospitalAdminToilets = calculateToilets(hospitalAdminOccupancy, 'plumbing.hospital', values);
+        let hospitalStaffToilets = calculateToilets(hospitalStaffOccupancy, 'plumbing.hospital', values);
+        let hospitalOutPatientToilets = calculateToilets(hospitalOutPatientOccupancy, 'plumbing.hospital', values);
+        let hospitalInPatientToilets = calculateToilets(hospitalInPatientOccupancy, 'plumbing.hospital', values, 'inPatient');
+        let weekDaygeneralCampusToilets = calculateToilets(weekDaygeneralCampusOccupancy, 'plumbing.facility', values);
+        let weekendDaygeneralCampusToilets = calculateToilets(weekendDaygeneralCampusOccupancy, 'plumbing.facility', values);
+
+        //Restroom handwash sink 
+        let lodgingRestroomSink = calculateRestroomSink(lodgingOccupancy, 'plumbing.lodging', values, 0.25);
+        let hospitalAdminRestroomSink = calculateRestroomSink(hospitalAdminOccupancy, 'plumbing.hospital', values, 0.125);
+        let hospitalStaffRestroomSink = calculateRestroomSink(hospitalStaffOccupancy, 'plumbing.hospital', values, 1.05);
+        let hospitalOutPatientRestroomSink = calculateRestroomSink(hospitalOutPatientOccupancy, 'plumbing.hospital', values, 0.125);
+        let hospitalInPatientRestroomSink = calculateRestroomSink(hospitalInPatientOccupancy, 'plumbing.hospital', values, 0.125);
+        let weekDaygeneralCampusRestroomSink = calculateRestroomSink(weekDaygeneralCampusOccupancy, 'plumbing.facility', values, 0.125);
+        let weekendDaygeneralCampusRestroomSink = calculateRestroomSink(weekendDaygeneralCampusOccupancy, 'plumbing.facility', values, 0.125);
         
+        //Kitchenette sinks
+        let lodgingKitchenSink = calculateKitchenSink('plumbing.lodging', values, 'lodging', 0.25);
+        let hospitalAdminKitchenSink = calculateKitchenSink('plumbing.hospital', values, 'admin', 0.5);
+        let hospitalStaffKitchenSink = calculateKitchenSink('plumbing.hospital', values, 'staff', 0.5);
+        let hospitalOutPatientKitchenSink = calculateKitchenSink('plumbing.hospital', values,'outPatient', 0);
+        let hospitalInPatientKitchenSink = calculateKitchenSink('plumbing.hospital', values, 'inPatient', 0);
+        let weekDaygeneralCampusKitchenSink = calculateKitchenSink('plumbing.facility', values, 'weekday', 0.5);
+        let weekendDaygeneralCampusKitchenSink = calculateKitchenSink('plumbing.facility', values,'weekend', 0.5);
+
+        //Showers
+        let lodgingShowers = calculateShowers('plumbing.lodging', values, 'lodging', 7.8);
+        let hospitalAdminShowers = calculateShowers('plumbing.hospital', values, 'admin', 5.3);
+        let hospitalStaffShowers = calculateShowers('plumbing.hospital', values, 'staff', 5.3);
+        let hospitalOutPatientShowers = calculateShowers('plumbing.hospital', values,'outPatient', 0);
+        let hospitalInPatientShowers = calculateShowers('plumbing.hospital', values, 'inPatient', 7.8);
+        let weekDaygeneralCampusShowers = calculateShowers('plumbing.facility', values, 'weekday', 5.3);
+        let weekendDaygeneralCampusShowers = calculateShowers('plumbing.facility', values,'weekend', 5.3);
+
+        let totalPlumbingLodging =  lodgingUrinals + lodgingToilets + lodgingRestroomSink + lodgingKitchenSink + lodgingShowers;
+        let totalPlumbingHospitalAdmin = hospitalAdminUrinals + hospitalAdminToilets + hospitalAdminRestroomSink + hospitalAdminKitchenSink + hospitalAdminShowers;
+        let totalPlumbingHospitalStaffShowers = hospitalStaffUrinals + hospitalStaffToilets + hospitalStaffRestroomSink + hospitalStaffKitchenSink + hospitalStaffShowers;
+        let totalPlumbingHospitalOutPatient = hospitalOutPatientUrinals + hospitalOutPatientToilets + hospitalOutPatientRestroomSink + hospitalOutPatientKitchenSink + hospitalOutPatientShowers;
+        let totalPlumbinghospitalInPatient = hospitalInPatientUrinals + hospitalInPatientToilets + hospitalInPatientRestroomSink + hospitalInPatientKitchenSink + hospitalInPatientShowers
+        let totalPlumbingWeek = weekDaygeneralCampusUrinals + weekDaygeneralCampusToilets + weekDaygeneralCampusRestroomSink + weekDaygeneralCampusKitchenSink + weekDaygeneralCampusShowers;
+        let totalPlumbingWeekend = weekendDaygeneralCampusUrinals + weekendDaygeneralCampusToilets + weekendDaygeneralCampusRestroomSink + weekendDaygeneralCampusKitchenSink + weekendDaygeneralCampusShowers;
+
+        let totalWaterUse = totalPlumbingLodging + totalPlumbingHospitalAdmin + totalPlumbingHospitalStaffShowers + totalPlumbingHospitalOutPatient + totalPlumbinghospitalInPatient + totalPlumbingWeek + totalPlumbingWeekend; 
+        let roundTotal = Math.round( totalWaterUse * 10) / 10;
+        values.plumbing.water_usage = roundTotal; 
+      
+
         this.setState({
-            waterUse: " Water Use: " + total + "kgal"
+            waterUse: " Water Use:" + roundTotal + " kgal"
         });
 
     };
@@ -553,6 +717,21 @@ class PlumbingForm extends React.Component {
                     >
                 </Field>
             </Grid>
+            <Grid item xs={12}>
+                <Field
+                    formControlProps={{fullWidth: true}}
+                    disabled
+                    name={`${basePath}.total_occupants`}
+                    component={MaterialInput}
+                    type="text"
+                    mask={DEFAULT_NUMBER_MASK}
+                    label="Average daily hospital/clinic occupancy"
+                    >
+                </Field>
+            </Grid>
+            {selectn(`${basePath}.inpatient_per_day`)(values) != undefined && selectn(`${basePath}.daily_staff`)(values) != undefined && (
+                this.calulateTotalOccupants(values, basePath)
+            )}
             {selectn(`${basePath}.inpatient_per_day`)(values) == 0 && (
                 this.clearValues(['shower_usage_inpatient'], basePath, values)
             )}
@@ -681,7 +860,6 @@ class PlumbingForm extends React.Component {
                                     </Fab>
                                 )}
                             <FormRulesListener handleFormChange={applyRules}/>
-                            <pre>{JSON.stringify(values, 0 ,2)}</pre>
                         </form>
                     )}
                 /> 
