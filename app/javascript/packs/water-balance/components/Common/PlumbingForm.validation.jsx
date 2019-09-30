@@ -52,37 +52,42 @@ const validateFacility = (values, basePath) => {
     const errors = {};
     let valuePath = `${basePath}.total_population`;
     if (!isPositiveNumeric(valuePath, values, true)) {
-        errors['total_population'] = 'The estimated overall campus staff population, excluding hospital/medical clinics.';
+        errors['total_population'] = 'The estimated overall average daily campus staff population for weekdays, excluding hospital/clinics.';
+    }
+    valuePath = `${basePath}.total_population_weekends`;
+    if (!isPositiveNumeric(valuePath, values, true)) {
+        errors['total_population_weekends'] = 'The estimated overall average daily campus staff population for weekends, excluding hospital/clinics.';
     }
 
-    valuePath = `${basePath}.operating_weeks`;
-    if (!isWithinNumericRange(valuePath, values, 0, 260, true)) {
-        errors['operating_weeks'] = 'The number of days per year the campus operates must be between 0 and 260.';
+    let weekDayPopulation = resolve(`${basePath}.total_population`, values);
+    let weekendDayPopulation = resolve(`${basePath}.total_population_weekends`, values);
+    if (weekDayPopulation == 0 && weekendDayPopulation == 0) {
+        errors['total_population'] = 'The campus weekday and weekend day population cannot both be zero.';
+        errors['total_population_weekends'] = 'The campus weekday and weekend day population cannot both be zero.';
     }
-    valuePath = `${basePath}.operating_weekend`;
-    if (!isWithinNumericRange(valuePath, values, 0, 104, true)) {
-        errors['operating_weekend'] = 'The number of weekend days per year the campus operates must be between 0 and 104.';
-    }
+
     let operatingWeeks = resolve(`${basePath}.operating_weeks`, values);
     let operatingWeekends = resolve(`${basePath}.operating_weekend`, values);
-    if (operatingWeeks == 0 && operatingWeekends == 0) {
-        errors['operating_weeks'] = 'The number of days the campus operates per year cannot be 0 for both weekdays and weekend days.';
-        errors['operating_weekend'] = 'The number of days the campus operates per year cannot be 0 for both weekdays and weekend days.';
-    }
-    if(operatingWeekends != 0 && operatingWeeks != undefined) {
-        valuePath = `${basePath}.staff_weekend`;
-        if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
-            errors['staff_weekend'] = 'Percentage of staff that work during the weekends must be between 0 and 100.';
-        }
+
+    if(weekendDayPopulation != 0) {
         valuePath = `${basePath}.shift_weekend`;
         if (!isPositiveNumeric(valuePath, values)) {
             errors['shift_weekend'] = 'The average length of a weekend day shift.';
         }
-    }
-    if(operatingWeeks != 0 && operatingWeeks != undefined) {
+        valuePath = `${basePath}.operating_weekend`;
+        if (!isWithinNumericRange(valuePath, values, 1, 104, true)) {
+            errors['operating_weekend'] = 'The number of weekend days per year the campus operates must be between 1 and 104.';
+        }
+    }   
+
+    if(weekDayPopulation != 0) {
         valuePath = `${basePath}.shift_weekday`;
         if (!isPositiveNumeric(valuePath, values)) {
             errors['shift_weekday'] = 'The average length of a weekday shift.';
+        }
+        valuePath = `${basePath}.operating_weeks`;
+        if (!isWithinNumericRange(valuePath, values, 1, 260, true)) {
+            errors['operating_weeks'] = 'The number of days per year the campus operates must be between 1 and 260.';
         }
     }
 
@@ -141,9 +146,11 @@ const validateHospital = (values, basePath) => {
         if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
             errors['shower_usage_staff'] = 'Percentage of hospital staff that use showers on a daily basis must be between 0 and 100.';
         }
-        valuePath = `${basePath}.shower_usage_inpatient`;
-        if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
-            errors['shower_usage_inpatient'] = 'Percentage of hospital inpatents that use showers on a daily basis must be between 0 and 100.';
+        if (selectn(`${basePath}.inpatient_per_day`)(values) != 0) {
+            valuePath = `${basePath}.shower_usage_inpatient`;
+            if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
+                errors['shower_usage_inpatient'] = 'Percentage of hospital inpatents that use showers on a daily basis must be between 0 and 100.';
+            }
         }
     }
     let flushRateErrors = validateFlushRates(values, basePath, 'hospital/medical clinic'); 
@@ -214,7 +221,7 @@ const validate = values => {
     if (sectionErrors) {
         plumbing['facility'] = sectionErrors;
     }
-
+    
     return errors;
 };
 export default validate;
