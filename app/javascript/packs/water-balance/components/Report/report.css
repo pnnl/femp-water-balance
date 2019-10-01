@@ -1,0 +1,27 @@
+.instructions {
+	color: #2196f3;
+}
+
+.rv-xy-plot {
+	font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
+
+.pie-chart {
+	float: left;
+	width: 65%;
+	padding: 37px;
+}
+
+.legend {
+	width: 35%;
+	float: right;
+	margin-top: 145px;
+}
+
+.title {
+	text-align: center;
+	margin-top: 14px;
+}
+
+.bar-chart {
+}

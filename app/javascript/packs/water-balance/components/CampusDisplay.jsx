@@ -15,7 +15,7 @@ import LaundryForm from "./Common/LaundryForm";
 import PlumbingForm from "./Common/PlumbingForm";
 import OtherProcessesForm from "./Common/OtherProcessesForm";
 import SteamBoilersForm from "./Common/SteamBoilersForm";
-
+import Report from "./Report/Report";
 
 import {Engine} from 'json-rules-engine';
 
@@ -282,6 +282,18 @@ class CampusDisplay extends React.Component {
                             events={events}
                             applyRules={this.executeRules}
                             {...this.props} />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Water Balance Results',
+                tabContent: (
+                    <TabContainer>
+                        <Report 
+                            
+                            campus={campus} 
+                            
+                        />
                     </TabContainer>
                 ),
             }
