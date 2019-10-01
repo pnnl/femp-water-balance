@@ -192,7 +192,7 @@ class CampusDisplay extends React.Component {
                     </TabContainer>
                 ),
             },
-             {
+            {
                 tabName: 'Plumbing',
                 tabContent: (
                     <TabContainer>
@@ -206,30 +206,17 @@ class CampusDisplay extends React.Component {
                     </TabContainer>
                 ),
             },
-             { 
-                tabName: 'Vehicle Wash',
-                tabContent: (
-                    <TabContainer>
-                        <VehicleWashForm
-                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
-                            campus={campus}
-                            events={events}
-                            applyRules={this.executeRules}
-                            {...this.props}
-                        />
-                    </TabContainer>
-                ),
-            },
             {
-                tabName: 'Other Processes',
+                tabName: 'Commercial Kitchen',
                 tabContent: (
                     <TabContainer>
-                        <OtherProcessesForm 
-                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                        <KitchensForm 
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule} 
                             campus={campus}
                             events={events}
                             applyRules={this.executeRules} 
-                            {...this.props} />
+                            {...this.props} 
+                        />
                     </TabContainer>
                 ),
             },
@@ -259,20 +246,6 @@ class CampusDisplay extends React.Component {
                 ),
             },
             {
-                tabName: 'Commercial Kitchen',
-                tabContent: (
-                    <TabContainer>
-                        <KitchensForm 
-                            createOrUpdateCampusModule={this.createOrUpdateCampusModule} 
-                            campus={campus}
-                            events={events}
-                            applyRules={this.executeRules} 
-                            {...this.props} 
-                        />
-                    </TabContainer>
-                ),
-            },
-            {
                 tabName: 'Laundry (Washing Machines)',
                 tabContent: (
                     <TabContainer>
@@ -285,6 +258,33 @@ class CampusDisplay extends React.Component {
                     </TabContainer>
                 ),
             },
+            { 
+                tabName: 'Vehicle Wash',
+                tabContent: (
+                    <TabContainer>
+                        <VehicleWashForm
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Other Processes',
+                tabContent: (
+                    <TabContainer>
+                        <OtherProcessesForm 
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules} 
+                            {...this.props} />
+                    </TabContainer>
+                ),
+            },    
             {
                 tabName: 'Water Balance Results',
                 tabContent: (

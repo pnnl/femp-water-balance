@@ -105,7 +105,7 @@ class DefaultToolbar extends React.Component {
         }
         return (
             <Typography variant="h6" color="inherit" className={classes.flex}>
-                <a href="/" style={{textDecoration: 'none', color: 'inherit'}}>FEMP :: Water Balance</a>
+                <a href="/" style={{textDecoration: 'none', color: 'inherit'}}>FEMP Water Balance Tool</a>
             </Typography>
         );
     }

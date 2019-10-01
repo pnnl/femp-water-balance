@@ -20,8 +20,16 @@ export default function UseTable(props) {
 			return key.name;
 		})
 		.indexOf("Total Water Supply");
-
 	waterUseArray.push(waterUseArray.splice(totalWaterUse, 1)[0]);
+	let unknown = waterUseArray
+		.map(function(key) {
+			return key.name;
+		})
+		.indexOf("Unknown");
+
+	if(unknown >= 0){
+		waterUseArray.splice(unknown, 1);	
+	} 
 	const rows = waterUseArray.map(key => (
 		<TableRow key={key.name}>
 			<TableCell component='th' scope='row'>

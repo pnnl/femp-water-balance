@@ -24,6 +24,16 @@ export default function UseTable(props) {
 		.indexOf("Unknown");
 
 	waterUseArray.push(waterUseArray.splice(unknown, 1)[0]);
+	
+	let endUse = waterUseArray
+		.map(function(key) {
+			return key.name;
+		})
+		.indexOf("Sum of end-uses");
+
+	if(endUse >= 0){
+		waterUseArray.splice(endUse, 1);	
+	} 
 	let length = waterUseArray.length - 1;
 	let temp = waterUseArray[length - 1];
 	waterUseArray[length - 1] = waterUseArray[length];

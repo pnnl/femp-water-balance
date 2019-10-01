@@ -20,8 +20,10 @@
 
 .title {
 	text-align: center;
-	margin-top: 14px;
+	margin-top: 14px !important;
 }
 
 .bar-chart {
+	margin-bottom:24px;
+	height: 100%;
 }

@@ -131,7 +131,7 @@ class Report extends React.Component {
 	ScenarioTwo = waterUse => {
 		return (
 			<Fragment>
-				<Typography variant='body2' gutterBottom>
+				<Typography variant='body2' gutterBottom style={{color:'red'}}>
 					Looks like there may be a problem with your water balance!
 					The sum of the water end-uses is greater than the total
 					water supplied to your campus.

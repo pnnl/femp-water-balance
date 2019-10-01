@@ -19,11 +19,11 @@ class BarChart extends React.Component {
 				</Typography>
 				<div className='bar-chart'>
 					<XYPlot
-						height={405}
-						width={361}
+						height={350}
+						width={550}
 						xType='ordinal'
 						color='#0097be'
-						margin={{ left: 70, right: 10, top: 30, bottom: 90 }}
+						margin={{ left: 70, right: 10, top: 30, bottom: 120 }}
 					>
 						<XAxis tickLabelAngle={-45} />
 						<YAxis />
