@@ -1,7 +1,17 @@
 import React, { Fragment } from "react";
 import Typography from "@material-ui/core/Typography";
-import "./report.css";
 import { XYPlot, VerticalBarSeries, XAxis, YAxis } from "react-vis";
+
+const title = {
+	textAlign: 'center',
+	marginTop: '14px'
+}
+
+const barChart = {
+	marginBottom:'24px',
+	height: '100%',
+	fontFamily: "Roboto, Helvetica, Arial, sans-serif"
+}
 
 class BarChart extends React.Component {
 	render(props) {
@@ -14,10 +24,10 @@ class BarChart extends React.Component {
 		});
 		return (
 			<Fragment>
-				<Typography className='title' variant='body2' gutterBottom>
+				<Typography style={title} variant='body2' gutterBottom>
 					Water Balance Results Bar Chart
 				</Typography>
-				<div className='bar-chart'>
+				<div style={barChart}>
 					<XYPlot
 						height={350}
 						width={550}
