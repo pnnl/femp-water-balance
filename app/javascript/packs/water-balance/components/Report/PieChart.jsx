@@ -1,7 +1,24 @@
 import React, { Fragment } from "react";
 import Typography from "@material-ui/core/Typography";
-import "./report.css";
 import { DiscreteColorLegend, RadialChart } from "react-vis";
+
+const title = {
+	textAlign: 'center',
+	marginTop: '14px'
+}
+
+const legend = {
+	width: '35%',
+	float: 'right',
+	marginTop: '145px'
+}
+
+const pieChart = {
+	float: 'left',
+	width: '65%',
+	padding: '37px'
+}
+
 
 class BarChart extends React.Component {
 	render(props) {
@@ -30,11 +47,11 @@ class BarChart extends React.Component {
 		});
 		return (
 			<Fragment>
-				<div ClassName='pie-chart-container'>
-					<Typography className='title' variant='body2' gutterBottom>
+				<div className='pie-chart-container'>
+					<Typography style={title} variant='body2' gutterBottom>
 						Water Balance Pie Chart
 					</Typography>
-					<div className='pie-chart'>
+					<div style={pieChart}>
 						<RadialChart
 							data={data}
 							height={300}
@@ -48,7 +65,7 @@ class BarChart extends React.Component {
 							colorType='literal'
 						/>
 					</div>
-					<div className='legend'>
+					<div style={legend}>
 						<DiscreteColorLegend
 							items={data.map(d => d.label)}
 							colors={data.map(d => d.color)}

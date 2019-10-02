@@ -3,7 +3,6 @@ import Typography from "@material-ui/core/Typography";
 import Table2 from "./Table2";
 import Table1 from "./Table1";
 import selectn from "selectn";
-import "./report.css";
 
 const toNumber = value => {
 	if (value === undefined || value === null) {
@@ -11,6 +10,11 @@ const toNumber = value => {
 	}
 	return parseFloat(value.toString().replace(/,/g, ""));
 };
+
+const style = {
+	color: '#2196f3'
+}
+
 
 const WaterUse = {};
 
@@ -65,7 +69,7 @@ class Report extends React.Component {
 					recommended next step. Go to FEMP's Best Management Practice
 					(BMP) on &nbsp;
 					<a
-						className='instructions'
+						style={style}
 						href='https://www.energy.gov/eere/femp/best-management-practice-3-distribution-system-audits-leak-detection-and-repair'
 					>
 						Distribution System Leak Detection and Repair
@@ -83,7 +87,7 @@ class Report extends React.Component {
 					reveals the biggest water consumer, focus on high efficiency
 					fixture replacement. Go to &nbsp;
 					<a
-						className='instructions'
+						style={style}
 						href='https://www.energy.gov/eere/femp/best-management-practices-water-efficiency'
 					>
 						FEMP BMPs
@@ -96,28 +100,28 @@ class Report extends React.Component {
 					<br />
 					<br />
 					<a
-						className='instructions'
+						style={style}
 						href='https://www.energy.gov/eere/femp/best-management-practice-1-water-management-planning'
 					>
 						Water Management Planning
 					</a>
 					<br />
 					<a
-						className='instructions'
+						style={style}
 						href='https://www.energy.gov/eere/femp/prioritizing-building-water-meter-applications'
 					>
 						Water Metering
 					</a>
 					<br />
 					<a
-						className='instructions'
+						style={style}
 						href='https://www.energy.gov/eere/femp/water-efficient-technology-opportunities'
 					>
 						Water Efficient Technologies
 					</a>
 					<br />
 					<a
-						className='instructions'
+						style={style}
 						href='https://www.energy.gov/eere/femp/alternative-water-sources-maps'
 					>
 						Alternative Water
