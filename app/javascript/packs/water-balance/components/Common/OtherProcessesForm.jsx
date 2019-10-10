@@ -9,11 +9,11 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from './submitAlert'
+import {submitAlert} from './shared/submitAlert'
 
 import formValidation from './OtherProcessesForm.validation';
 import {
@@ -25,34 +25,6 @@ import {
     Switch,
     MenuItem
 } from '@material-ui/core';
-
-const style = {
-  opacity: '.65',
-  position: 'fixed',
-  bottom: '11px',
-  right: '104px',
-  zIndex: '10000',
-  backgroundColor : 'rgb(220, 0, 78)',
-  borderRadius: '11px',
-  width: '196px',
-  '&:hover': {
-    opacity: '1',
-  },
-};
-
-const DEFAULT_NUMBER_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: false
-});
-
-const DEFAULT_DECIMAL_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: true
-});
 
 const toNumber = (value) => {
     if (value === undefined || value === null) {
@@ -167,11 +139,11 @@ class OtherProcessesForm extends React.Component {
         });
 
         let total = batchTotal + continousTotal;
-        let roundTotal = Math.round( total * 10) / 10;
-        values.other_processes.water_use = roundTotal; 
+        let formatTotal = numberFormat.format(total);
+        values.other_processes.water_use = formatTotal; 
 
         this.setState({
-            waterUse: " Water Use: " + roundTotal + " kgal"
+            waterUse: " Water Use: " + formatTotal + " kgal"
         });
 
     };
@@ -506,7 +478,7 @@ class OtherProcessesForm extends React.Component {
                                         color="primary"
                                         aria-label="Water Use"
                                         title="Water Use"
-                                        style={style}
+                                        style={fabStyle}
                                     >
                                     {this.state.waterUse}
                                     </Fab>

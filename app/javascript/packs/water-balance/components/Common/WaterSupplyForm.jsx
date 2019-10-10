@@ -11,23 +11,10 @@ import {
 import DateFnsUtils from "@date-io/date-fns";
 import withWidth, {isWidthDown} from '@material-ui/core/withWidth';
 import createDecorator from 'final-form-calculate';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import selectn from 'selectn';
 import MaterialInput from './MaterialInput';
+import {DEFAULT_YEAR_MASK, DEFAULT_NUMBER_MASK } from './shared/sharedStyles'; 
 
-const DEFAULT_NUMBER_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: false
-});
-
-const DEFAULT_YEAR_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: false,
-    integerLimit: 10,
-    allowDecimal: false
-});
 
 const numberFormat = new Intl.NumberFormat('en-US');
 

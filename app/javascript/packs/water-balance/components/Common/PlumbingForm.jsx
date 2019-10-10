@@ -9,30 +9,13 @@ import MaterialInput from './MaterialInput';
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
 import selectn from 'selectn';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import createDecorator from 'final-form-focus';
 import Divider from '@material-ui/core/Divider';
-import {submitAlert} from './submitAlert'
-
+import {submitAlert} from './shared/submitAlert'
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat} from './shared/sharedStyles'; 
 import formValidation from './PlumbingForm.validation';
-
-const style = {
-  opacity: '.65',
-  position: 'fixed',
-  bottom: '11px',
-  right: '104px',
-  zIndex: '10000',
-  backgroundColor: 'rgb(220, 0, 78)',
-  borderRadius: '11px',
-  width: '196px',
-  '&:hover': {
-    opacity: '1',
-  },
-};
-
-
 
 import {
     Fab, 
@@ -43,20 +26,6 @@ import {
     Switch,
     MenuItem
 } from '@material-ui/core';
-
-const DEFAULT_NUMBER_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: false
-});
-
-const DEFAULT_DECIMAL_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: true
-});
 
 const toNumber = (value) => {
     if (value === undefined || value === null) {
@@ -94,8 +63,6 @@ const FormRulesListener = ({handleFormChange}) => (
 
 const focusOnError = createDecorator ()
 
-
- 
 const caluclateOccupancy = (values, basePath, subgroup) => {
     let hoursPerDay = null;
     let daysPerYear = getDaysPerYear(basePath, values, subgroup);
@@ -340,12 +307,11 @@ class PlumbingForm extends React.Component {
         let totalPlumbingWeekend = weekendDaygeneralCampusUrinals + weekendDaygeneralCampusToilets + weekendDaygeneralCampusRestroomSink + weekendDaygeneralCampusKitchenSink + weekendDaygeneralCampusShowers;
 
         let totalWaterUse = totalPlumbingLodging + totalPlumbingHospitalAdmin + totalPlumbingHospitalStaffShowers + totalPlumbingHospitalOutPatient + totalPlumbinghospitalInPatient + totalPlumbingWeek + totalPlumbingWeekend; 
-        let roundTotal = Math.round( totalWaterUse * 10) / 10;
-        values.plumbing.water_usage = roundTotal; 
+        let formatTotal = numberFormat.format(totalWaterUse);
+        values.plumbing.water_usage = formatTotal; 
       
-
         this.setState({
-            waterUse: " Water Use:" + roundTotal + " kgal"
+            waterUse: " Water Use:" + formatTotal + " kgal"
         });
 
     };
@@ -854,7 +820,7 @@ class PlumbingForm extends React.Component {
                                         color="primary"
                                         aria-label="Water Use"
                                         title="Water Use"
-                                        style={style}
+                                        style={fabStyle}
                                     >
                                     {this.state.waterUse}
                                     </Fab>
