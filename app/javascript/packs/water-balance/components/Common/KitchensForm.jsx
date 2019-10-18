@@ -142,8 +142,10 @@ class KitchensForm extends React.Component {
                     let weekendMeals = toNumber(facilityValues.weekend_meals);
                     let operatingWeeks = toNumber(facilityValues.operating_weeks);
                     let operatingWeekends = toNumber(facilityValues.operating_weekends);
+                    let daysPerWeek = toNumber(facilityValues.days_per_week);
+                    let daysPerWeekend = toNumber(facilityValues.days_per_weekend);
 
-                    total += (((weekdayMeals * operatingWeeks) + (weekendMeals * operatingWeekends)) * waterUsePerMeal)/1000;
+                    total += (((weekdayMeals * operatingWeeks * daysPerWeek) + (weekendMeals * operatingWeekends * daysPerWeekend)) * waterUsePerMeal)/1000;
                 }
             }
         });
@@ -157,7 +159,7 @@ class KitchensForm extends React.Component {
 
     renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
-        const year = new Date(values.survey).getFullYear();
+        const year = values.year;
         return (<Fragment>
             {isMetered === "yes" && (
                 <Grid item xs={12}>
@@ -312,11 +314,25 @@ class KitchensForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="Average number of meals prepared per weekday (M-F)"
+                    label="Average number of daily meals prepared during weekdays"
+                    endAdornment={<InputAdornment position="end">meals/day</InputAdornment>}
                     >
                 </Field>
             </Grid>
-            {toNumber(weekdayMeals) != 0 && weekdayMeals != undefined  && (
+            {toNumber(weekdayMeals) != 0 && weekdayMeals != undefined  && ( <Fragment>
+                <Grid item xs={12}>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        required
+                        name={`${basePath}.days_per_week`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_NUMBER_MASK}
+                        label="How many weekdays per week are meals prepared?"
+                        endAdornment={<InputAdornment position="end">days</InputAdornment>}
+                        >
+                    </Field>
+                </Grid>
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -329,9 +345,9 @@ class KitchensForm extends React.Component {
                         >
                     </Field>
                 </Grid>
-            )}
+                </Fragment>)}
             {toNumber(weekdayMeals) == 0 && weekdayMeals != undefined && (
-               this.clearValues(['operating_weeks'], basePath, values)
+               this.clearValues(['operating_weeks', 'days_per_week'], basePath, values)
             )}
             <Grid item xs={12}>
                 <Field
@@ -341,11 +357,25 @@ class KitchensForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="Average number of meals prepared per weekend day"
+                    label="Average number of daily meals prepared during weekend days"
+                    endAdornment={<InputAdornment position="end">meals/day</InputAdornment>}
                     >
                 </Field>
             </Grid>
-            {toNumber(weekendMeals) != 0 && weekendMeals != undefined && (
+            {toNumber(weekendMeals) != 0 && weekendMeals != undefined && (<Fragment>
+                <Grid item xs={12}>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        required
+                        name={`${basePath}.days_per_weekend`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_NUMBER_MASK}
+                        label="How many weekend days per week are meals prepared?"
+                        endAdornment={<InputAdornment position="end">days</InputAdornment>}
+                        >
+                    </Field>
+                </Grid>
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -358,9 +388,9 @@ class KitchensForm extends React.Component {
                         >
                     </Field>
                 </Grid>
-            )}
+                </Fragment>)}
             {toNumber(weekendMeals) == 0 && weekendMeals != undefined && (
-               this.clearValues(['operating_weekends'], basePath, values)
+               this.clearValues(['operating_weekends', 'days_per_weekend'], basePath, values)
             )}
             {this.kitchenComponents(basePath, values)}
         </Fragment>)

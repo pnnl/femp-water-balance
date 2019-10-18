@@ -5,7 +5,7 @@ import {Checkbox, Select} from 'final-form-material-ui';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
@@ -94,7 +94,7 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     let esGalPerCycle = energyStarCapacity * energyStarFactor;
 
     let nesGalPerCycle = nonenergyStarCapacity * nonenergyStarFactor;
-    let totalSingleLoad = (((esGalPerCycle * loadsPerYear * esPercent) + nesGalPerCycle * loadsPerYear * (100 - esPercent))/1000)|| 0;
+    let totalSingleLoad = (((esGalPerCycle * loadsPerYear * (esPercent/100)) + nesGalPerCycle * loadsPerYear * (1 - (esPercent/100)))/1000)|| 0;
 
     return totalSingleLoad;
 } 
@@ -103,8 +103,9 @@ const calculateIndustrialLoad = (values) => {
     let weight = toNumber(selectn(`laundry.weight`)(values));
     let industrialWeeks = toNumber(selectn(`laundry.industrial_weeks`)(values));
     let laundryRecycled = toNumber(selectn(`laundry.recycled`)(values));
+    let waterUse = toNumber(selectn(`laundry.water_use`)(values))
 
-    let totalIndustrialLoad = ((( weight * industrialWeeks * ( 1 - laundryRecycled/100)))/1000);
+    let totalIndustrialLoad = ((( (weight * industrialWeeks * waterUse) * ( 1 - (laundryRecycled/100))))/1000);
     
     return totalIndustrialLoad;
 }
@@ -125,7 +126,6 @@ class LaundryForm extends React.Component {
             values.laundry[clearValues[i]] = null;  
         }
     }
-
 
     calculateWaterUse = (values, valid) => {
         if(!valid) {
@@ -154,7 +154,7 @@ class LaundryForm extends React.Component {
                     name={`${basePath}.weight`}
                     component={MaterialInput}
                     type="text"
-                    mask={DEFAULT_NUMBER_MASK}
+                    mask={ONE_DECIMAL_MASK}
                     label="Estimated weight of laundry washed in industrial washing machines weekly."
                     endAdornment={<InputAdornment position="end">lbs</InputAdornment>}
                 />
@@ -199,8 +199,9 @@ class LaundryForm extends React.Component {
 
 
     energyStar = (values, basePath) => {
+        let energyStar = selectn(`${basePath}.energy_star`)(values);
         return (<Fragment>
-            {selectn(`${basePath}.energy_star`)(values) < 100 && (
+            { energyStar < 100 && (
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -217,7 +218,7 @@ class LaundryForm extends React.Component {
                     </Field>
                 </Grid>
             )}
-
+            {energyStar > 0 && (                
             <Grid item xs={12}>
                 <Field 
                     required
@@ -230,7 +231,7 @@ class LaundryForm extends React.Component {
                     endAdornment={<InputAdornment position="end">feet³</InputAdornment>}
                 />
             </Grid>
-
+            )}
             {selectn(`${basePath}.energy_star`)(values) < 100 && (
                 <Grid item xs={12}>
                     <Field 
@@ -245,7 +246,7 @@ class LaundryForm extends React.Component {
                     />
                 </Grid>
             )}
-            
+            {energyStar > 0 && (
             <Grid item xs={12}>
                 <Field 
                     required
@@ -258,6 +259,7 @@ class LaundryForm extends React.Component {
                     endAdornment={<InputAdornment position="end">gallons/cycle/feet³</InputAdornment>}
                 />
             </Grid>
+            )}
             {selectn(`${basePath}.energy_star`)(values) < 100 && (
                 <Grid item xs={12}>
                     <Field 
@@ -274,6 +276,9 @@ class LaundryForm extends React.Component {
             )}
             {selectn(`${basePath}.energy_star`)(values) == 100 && (
                 this.clearValues(['machine_type', 'nonenergy_star_factor', 'nonenergy_star_capacity'], values)
+            )}
+            {selectn(`${basePath}.energy_star`)(values) == 0 && (
+                this.clearValues(['energy_star_factor', 'energy_star_capacity'], values)
             )}
             </Fragment>)
     }

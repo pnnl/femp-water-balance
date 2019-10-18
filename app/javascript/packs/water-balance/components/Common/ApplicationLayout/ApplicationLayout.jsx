@@ -16,6 +16,7 @@ import DefaultToolbar from "./DefaultToolbar";
 import DefaultFooter from "./DefaultFooter";
 import ScrollToTopButton from "./ScrollToTopButton";
 
+
 class ApplicationLayout extends React.Component {
 	getTheme() {
 		return createMuiTheme({
@@ -40,9 +41,9 @@ class ApplicationLayout extends React.Component {
 				<MuiPickersUtilsProvider utils={MomentUtils}>
 					<CssBaseline />
 					<div className={classes.appFrame}>
-						<AppBar
+						<AppBar 
 							className={classNames(classes.appBar)}
-							style={{ background: "white" }}
+							
 						>
 							<DefaultToolbar
 								{...this.props}

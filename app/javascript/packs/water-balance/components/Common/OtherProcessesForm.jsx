@@ -300,7 +300,7 @@ class OtherProcessesForm extends React.Component {
 
     renderIsMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
-        const year = new Date(values.survey).getFullYear();
+        const year = values.year;
 
         return(<Fragment>
             <Grid item xs={12}>

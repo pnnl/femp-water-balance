@@ -1,125 +1,123 @@
-import React, {Fragment} from 'react';
-import {withStyles} from '@material-ui/core/styles';
-import {
-    Toolbar,
-    IconButton,
-    Typography,
-    Menu,
-    MenuItem,
-    Avatar
-} from '@material-ui/core';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import Divider from '@material-ui/core/Divider';
+import React, { Fragment } from "react";
+import { withStyles } from "@material-ui/core/styles";
+import { Toolbar, IconButton, Typography, Menu, MenuItem, Avatar } from "@material-ui/core";
+import AccountCircle from "@material-ui/icons/AccountCircle";
+import Divider from "@material-ui/core/Divider";
+import fempLogo from "images/FEMP_Logo2.png";
 
-
-import styles from './styles';
+import styles from "./styles";
 
 import NavigationMenu from "../Administration/NavigationMenu";
 
 const hasRole = (user, role) => {
-    if (user && Array.isArray(user.roles)) {
-        return user.roles.filter((roleObj) => roleObj.role === role).length > 0;
-    }
-    return false;
+	if (user && Array.isArray(user.roles)) {
+		return user.roles.filter(roleObj => roleObj.role === role).length > 0;
+	}
+	return false;
 };
 
 class DefaultToolbar extends React.Component {
-    state = {
-        anchorEl: null,
-    };
+	state = {
+		anchorEl: null,
+	};
 
-    handleMenu = event => {
-        this.setState({anchorEl: event.currentTarget});
-    };
+	handleMenu = event => {
+		this.setState({ anchorEl: event.currentTarget });
+	};
 
-    handleClose = () => {
-        this.setState({anchorEl: null});
-    };
+	handleClose = () => {
+		this.setState({ anchorEl: null });
+	};
 
-    renderUserNavMenu = () => {
-        const {user} = this.props;
-        if (user && hasRole(user, 'administrator')){
-            return (
-                <Fragment>
-                    <NavigationMenu account={user} />
-                </Fragment>
-            )
-        }
-        return '';
-    }
+	renderUserNavMenu = () => {
+		const { user } = this.props;
+		if (user && hasRole(user, "administrator")) {
+			return (
+				<Fragment>
+					<NavigationMenu account={user} />
+				</Fragment>
+			);
+		}
+		return "";
+	};
 
-    renderUserMenu() {
-        const {user} = this.props;
-        if (user) {
-            const {anchorEl} = this.state;
-            const open = Boolean(anchorEl);
-            return (
-                <div>
-                    <IconButton
-                        aria-owns={open ? 'menu-appbar' : null}
-                        aria-haspopup="true"
-                        onClick={this.handleMenu}
-                        color="inherit"
-                    >
-                        {user.oauth_meta.image && (
-                            <Avatar alt={user.oauth_meta.name} src={user.oauth_meta.image} />
-                        )}
-                        {!user.oauth_meta.image && (
-                            <AccountCircle/>
-                        )}
-                    </IconButton>
-                    <Menu
-                        id="menu-appbar"
-                        anchorEl={anchorEl}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        open={open}
-                        onClose={this.handleClose}
-                    >
-                        <MenuItem dense={true} disabled={true}>{user.oauth_meta.name || user.email}</MenuItem>
-                        <Divider/>
-                        <MenuItem dense={true} button component="a" href="/accounts/sign_out">
-                            Sign Out
-                        </MenuItem>
-                    </Menu>
-                </div>
-            );
-        }
-        return '';
-    }
+	renderUserMenu() {
+		const { user } = this.props;
+		if (user) {
+			const { anchorEl } = this.state;
+			const open = Boolean(anchorEl);
+			return (
+				<div>
+					<IconButton
+						aria-owns={open ? "menu-appbar" : null}
+						aria-haspopup='true'
+						onClick={this.handleMenu}
+						color='inherit'
+					>
+						{user.oauth_meta.image && (
+							<Avatar alt={user.oauth_meta.name} src={user.oauth_meta.image} />
+						)}
+						{!user.oauth_meta.image && <AccountCircle />}
+					</IconButton>
+					<Menu
+						id='menu-appbar'
+						anchorEl={anchorEl}
+						anchorOrigin={{
+							vertical: "top",
+							horizontal: "right",
+						}}
+						transformOrigin={{
+							vertical: "top",
+							horizontal: "right",
+						}}
+						open={open}
+						onClose={this.handleClose}
+					>
+						<MenuItem dense={true} disabled={true}>
+							{user.oauth_meta.name || user.email}
+						</MenuItem>
+						<Divider />
+						<MenuItem dense={true} button component='a' href='/accounts/sign_out'>
+							Sign Out
+						</MenuItem>
+					</Menu>
+				</div>
+			);
+		}
+		return "";
+	}
 
-    renderToolbarTitle() {
-        const {classes, toolbarText} = this.props;
-        if (toolbarText) {
-            return (
-                <Typography variant="h6" color="inherit" className={classes.flex}>
-                    {toolbarText}
-                </Typography>
-            );
-        }
-        return (
-            <Typography variant="h6" color="inherit" className={classes.flex}>
-                <a href="/" style={{textDecoration: 'none', color: 'inherit'}}>FEMP Water Balance Tool</a>
-            </Typography>
-        );
-    }
+	renderToolbarTitle() {
+		const { classes, toolbarText } = this.props;
+		if (toolbarText) {
+			return (
+				<Typography variant='h6' color='inherit' className={classes.flex}>
+					{toolbarText}
+				</Typography>
+			);
+		}
+		return (
+			<Fragment>
+				<img src={fempLogo} className={classes.fempLogo} />
+				<Typography variant='h6' color='inherit' className={classes.flex}>
+					<a href='/' style={{ textDecoration: "none", color: "inherit" }}>
+						FEMP Water Balance Tool
+					</a>
+				</Typography>
+			</Fragment>
+		);
+	}
 
-    render() {
-        return (
-            <Toolbar>
-                {this.renderToolbarTitle()}
-                {this.props.children}
-                {this.renderUserNavMenu()}
-                {this.renderUserMenu()}
-            </Toolbar>
-        );
-    }
+	render() {
+		return (
+			<Toolbar>
+				{this.renderToolbarTitle()}
+				{this.props.children}
+				{this.renderUserNavMenu()}
+				{this.renderUserMenu()}
+			</Toolbar>
+		);
+	}
 }
 
-export default withStyles(styles, {withTheme: true})(DefaultToolbar);
+export default withStyles(styles, { withTheme: true })(DefaultToolbar);

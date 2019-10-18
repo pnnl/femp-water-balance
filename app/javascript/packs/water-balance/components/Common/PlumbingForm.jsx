@@ -6,11 +6,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import MaterialInput from './MaterialInput';
-import { FieldArray } from 'react-final-form-arrays'
-import arrayMutators from 'final-form-arrays'
 import selectn from 'selectn';
-import IconButton from '@material-ui/core/IconButton';
-import DeleteIcon from '@material-ui/icons/Delete';
 import createDecorator from 'final-form-focus';
 import Divider from '@material-ui/core/Divider';
 import {submitAlert} from './shared/submitAlert'
@@ -26,6 +22,11 @@ import {
     Switch,
     MenuItem
 } from '@material-ui/core';
+
+const subHeader = {
+    marginLeft: '7px',
+    fontWeight: '300'
+}
 
 const toNumber = (value) => {
     if (value === undefined || value === null) {
@@ -306,10 +307,22 @@ class PlumbingForm extends React.Component {
         let totalPlumbingWeek = weekDaygeneralCampusUrinals + weekDaygeneralCampusToilets + weekDaygeneralCampusRestroomSink + weekDaygeneralCampusKitchenSink + weekDaygeneralCampusShowers;
         let totalPlumbingWeekend = weekendDaygeneralCampusUrinals + weekendDaygeneralCampusToilets + weekendDaygeneralCampusRestroomSink + weekendDaygeneralCampusKitchenSink + weekendDaygeneralCampusShowers;
 
-        let totalWaterUse = totalPlumbingLodging + totalPlumbingHospitalAdmin + totalPlumbingHospitalStaffShowers + totalPlumbingHospitalOutPatient + totalPlumbinghospitalInPatient + totalPlumbingWeek + totalPlumbingWeekend; 
+
+        let totalWaterUse = totalPlumbingLodging + totalPlumbingHospitalAdmin + totalPlumbingHospitalStaffShowers + totalPlumbingHospitalOutPatient + totalPlumbinghospitalInPatient + totalPlumbingWeek + totalPlumbingWeekend;  
+        let totalHospital = totalPlumbingHospitalAdmin + totalPlumbingHospitalStaffShowers + totalPlumbingHospitalOutPatient + totalPlumbinghospitalInPatient;
+        let totalOverall = totalPlumbingWeek + totalPlumbingWeekend;
+
         let formatTotal = numberFormat.format(totalWaterUse);
+        let formatTotalLodging = numberFormat.format(totalPlumbingLodging);
+        let formatTotalHospital = numberFormat.format(totalHospital);
+        let formatTotalOverall = numberFormat.format(totalOverall);
+
+        values.plumbing.lodging_water_usage = formatTotalLodging;
+        values.plumbing.hospital_water_usage = formatTotalHospital;
+        values.plumbing.overall_water_usage = formatTotalOverall;
+        
         values.plumbing.water_usage = formatTotal; 
-      
+
         this.setState({
             waterUse: " Water Use:" + formatTotal + " kgal"
         });
@@ -321,7 +334,7 @@ class PlumbingForm extends React.Component {
     flushRate = (basePath, values, source, title, people) => {
          let flowRate = selectn(`${basePath}.shower_flow_rate`)(values);
          return (<Fragment>
-            <Typography variant="subtitle1" gutterBottom>{title}</Typography>
+            <Typography variant="subtitle1" style={subHeader} gutterBottom>{title}</Typography>
             <ExpansionPanel expanded={selectn(`${basePath}.typical_flush_rate`)(values) !== undefined}>
                 <ExpansionPanelSummary>
                     <Field
@@ -380,7 +393,7 @@ class PlumbingForm extends React.Component {
                             type="text"
                             mask={DEFAULT_DECIMAL_MASK}
                             label={"What is the typical flow rate of restroom faucet aerators in " + source + "?"}
-                            endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
+                            endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
                             >
                         </Field>
                     </Grid>
@@ -393,7 +406,7 @@ class PlumbingForm extends React.Component {
                             type="text"
                             mask={DEFAULT_DECIMAL_MASK}
                             label={"What is the typical flow rate of kitchenette faucet aerators in " + source + "? Please put 0 if no kitchenettes are present."}
-                            endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
+                            endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
                             >
                         </Field>
                     </Grid>
@@ -406,7 +419,7 @@ class PlumbingForm extends React.Component {
                             type="text"
                             mask={DEFAULT_DECIMAL_MASK}
                             label={"What is the typical flow rate of showers in " + source + "? Please put 0 in no showers are present."}
-                            endAdornment={<InputAdornment position="end">gpf</InputAdornment>}
+                            endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
                             >
                         </Field>
                     </Grid>
@@ -707,7 +720,6 @@ class PlumbingForm extends React.Component {
     fixtureInformation = (values) => {
         return(<Fragment>
             <Grid item xs={12}>
-                 <Typography variant="subtitle1" gutterBottom>Overall Campus</Typography>
                 {this.facility('plumbing.facility', values)}
             </Grid>
             <Grid item xs={12}>
@@ -734,7 +746,7 @@ class PlumbingForm extends React.Component {
         return (<Fragment>
             <Grid item xs={12}>
                 <Typography variant="subtitle1" gutterBottom>Occupancy Information</Typography>
-                <Divider variant="middle" />
+                <Divider variant="middle" style={{'margin': '16px'}}/>
                 <ExpansionPanel expanded={selectn(`plumbing.has_onsite_lodging`)(values) === true}>
                     <ExpansionPanelSummary>
                         <Field
@@ -771,12 +783,45 @@ class PlumbingForm extends React.Component {
             </Grid>
              {selectn(`plumbing.has_hospital`)(values) == false && (this.clearSection(values, "hospital"))}
             {this.fixtureInformation(values)}
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={3}>
+                <Field
+                    fullWidth
+                    disabled
+                    name="plumbing.lodging_water_usage"
+                    label="On-Site Lodging Water Use"
+                    component={MaterialInput}
+                    type="text"
+                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
+            <Grid item xs={12} sm={3}>
+                <Field
+                    fullWidth
+                    disabled
+                    name="plumbing.hospital_water_usage"
+                    label="Hospital/Medical Clinic Water Use"
+                    component={MaterialInput}
+                    type="text"
+                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
+            <Grid item xs={12} sm={3}>
+                <Field
+                    fullWidth
+                    disabled
+                    name="plumbing.overall_water_usage"
+                    label="Overall Campus Water Use"
+                    component={MaterialInput}
+                    type="text"
+                    endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
+                />
+            </Grid>
+            <Grid item xs={12} sm={3}>
                 <Field
                     fullWidth
                     disabled
                     name="plumbing.water_usage"
-                    label="Water use"
+                    label="Total Water Use"
                     component={MaterialInput}
                     type="text"
                     endAdornment={<InputAdornment position="end">kgal</InputAdornment>}

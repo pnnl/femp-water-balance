@@ -19,7 +19,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createDecorator from 'final-form-focus';
 import {submitAlert} from './shared/submitAlert'
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat} from './shared/sharedStyles'; 
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat, ONE_DECIMAL_MASK} from './shared/sharedStyles'; 
 
 import formValidation from './VehicleWashForm.validation';
 
@@ -194,7 +194,7 @@ class VehicleWashForm extends React.Component {
                         name={`${basePath}.rating`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label="Flow rate of the open hose"
                         endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
                     />
@@ -208,7 +208,7 @@ class VehicleWashForm extends React.Component {
                         name={`${basePath}.rating`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label="Nozzle rating of pressure washer"
                         endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
                     />
@@ -219,7 +219,7 @@ class VehicleWashForm extends React.Component {
 
     renderFacilityForm = (values, basePath) => {
         const isMetered = selectn(`${basePath}.metered`)(values);
-        const year = new Date(values.survey).getFullYear();
+        const year = values.year;
         return (
             <Fragment>
                 {this.renderWaterMeteredControl(basePath,values, true)}
