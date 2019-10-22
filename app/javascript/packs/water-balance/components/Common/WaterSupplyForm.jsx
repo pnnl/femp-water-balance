@@ -182,7 +182,7 @@ class WaterSupplyForm extends React.Component {
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
-                                <Field
+                                <Field 
                                     fullWidth
                                     required
                                     name={`potable_water`}

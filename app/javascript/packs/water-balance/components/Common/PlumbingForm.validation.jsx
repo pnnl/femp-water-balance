@@ -1,46 +1,5 @@
+import { isPositiveNumeric, isWithinNumericRange, resolve } from "./shared/validationFunctions";
 import selectn from "selectn";
-
-const resolve = (path, values) => selectn(path)(values);
-
-const isPositiveNumeric = (path, values, includeZero = false, required = true) => {
-	const resolvedValue = resolve(path, values);
-	if (required === true && resolvedValue) {
-		const numeric = parseInt(resolvedValue.replace(/,/g, ""));
-		if (includeZero) {
-			return !isNaN(numeric);
-		} else {
-			return !(isNaN(numeric) || numeric <= 0);
-		}
-	}
-	return false;
-};
-
-const isWithinNumericRange = (
-	path,
-	values,
-	min,
-	max,
-	decimal = false,
-	inclusive = true,
-	required = true
-) => {
-	const resolvedValue = resolve(path, values);
-	if (required === true && resolvedValue) {
-		let numeric = null;
-		if (decimal) {
-			numeric = parseFloat(resolvedValue.replace(/,/g, ""));
-		} else {
-			numeric = parseInt(resolvedValue.replace(/,/g, ""));
-		}
-		if (isNaN(numeric)) {
-			return false;
-		} else if (inclusive === true) {
-			return numeric >= min && numeric <= max;
-		}
-		return numeric > min && numeric < max;
-	}
-	return false;
-};
 
 const validateLodging = (values, basePath) => {
 	const errors = {};
@@ -61,12 +20,12 @@ const validateFacility = (values, basePath) => {
 	let valuePath = `${basePath}.total_population`;
 	if (!isPositiveNumeric(valuePath, values, true)) {
 		errors["total_population"] =
-			"The estimated overall average daily campus staff population for weekdays, excluding hospital/clinics.";
+			"The estimated overall average daily campus staff population for weekdays, excluding hospital/clinics (calculated above, if applicable).";
 	}
 	valuePath = `${basePath}.total_population_weekends`;
 	if (!isPositiveNumeric(valuePath, values, true)) {
 		errors["total_population_weekends"] =
-			"The estimated overall average daily campus staff population for weekends, excluding hospital/clinics.";
+			"The estimated overall average daily campus staff population for weekends, excluding hospital/clinics (calculated above, if applicable).";
 	}
 
 	let weekDayPopulation = resolve(`${basePath}.total_population`, values);

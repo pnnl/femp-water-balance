@@ -13,7 +13,7 @@ import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert} from './shared/submitAlert'
-import {fabStyle, DEFAULT_NUMBER_MASK, numberFormat } from './shared/sharedStyles'; 
+import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
 
 import formValidation from './SteamBoilersForm.validation';
 
@@ -220,7 +220,7 @@ class SteamBoilersForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label='Number of hours the system operates per week'
+                    label='Number of hours per week the system operates'
                     endAdornment={<InputAdornment position="end">hours</InputAdornment>}
                     >
                 </Field>
@@ -276,7 +276,7 @@ class SteamBoilersForm extends React.Component {
                         name={`${basePath}.annual_water_use`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label={`${year} total annual water use`}
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         >
@@ -372,7 +372,7 @@ class SteamBoilersForm extends React.Component {
 
         if (!('steam_boilers' in module)) {
             module.steam_boilers = [];
-            module.steam_boilers.push(null);
+            module.steam_boilers.push({});
         }
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Steam Boilers</Typography>
@@ -405,7 +405,7 @@ class SteamBoilersForm extends React.Component {
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        onClick={() => push('steam_boilers', undefined)}>
+                                        onClick={() => push('steam_boilers', {})}>
                                         Add Another Steam Boiler
                                     </Button>
                                 )}

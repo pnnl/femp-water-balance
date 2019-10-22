@@ -9,7 +9,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
@@ -151,7 +151,7 @@ class OtherProcessesForm extends React.Component {
     onSubmit = values => {};
 
     waterUse = (values, basePath, source) => {
-        let prompt = (source == "continuous_processes") ? "hours per week the process runs" : "batches per week";
+        let prompt = (source == "continuous_processes") ? "hours per week the process operates" : "batches per week";
         let adornment = (source == "continuous_processes") ? "hours" : "batches";
         return(<Fragment>
             <Grid item xs={12}>
@@ -175,7 +175,7 @@ class OtherProcessesForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label= "Number of weeks per year the process runs"
+                    label= "Number of weeks per year the process operates"
                     endAdornment={<InputAdornment position="end">weeks</InputAdornment>}
                     >
                 </Field>
@@ -333,7 +333,7 @@ class OtherProcessesForm extends React.Component {
                         name={`${basePath}.annual_water_use`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label={`${year} total annual water use`}
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         >
@@ -443,7 +443,7 @@ class OtherProcessesForm extends React.Component {
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        onClick={() => push('continuous_processes', undefined)}>
+                                        onClick={() => push('continuous_processes', {})}>
                                         Add Another Continuous Process
                                     </Button>
                                 ))}
@@ -452,7 +452,7 @@ class OtherProcessesForm extends React.Component {
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
                                         color="primary"
-                                        onClick={() => push('batch_processes', undefined)}>
+                                        onClick={() => push('batch_processes', {})}>
                                         Add Another Batch Process
                                     </Button>
                                 ))}

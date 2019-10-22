@@ -19,7 +19,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createDecorator from 'final-form-focus';
 import {submitAlert} from './shared/submitAlert'
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat, ONE_DECIMAL_MASK} from './shared/sharedStyles'; 
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat} from './shared/sharedStyles'; 
 
 import formValidation from './VehicleWashForm.validation';
 
@@ -231,7 +231,7 @@ class VehicleWashForm extends React.Component {
                             name={`${basePath}.water_usage`}
                             component={MaterialInput}
                             type="text"
-                            mask={DEFAULT_NUMBER_MASK}
+                            mask={ONE_DECIMAL_MASK}
                             label={`${year} total annual water use for all vehicle wash facilities on campus`}
                             endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         />

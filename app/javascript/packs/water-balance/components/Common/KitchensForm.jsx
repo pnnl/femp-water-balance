@@ -21,7 +21,7 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import createDecorator from 'final-form-focus';
 import {submitAlert} from './shared/submitAlert'
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
 
 import formValidation from './kitchensForm.validation';
 
@@ -169,7 +169,7 @@ class KitchensForm extends React.Component {
                         name={`${basePath}.annual_water_use`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label={`${year} total annual water use`}
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         >
@@ -205,7 +205,7 @@ class KitchensForm extends React.Component {
                         Standard Batch
                     </MenuItem>
                     <MenuItem value="1">
-                        Energy Star Labelled
+                        Energy Star Labeled
                     </MenuItem>
                     <MenuItem value="0">
                         No Dishwasher
@@ -224,7 +224,7 @@ class KitchensForm extends React.Component {
                         Standard Flow
                     </MenuItem>
                     <MenuItem value="1">
-                        WaterSense Labelled
+                        WaterSense Labeled
                     </MenuItem>
                     <MenuItem value="0">
                         No Pre-Rinse Spray Valves
@@ -270,7 +270,7 @@ class KitchensForm extends React.Component {
                         Standard Connectionless
                     </MenuItem>
                     <MenuItem value="1">
-                        Energy Star Labelled
+                        Energy Star Labeled
                     </MenuItem>
                     <MenuItem value="0">
                         No Combination Ovens or Steam Cookers
@@ -292,7 +292,7 @@ class KitchensForm extends React.Component {
                         Standard Air-Cooled
                     </MenuItem>
                     <MenuItem value="1">
-                        Energy Star Labelled
+                        Energy Star Labeled
                     </MenuItem>
                     <MenuItem value="0">
                         No Ice Maker
@@ -542,7 +542,7 @@ class KitchensForm extends React.Component {
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        onClick={() => push('kitchen_facilities', undefined)}>
+                                        onClick={() => push('kitchen_facilities', {})}>
                                         Add Another Commercial Kitchen
                                     </Button>
                                     <Button
