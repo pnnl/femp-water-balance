@@ -1,9 +1,9 @@
-import React from "react";
-import PropTypes from "prop-types";
-import withStyles from "@material-ui/core/styles/withStyles";
-import { ListItem, List } from "@material-ui/core";
-import pnnlLogo from "images/PNNL_logo2.png";
-import footerStyles from "./styles";
+import React from 'react';
+import PropTypes from 'prop-types';
+import withStyles from '@material-ui/core/styles/withStyles';
+import { ListItem, List } from '@material-ui/core';
+import pnnlLogo from 'images/PNNL_logo2.png';
+import footerStyles from './styles';
 
 function Footer({ ...props }) {
 	const { classes } = props;
@@ -12,7 +12,7 @@ function Footer({ ...props }) {
 			<div className={classes.container}>
 				<div className={classes.left}>
 					<List className={classes.list}>
-						<ListItem className={classes.inlineBlock} style={{ top: "6px" }}>
+						<ListItem className={classes.inlineBlock} style={{ top: '6px' }}>
 							<img src={pnnlLogo} className={classes.pnnlLogo} />
 						</ListItem>
 						<ListItem className={classes.inlineBlock}>

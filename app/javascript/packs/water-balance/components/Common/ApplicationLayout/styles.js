@@ -1,28 +1,28 @@
 const drawerWidth = 300;
 
 const container = {
-	paddingRight: "15px",
-	paddingLeft: "15px",
-	marginRight: "auto",
-	marginLeft: "auto",
+	paddingRight: '15px',
+	paddingLeft: '15px',
+	marginRight: 'auto',
+	marginLeft: 'auto',
 };
 
 const defaultFont = {
 	fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-	fontWeight: "300",
-	lineHeight: "1.5em",
+	fontWeight: '300',
+	lineHeight: '1.5em',
 };
 
 const pnnlLogo = {
-	height: "63px",
+	height: '63px',
 };
 
 const fempLogo = {
-	height: "63px",
-	margin: "6px 17px",
+	height: '63px',
+	margin: '6px 17px',
 };
 
-const primaryColor = "#9c27b0";
+const primaryColor = '#9c27b0';
 
 export default theme => ({
 	fempLogo,
@@ -32,29 +32,29 @@ export default theme => ({
 	},
 	appFrame: {
 		zIndex: 1,
-		overflow: "hidden",
-		position: "relative",
-		display: "flex",
-		width: "100%",
+		overflow: 'hidden',
+		position: 'relative',
+		display: 'flex',
+		width: '100%',
 	},
 	appBar: {
-		position: "absolute",
-		transition: theme.transitions.create(["margin", "width"], {
+		position: 'absolute',
+		transition: theme.transitions.create(['margin', 'width'], {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.leavingScreen,
 		}),
 	},
 	appBarShift: {
 		width: `calc(100% - ${drawerWidth}px)`,
-		transition: theme.transitions.create(["margin", "width"], {
+		transition: theme.transitions.create(['margin', 'width'], {
 			easing: theme.transitions.easing.easeOut,
 			duration: theme.transitions.duration.enteringScreen,
 		}),
 	},
-	"appBarShift-left": {
+	'appBarShift-left': {
 		marginLeft: drawerWidth,
 	},
-	"appBarShift-right": {
+	'appBarShift-right': {
 		marginRight: drawerWidth,
 	},
 	menuButton: {
@@ -62,44 +62,44 @@ export default theme => ({
 		marginRight: 20,
 	},
 	hide: {
-		display: "none",
+		display: 'none',
 	},
 	drawerPaper: {
-		position: "relative",
+		position: 'relative',
 		width: drawerWidth,
 	},
 	drawerHeader: {
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "flex-end",
-		padding: "0 8px",
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'flex-end',
+		padding: '0 8px',
 		...theme.mixins.toolbar,
 	},
 	content: {
 		flexGrow: 1,
-		overflow: "auto",
+		overflow: 'auto',
 		backgroundColor: theme.palette.background.default,
-		transition: theme.transitions.create("margin", {
+		transition: theme.transitions.create('margin', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.leavingScreen,
 		}),
 	},
-	"content-left": {
+	'content-left': {
 		marginLeft: -drawerWidth,
 	},
-	"content-right": {
+	'content-right': {
 		marginRight: -drawerWidth,
 	},
 	contentShift: {
-		transition: theme.transitions.create("margin", {
+		transition: theme.transitions.create('margin', {
 			easing: theme.transitions.easing.easeOut,
 			duration: theme.transitions.duration.enteringScreen,
 		}),
 	},
-	"contentShift-left": {
+	'contentShift-left': {
 		marginLeft: 0,
 	},
-	"contentShift-right": {
+	'contentShift-right': {
 		marginRight: 0,
 	},
 	titleO: {
@@ -109,95 +109,95 @@ export default theme => ({
 		flex: 1,
 	},
 	block: {
-		color: "inherit",
-		padding: "15px",
-		textTransform: "uppercase",
-		borderRadius: "3px",
-		textDecoration: "none",
-		position: "relative",
-		display: "block",
+		color: 'inherit',
+		padding: '15px',
+		textTransform: 'uppercase',
+		borderRadius: '3px',
+		textDecoration: 'none',
+		position: 'relative',
+		display: 'block',
 		...defaultFont,
-		fontWeight: "500",
-		fontSize: "12px",
+		fontWeight: '500',
+		fontSize: '12px',
 	},
 	left: {
-		float: "left!important",
-		display: "block",
+		float: 'left!important',
+		display: 'block',
 	},
 	right: {
-		padding: "15px 0",
-		margin: "0",
-		fontSize: "14px",
-		float: "right!important",
+		padding: '15px 0',
+		margin: '0',
+		fontSize: '14px',
+		float: 'right!important',
 	},
 	footer: {
-		bottom: "0",
-		borderTop: "1px solid #e7e7e7",
-		padding: "15px 0",
+		bottom: '0',
+		borderTop: '1px solid #e7e7e7',
+		padding: '15px 0',
 		...defaultFont,
 	},
 	container,
 	a: {
 		color: primaryColor,
-		textDecoration: "none",
-		backgroundColor: "transparent",
+		textDecoration: 'none',
+		backgroundColor: 'transparent',
 	},
 	list: {
-		marginBottom: "0",
-		padding: "0",
-		marginTop: "0",
+		marginBottom: '0',
+		padding: '0',
+		marginTop: '0',
 	},
 	inlineBlock: {
-		display: "inline-block",
-		paddingTop: "0px",
-		width: "auto",
+		display: 'inline-block',
+		paddingTop: '0px',
+		width: 'auto',
 	},
 	logo: {
-		position: "relative",
-		padding: "8px 4px",
-		backgroundColor: "#1f1f1f",
-		zIndex: "4",
-		"&:after": {
+		position: 'relative',
+		padding: '8px 4px',
+		backgroundColor: '#1f1f1f',
+		zIndex: '4',
+		'&:after': {
 			content: '""',
-			position: "absolute",
-			bottom: "0",
+			position: 'absolute',
+			bottom: '0',
 
-			height: "1px",
-			right: "15px",
-			width: "calc(100% - 30px)",
-			backgroundColor: "rgba(180, 180, 180, 0.3)",
+			height: '1px',
+			right: '15px',
+			width: 'calc(100% - 30px)',
+			backgroundColor: 'rgba(180, 180, 180, 0.3)',
 		},
 	},
 	logoLink: {
 		...defaultFont,
-		textTransform: "uppercase",
-		padding: "5px 0",
-		display: "block",
-		fontSize: "18px",
-		textAlign: "left",
-		fontWeight: "400",
-		lineHeight: "30px",
-		textDecoration: "none",
-		backgroundColor: "transparent",
-		"&,&:hover": {
-			color: "#FFFFFF",
+		textTransform: 'uppercase',
+		padding: '5px 0',
+		display: 'block',
+		fontSize: '18px',
+		textAlign: 'left',
+		fontWeight: '400',
+		lineHeight: '30px',
+		textDecoration: 'none',
+		backgroundColor: 'transparent',
+		'&,&:hover': {
+			color: '#FFFFFF',
 		},
 	},
 	logoImage: {
-		width: "30px",
-		display: "inline-block",
-		maxHeight: "30px",
-		marginLeft: "10px",
-		marginRight: "15px",
+		width: '30px',
+		display: 'inline-block',
+		maxHeight: '30px',
+		marginLeft: '10px',
+		marginRight: '15px',
 	},
 	img: {
-		width: "35px",
-		top: "18px",
-		position: "absolute",
-		verticalAlign: "middle",
-		border: "0",
+		width: '35px',
+		top: '18px',
+		position: 'absolute',
+		verticalAlign: 'middle',
+		border: '0',
 	},
-	"@media (min-width: 768px)": {
+	'@media (min-width: 768px)': {
 		content: {
 			padding: theme.spacing.unit * 3,
 		},

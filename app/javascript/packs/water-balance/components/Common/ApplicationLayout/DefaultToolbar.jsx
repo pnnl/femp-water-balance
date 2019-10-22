@@ -1,13 +1,13 @@
-import React, { Fragment } from "react";
-import { withStyles } from "@material-ui/core/styles";
-import { Toolbar, IconButton, Typography, Menu, MenuItem, Avatar } from "@material-ui/core";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import Divider from "@material-ui/core/Divider";
-import fempLogo from "images/FEMP_Logo2.png";
+import React, { Fragment } from 'react';
+import { withStyles } from '@material-ui/core/styles';
+import { Toolbar, IconButton, Typography, Menu, MenuItem, Avatar } from '@material-ui/core';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import Divider from '@material-ui/core/Divider';
+import fempLogo from 'images/FEMP_Logo2.png';
 
-import styles from "./styles";
+import styles from './styles';
 
-import NavigationMenu from "../Administration/NavigationMenu";
+import NavigationMenu from '../Administration/NavigationMenu';
 
 const hasRole = (user, role) => {
 	if (user && Array.isArray(user.roles)) {
@@ -31,14 +31,14 @@ class DefaultToolbar extends React.Component {
 
 	renderUserNavMenu = () => {
 		const { user } = this.props;
-		if (user && hasRole(user, "administrator")) {
+		if (user && hasRole(user, 'administrator')) {
 			return (
 				<Fragment>
 					<NavigationMenu account={user} />
 				</Fragment>
 			);
 		}
-		return "";
+		return '';
 	};
 
 	renderUserMenu() {
@@ -49,7 +49,7 @@ class DefaultToolbar extends React.Component {
 			return (
 				<div>
 					<IconButton
-						aria-owns={open ? "menu-appbar" : null}
+						aria-owns={open ? 'menu-appbar' : null}
 						aria-haspopup='true'
 						onClick={this.handleMenu}
 						color='inherit'
@@ -63,12 +63,12 @@ class DefaultToolbar extends React.Component {
 						id='menu-appbar'
 						anchorEl={anchorEl}
 						anchorOrigin={{
-							vertical: "top",
-							horizontal: "right",
+							vertical: 'top',
+							horizontal: 'right',
 						}}
 						transformOrigin={{
-							vertical: "top",
-							horizontal: "right",
+							vertical: 'top',
+							horizontal: 'right',
 						}}
 						open={open}
 						onClose={this.handleClose}
@@ -84,7 +84,7 @@ class DefaultToolbar extends React.Component {
 				</div>
 			);
 		}
-		return "";
+		return '';
 	}
 
 	renderToolbarTitle() {
@@ -100,7 +100,7 @@ class DefaultToolbar extends React.Component {
 			<Fragment>
 				<img src={fempLogo} className={classes.fempLogo} />
 				<Typography variant='h6' color='inherit' className={classes.flex}>
-					<a href='/' style={{ textDecoration: "none", color: "inherit" }}>
+					<a href='/' style={{ textDecoration: 'none', color: 'inherit' }}>
 						FEMP Water Balance Tool
 					</a>
 				</Typography>
