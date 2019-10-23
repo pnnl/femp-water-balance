@@ -17,27 +17,14 @@ import MaterialInput from './MaterialInput';
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
 import selectn from 'selectn';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from './submitAlert'
+import {submitAlert} from './shared/submitAlert'
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
 
 import formValidation from './kitchensForm.validation';
 
-const style = {
-  opacity: '.65',
-  position: 'fixed',
-  bottom: '11px',
-  right: '104px',
-  zIndex: '10000',
-  backgroundColor : 'rgb(220, 0, 78)',
-  borderRadius: '11px',
-  width: '196px',
-  '&:hover': {
-    opacity: '1',
-  },
-};
 
 const nonMeteredFields = ['weekend_meals', 
                     'weekday_meals', 
@@ -50,19 +37,6 @@ const nonMeteredFields = ['weekend_meals',
                     'combination_oven', 
                     'ice_maker'];
 
-const DEFAULT_NUMBER_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: false
-});
-
-const DEFAULT_DECIMAL_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: true
-});
 
 const FormRulesListener = ({handleFormChange}) => (
     <FormSpy
@@ -74,7 +48,6 @@ const FormRulesListener = ({handleFormChange}) => (
         }}
     />
 );
-
 
 const focusOnError = createDecorator ()
 
@@ -169,22 +142,24 @@ class KitchensForm extends React.Component {
                     let weekendMeals = toNumber(facilityValues.weekend_meals);
                     let operatingWeeks = toNumber(facilityValues.operating_weeks);
                     let operatingWeekends = toNumber(facilityValues.operating_weekends);
+                    let daysPerWeek = toNumber(facilityValues.days_per_week);
+                    let daysPerWeekend = toNumber(facilityValues.days_per_weekend);
 
-                    total += (((weekdayMeals * operatingWeeks) + (weekendMeals * operatingWeekends)) * waterUsePerMeal)/1000;
+                    total += (((weekdayMeals * operatingWeeks * daysPerWeek) + (weekendMeals * operatingWeekends * daysPerWeekend)) * waterUsePerMeal)/1000;
                 }
             }
         });
 
-        let roundTotal = Math.round( total * 10) / 10;
-        values.water_use = roundTotal; 
+        let formatTotal = numberFormat.format(total);
+        values.water_use = formatTotal; 
         this.setState({
-            waterUse: " Water Use: " + roundTotal + " kgal"
+            waterUse: " Water Use: " + formatTotal + " kgal"
         });
     };
 
     renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
-        const year = new Date(values.survey).getFullYear();
+        const year = values.year;
         return (<Fragment>
             {isMetered === "yes" && (
                 <Grid item xs={12}>
@@ -194,7 +169,7 @@ class KitchensForm extends React.Component {
                         name={`${basePath}.annual_water_use`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label={`${year} total annual water use`}
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         >
@@ -230,7 +205,7 @@ class KitchensForm extends React.Component {
                         Standard Batch
                     </MenuItem>
                     <MenuItem value="1">
-                        Energy Star Labelled
+                        Energy Star Labeled
                     </MenuItem>
                     <MenuItem value="0">
                         No Dishwasher
@@ -249,7 +224,7 @@ class KitchensForm extends React.Component {
                         Standard Flow
                     </MenuItem>
                     <MenuItem value="1">
-                        WaterSense Labelled
+                        WaterSense Labeled
                     </MenuItem>
                     <MenuItem value="0">
                         No Pre-Rinse Spray Valves
@@ -295,7 +270,7 @@ class KitchensForm extends React.Component {
                         Standard Connectionless
                     </MenuItem>
                     <MenuItem value="1">
-                        Energy Star Labelled
+                        Energy Star Labeled
                     </MenuItem>
                     <MenuItem value="0">
                         No Combination Ovens or Steam Cookers
@@ -317,7 +292,7 @@ class KitchensForm extends React.Component {
                         Standard Air-Cooled
                     </MenuItem>
                     <MenuItem value="1">
-                        Energy Star Labelled
+                        Energy Star Labeled
                     </MenuItem>
                     <MenuItem value="0">
                         No Ice Maker
@@ -339,11 +314,25 @@ class KitchensForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="Average number of meals prepared per weekday (M-F)"
+                    label="Average number of daily meals prepared during weekdays"
+                    endAdornment={<InputAdornment position="end">meals/day</InputAdornment>}
                     >
                 </Field>
             </Grid>
-            {toNumber(weekdayMeals) != 0 && weekdayMeals != undefined  && (
+            {toNumber(weekdayMeals) != 0 && weekdayMeals != undefined  && ( <Fragment>
+                <Grid item xs={12}>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        required
+                        name={`${basePath}.days_per_week`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_NUMBER_MASK}
+                        label="How many weekdays per week are meals prepared?"
+                        endAdornment={<InputAdornment position="end">days</InputAdornment>}
+                        >
+                    </Field>
+                </Grid>
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -356,9 +345,9 @@ class KitchensForm extends React.Component {
                         >
                     </Field>
                 </Grid>
-            )}
+                </Fragment>)}
             {toNumber(weekdayMeals) == 0 && weekdayMeals != undefined && (
-               this.clearValues(['operating_weeks'], basePath, values)
+               this.clearValues(['operating_weeks', 'days_per_week'], basePath, values)
             )}
             <Grid item xs={12}>
                 <Field
@@ -368,11 +357,25 @@ class KitchensForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="Average number of meals prepared per weekend day"
+                    label="Average number of daily meals prepared during weekend days"
+                    endAdornment={<InputAdornment position="end">meals/day</InputAdornment>}
                     >
                 </Field>
             </Grid>
-            {toNumber(weekendMeals) != 0 && weekendMeals != undefined && (
+            {toNumber(weekendMeals) != 0 && weekendMeals != undefined && (<Fragment>
+                <Grid item xs={12}>
+                    <Field
+                        formControlProps={{fullWidth: true}}
+                        required
+                        name={`${basePath}.days_per_weekend`}
+                        component={MaterialInput}
+                        type="text"
+                        mask={DEFAULT_NUMBER_MASK}
+                        label="How many weekend days per week are meals prepared?"
+                        endAdornment={<InputAdornment position="end">days</InputAdornment>}
+                        >
+                    </Field>
+                </Grid>
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -385,9 +388,9 @@ class KitchensForm extends React.Component {
                         >
                     </Field>
                 </Grid>
-            )}
+                </Fragment>)}
             {toNumber(weekendMeals) == 0 && weekendMeals != undefined && (
-               this.clearValues(['operating_weekends'], basePath, values)
+               this.clearValues(['operating_weekends', 'days_per_weekend'], basePath, values)
             )}
             {this.kitchenComponents(basePath, values)}
         </Fragment>)
@@ -539,7 +542,7 @@ class KitchensForm extends React.Component {
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        onClick={() => push('kitchen_facilities', undefined)}>
+                                        onClick={() => push('kitchen_facilities', {})}>
                                         Add Another Commercial Kitchen
                                     </Button>
                                     <Button
@@ -562,7 +565,7 @@ class KitchensForm extends React.Component {
                                             color="primary"
                                             aria-label="Water Use"
                                             title="Water Use"
-                                            style={style}
+                                            style={fabStyle}
                                         >
                                         {this.state.waterUse}
                                         </Fab>

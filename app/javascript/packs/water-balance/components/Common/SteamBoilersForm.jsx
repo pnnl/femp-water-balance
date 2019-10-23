@@ -9,11 +9,11 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from './submitAlert'
+import {submitAlert} from './shared/submitAlert'
+import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
 
 import formValidation from './SteamBoilersForm.validation';
 
@@ -25,34 +25,6 @@ import {
     InputAdornment,
     MenuItem
 } from '@material-ui/core';
-
-const style = {
-  opacity: '.65',
-  position: 'fixed',
-  bottom: '11px',
-  right: '104px',
-  zIndex: '10000',
-  backgroundColor : 'rgb(220, 0, 78)',
-  borderRadius: '11px',
-  width: '196px',
-  '&:hover': {
-    opacity: '1',
-  },
-};
-
-const DEFAULT_NUMBER_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: false
-});
-
-const DEFAULT_DECIMAL_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: true
-});
 
 const focusOnError = createDecorator ()
 
@@ -140,11 +112,11 @@ class SteamBoilersForm extends React.Component {
                 }
             }
         });
-        let roundTotal = Math.round( total * 10) / 10;
-        values.water_use = roundTotal; 
+        let formatTotal = numberFormat.format(total);
+        values.water_use = formatTotal; 
 
         this.setState({
-            waterUse: " Water Use: " + roundTotal + " kgal"
+            waterUse: " Water Use: " + formatTotal + " kgal"
         });
     }
 
@@ -248,7 +220,7 @@ class SteamBoilersForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label='Number of hours the system operates per week'
+                    label='Number of hours per week the system operates'
                     endAdornment={<InputAdornment position="end">hours</InputAdornment>}
                     >
                 </Field>
@@ -294,7 +266,7 @@ class SteamBoilersForm extends React.Component {
 
     renderMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
-        const year = new Date(values.survey).getFullYear();
+        const year = values.year;
         return (<Fragment>
             {isMetered === "yes" && (
                 <Grid item xs={12}>
@@ -304,7 +276,7 @@ class SteamBoilersForm extends React.Component {
                         name={`${basePath}.annual_water_use`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label={`${year} total annual water use`}
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         >
@@ -400,7 +372,7 @@ class SteamBoilersForm extends React.Component {
 
         if (!('steam_boilers' in module)) {
             module.steam_boilers = [];
-            module.steam_boilers.push(null);
+            module.steam_boilers.push({});
         }
         return (<Fragment>
             <Typography variant="h5" gutterBottom>Steam Boilers</Typography>
@@ -433,7 +405,7 @@ class SteamBoilersForm extends React.Component {
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        onClick={() => push('steam_boilers', undefined)}>
+                                        onClick={() => push('steam_boilers', {})}>
                                         Add Another Steam Boiler
                                     </Button>
                                 )}
@@ -460,7 +432,7 @@ class SteamBoilersForm extends React.Component {
                                         color="primary"
                                         aria-label="Water Use"
                                         title="Water Use"
-                                        style={style}
+                                        style={fabStyle}
                                     >
                                     {this.state.waterUse}
                                     </Fab>

@@ -5,11 +5,11 @@ import {Checkbox, Select} from 'final-form-material-ui';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from './submitAlert'
+import {submitAlert} from './shared/submitAlert'
 
 import formValidation from './LaundryForm.validation';
 import {
@@ -43,33 +43,6 @@ const industrialLoadFields = [
     'recycled'
 ];
 
-const style = {
-  opacity: '.65',
-  position: 'fixed',
-  bottom: '11px',
-  right: '104px',
-  zIndex: '10000',
-  backgroundColor : 'rgb(220, 0, 78)',
-  borderRadius: '11px',
-  width: '196px',
-  '&:hover': {
-    opacity: '1',
-  },
-};
-
-const DEFAULT_NUMBER_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: false
-});
-
-const DEFAULT_DECIMAL_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: true
-});
 
 const toNumber = (value) => {
     if (value === undefined || value === null) {
@@ -121,7 +94,7 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     let esGalPerCycle = energyStarCapacity * energyStarFactor;
 
     let nesGalPerCycle = nonenergyStarCapacity * nonenergyStarFactor;
-    let totalSingleLoad = (((esGalPerCycle * loadsPerYear * esPercent) + nesGalPerCycle * loadsPerYear * (100 - esPercent))/1000)|| 0;
+    let totalSingleLoad = (((esGalPerCycle * loadsPerYear * (esPercent/100)) + nesGalPerCycle * loadsPerYear * (1 - (esPercent/100)))/1000)|| 0;
 
     return totalSingleLoad;
 } 
@@ -130,8 +103,9 @@ const calculateIndustrialLoad = (values) => {
     let weight = toNumber(selectn(`laundry.weight`)(values));
     let industrialWeeks = toNumber(selectn(`laundry.industrial_weeks`)(values));
     let laundryRecycled = toNumber(selectn(`laundry.recycled`)(values));
+    let waterUse = toNumber(selectn(`laundry.water_use`)(values))
 
-    let totalIndustrialLoad = ((( weight * industrialWeeks * ( 1 - laundryRecycled/100)))/1000);
+    let totalIndustrialLoad = ((( (weight * industrialWeeks * waterUse) * ( 1 - (laundryRecycled/100))))/1000);
     
     return totalIndustrialLoad;
 }
@@ -153,7 +127,6 @@ class LaundryForm extends React.Component {
         }
     }
 
-
     calculateWaterUse = (values, valid) => {
         if(!valid) {
             window.alert("Missing or incorrect values.");
@@ -162,10 +135,10 @@ class LaundryForm extends React.Component {
         let singleLoad = calculateSingleLoad(values);
         let industrialLoad = calculateIndustrialLoad(values);
         let total = singleLoad + industrialLoad;
-        let roundTotal = Math.round( total * 10) / 10;
-        values.laundry.water_usage = roundTotal;
+        let formatTotal = numberFormat.format(total);
+        values.laundry.water_usage = formatTotal;
         this.setState({
-            waterUse: " Water Use: " + roundTotal + " kgal"
+            waterUse: " Water Use: " + formatTotal + " kgal"
         });
 
     };
@@ -181,7 +154,7 @@ class LaundryForm extends React.Component {
                     name={`${basePath}.weight`}
                     component={MaterialInput}
                     type="text"
-                    mask={DEFAULT_NUMBER_MASK}
+                    mask={ONE_DECIMAL_MASK}
                     label="Estimated weight of laundry washed in industrial washing machines weekly."
                     endAdornment={<InputAdornment position="end">lbs</InputAdornment>}
                 />
@@ -226,8 +199,9 @@ class LaundryForm extends React.Component {
 
 
     energyStar = (values, basePath) => {
+        let energyStar = selectn(`${basePath}.energy_star`)(values);
         return (<Fragment>
-            {selectn(`${basePath}.energy_star`)(values) < 100 && (
+            { energyStar < 100 && (
                 <Grid item xs={12}>
                     <Field
                         formControlProps={{fullWidth: true}}
@@ -244,7 +218,7 @@ class LaundryForm extends React.Component {
                     </Field>
                 </Grid>
             )}
-
+            {energyStar > 0 && (                
             <Grid item xs={12}>
                 <Field 
                     required
@@ -257,7 +231,7 @@ class LaundryForm extends React.Component {
                     endAdornment={<InputAdornment position="end">feet³</InputAdornment>}
                 />
             </Grid>
-
+            )}
             {selectn(`${basePath}.energy_star`)(values) < 100 && (
                 <Grid item xs={12}>
                     <Field 
@@ -272,7 +246,7 @@ class LaundryForm extends React.Component {
                     />
                 </Grid>
             )}
-            
+            {energyStar > 0 && (
             <Grid item xs={12}>
                 <Field 
                     required
@@ -285,6 +259,7 @@ class LaundryForm extends React.Component {
                     endAdornment={<InputAdornment position="end">gallons/cycle/feet³</InputAdornment>}
                 />
             </Grid>
+            )}
             {selectn(`${basePath}.energy_star`)(values) < 100 && (
                 <Grid item xs={12}>
                     <Field 
@@ -301,6 +276,9 @@ class LaundryForm extends React.Component {
             )}
             {selectn(`${basePath}.energy_star`)(values) == 100 && (
                 this.clearValues(['machine_type', 'nonenergy_star_factor', 'nonenergy_star_capacity'], values)
+            )}
+            {selectn(`${basePath}.energy_star`)(values) == 0 && (
+                this.clearValues(['energy_star_factor', 'energy_star_capacity'], values)
             )}
             </Fragment>)
     }
@@ -462,7 +440,7 @@ class LaundryForm extends React.Component {
                                         color="primary"
                                         aria-label="Water Use"
                                         title="Water Use"
-                                        style={style}
+                                        style={fabStyle}
                                     >
                                     {this.state.waterUse}
                                     </Fab>

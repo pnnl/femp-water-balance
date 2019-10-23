@@ -9,11 +9,11 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
 import MaterialInput from './MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from './submitAlert'
+import {submitAlert} from './shared/submitAlert'
 
 import formValidation from './OtherProcessesForm.validation';
 import {
@@ -25,34 +25,6 @@ import {
     Switch,
     MenuItem
 } from '@material-ui/core';
-
-const style = {
-  opacity: '.65',
-  position: 'fixed',
-  bottom: '11px',
-  right: '104px',
-  zIndex: '10000',
-  backgroundColor : 'rgb(220, 0, 78)',
-  borderRadius: '11px',
-  width: '196px',
-  '&:hover': {
-    opacity: '1',
-  },
-};
-
-const DEFAULT_NUMBER_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: false
-});
-
-const DEFAULT_DECIMAL_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: true
-});
 
 const toNumber = (value) => {
     if (value === undefined || value === null) {
@@ -167,11 +139,11 @@ class OtherProcessesForm extends React.Component {
         });
 
         let total = batchTotal + continousTotal;
-        let roundTotal = Math.round( total * 10) / 10;
-        values.other_processes.water_use = roundTotal; 
+        let formatTotal = numberFormat.format(total);
+        values.other_processes.water_use = formatTotal; 
 
         this.setState({
-            waterUse: " Water Use: " + roundTotal + " kgal"
+            waterUse: " Water Use: " + formatTotal + " kgal"
         });
 
     };
@@ -179,7 +151,7 @@ class OtherProcessesForm extends React.Component {
     onSubmit = values => {};
 
     waterUse = (values, basePath, source) => {
-        let prompt = (source == "continuous_processes") ? "hours per week the process runs" : "batches per week";
+        let prompt = (source == "continuous_processes") ? "hours per week the process operates" : "batches per week";
         let adornment = (source == "continuous_processes") ? "hours" : "batches";
         return(<Fragment>
             <Grid item xs={12}>
@@ -203,7 +175,7 @@ class OtherProcessesForm extends React.Component {
                     component={MaterialInput}
                     type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label= "Number of weeks per year the process runs"
+                    label= "Number of weeks per year the process operates"
                     endAdornment={<InputAdornment position="end">weeks</InputAdornment>}
                     >
                 </Field>
@@ -328,7 +300,7 @@ class OtherProcessesForm extends React.Component {
 
     renderIsMetered = (values, basePath) => {
         const isMetered = selectn(`${basePath}.is_metered`)(values);
-        const year = new Date(values.survey).getFullYear();
+        const year = values.year;
 
         return(<Fragment>
             <Grid item xs={12}>
@@ -361,7 +333,7 @@ class OtherProcessesForm extends React.Component {
                         name={`${basePath}.annual_water_use`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label={`${year} total annual water use`}
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         >
@@ -471,7 +443,7 @@ class OtherProcessesForm extends React.Component {
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        onClick={() => push('continuous_processes', undefined)}>
+                                        onClick={() => push('continuous_processes', {})}>
                                         Add Another Continuous Process
                                     </Button>
                                 ))}
@@ -480,7 +452,7 @@ class OtherProcessesForm extends React.Component {
                                         style={{marginLeft: '10px'}}
                                         variant="contained"
                                         color="primary"
-                                        onClick={() => push('batch_processes', undefined)}>
+                                        onClick={() => push('batch_processes', {})}>
                                         Add Another Batch Process
                                     </Button>
                                 ))}
@@ -506,7 +478,7 @@ class OtherProcessesForm extends React.Component {
                                         color="primary"
                                         aria-label="Water Use"
                                         title="Water Use"
-                                        style={style}
+                                        style={fabStyle}
                                     >
                                     {this.state.waterUse}
                                     </Fab>

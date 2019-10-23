@@ -314,7 +314,7 @@ class CampusDisplay extends React.Component {
                     if (!campus.modules[moduleKey]) {
                         campus.modules[moduleKey] = {
                             name: moduleKey,
-                            survey: campus.survey,
+                            year: campus.year,
                             campus_id: campus.id
                         };
                     }

@@ -11,23 +11,10 @@ import {
 import DateFnsUtils from "@date-io/date-fns";
 import withWidth, {isWidthDown} from '@material-ui/core/withWidth';
 import createDecorator from 'final-form-calculate';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import selectn from 'selectn';
 import MaterialInput from './MaterialInput';
+import { DEFAULT_NUMBER_MASK } from './shared/sharedStyles'; 
 
-const DEFAULT_NUMBER_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: false
-});
-
-const DEFAULT_YEAR_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: false,
-    integerLimit: 10,
-    allowDecimal: false
-});
 
 const numberFormat = new Intl.NumberFormat('en-US');
 
@@ -153,7 +140,7 @@ class WaterSupplyForm extends React.Component {
                                 component={MaterialInput}
                                 type="text"
                                 label={`Sum of Monthly Potable Water Use`}
-                                meta={{visited: true, error: (overallUsageOK ? null : 'The sum of monthly water use does not match annual total water use entered above. Please double check your input.' )}}
+                                meta={{visited: true, error: (overallUsageOK ? null : 'The sum of monthly water use does not match annual total water use entered above. Please double check your inputs.' )}}
                                 endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                             />
                         </Grid>
@@ -195,7 +182,7 @@ class WaterSupplyForm extends React.Component {
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
-                                <Field
+                                <Field 
                                     fullWidth
                                     required
                                     name={`potable_water`}
@@ -209,7 +196,7 @@ class WaterSupplyForm extends React.Component {
                                 <Fragment>
                                     <Grid item xs={12}>
                                         <FormControlLabel
-                                            label= {`Is the potable water use for the campus in ${new Date(values.survey).getFullYear()} available by month?`}
+                                            label= {`Is the potable water use for the campus in ${values.year} available by month`}
                                             control={
                                                 <Field
                                                     name="monthly_usage"
@@ -222,7 +209,7 @@ class WaterSupplyForm extends React.Component {
                                     </Grid>
                                     <Grid item xs={12}>
                                         <FormControlLabel
-                                            label={`Is the volume of wastewater discharged from the campus in ${new Date(values.survey).getFullYear()} available by month?`}
+                                            label={`Is the volume of wastewater discharged from the campus in ${values.year} available by month?`}
                                             control={
                                                 <Field
                                                     name="monthly_discharge"

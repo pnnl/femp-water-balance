@@ -17,39 +17,11 @@ import MaterialInput from './MaterialInput';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from './submitAlert'
+import {submitAlert} from './shared/submitAlert'
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat} from './shared/sharedStyles'; 
 
 import formValidation from './VehicleWashForm.validation';
-
-const style = {
-  opacity: '.65',
-  position: 'fixed',
-  bottom: '11px',
-  right: '104px',
-  zIndex: '10000',
-  backgroundColor: 'rgb(220, 0, 78)',
-  borderRadius: '11px',
-  width: '196px',
-  '&:hover': {
-    opacity: '1',
-  },
-};
-
-const DEFAULT_NUMBER_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: false
-});
-
-const DEFAULT_DECIMAL_MASK = createNumberMask({
-    prefix: '',
-    includeThousandsSeparator: true,
-    integerLimit: 10,
-    allowDecimal: true
-});
 
 const toNumber = (value) => {
     if (value === undefined || value === null) {
@@ -58,7 +30,7 @@ const toNumber = (value) => {
     return parseFloat(value.replace(/,/g, ''));
 };
 
-const focusOnError = createDecorator ()
+const focusOnError = createDecorator ();
 
 const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     <FormControlLabel
@@ -153,23 +125,22 @@ class VehicleWashForm extends React.Component {
             return;
         }
         let valuePath = 'vehicle_wash.auto_wash';
-        let autoWash = recycledCalculation(valuePath, values) || 0;
+        let autoWash = recycledCalculation(valuePath, values);
         
         valuePath = 'vehicle_wash.conveyor';
-        let conveyor = recycledCalculation(valuePath, values) || 0;
+        let conveyor = recycledCalculation(valuePath, values);
 
         valuePath = 'vehicle_wash.wash_pads';
-        let washPads = nonRecycledCalculation(valuePath, values) || 0;
+        let washPads = nonRecycledCalculation(valuePath, values);
 
         valuePath = 'vehicle_wash.large_vehicles';
-        let LargeVehicle = recycledCalculation(valuePath, values) || 0;
+        let LargeVehicle = recycledCalculation(valuePath, values);
 
         let total = autoWash + conveyor + washPads + LargeVehicle;
-        let roundTotal = Math.round( total * 10) / 10;
-        values.vehicle_wash.water_use = roundTotal; 
-
+        let formatTotal = numberFormat.format(total);
+        values.vehicle_wash.water_use = formatTotal; 
         this.setState({
-            waterUse: " Water Use: " + roundTotal + " kgal"
+            waterUse: " Water Use: " + formatTotal + " kgal"
         });
 
     };
@@ -223,7 +194,7 @@ class VehicleWashForm extends React.Component {
                         name={`${basePath}.rating`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label="Flow rate of the open hose"
                         endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
                     />
@@ -237,7 +208,7 @@ class VehicleWashForm extends React.Component {
                         name={`${basePath}.rating`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label="Nozzle rating of pressure washer"
                         endAdornment={<InputAdornment position="end">gpm</InputAdornment>}
                     />
@@ -248,7 +219,7 @@ class VehicleWashForm extends React.Component {
 
     renderFacilityForm = (values, basePath) => {
         const isMetered = selectn(`${basePath}.metered`)(values);
-        const year = new Date(values.survey).getFullYear();
+        const year = values.year;
         return (
             <Fragment>
                 {this.renderWaterMeteredControl(basePath,values, true)}
@@ -260,7 +231,7 @@ class VehicleWashForm extends React.Component {
                             name={`${basePath}.water_usage`}
                             component={MaterialInput}
                             type="text"
-                            mask={DEFAULT_NUMBER_MASK}
+                            mask={ONE_DECIMAL_MASK}
                             label={`${year} total annual water use for all vehicle wash facilities on campus`}
                             endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                         />
@@ -311,7 +282,7 @@ class VehicleWashForm extends React.Component {
                                 name={`${basePath}.recycled`}
                                 component={MaterialInput}
                                 type="text"
-                                mask={DEFAULT_DECIMAL_MASK}
+                                mask={DEFAULT_NUMBER_MASK}
                                 label="Percentage of water recycled/reused (if any)"
                                 endAdornment={<InputAdornment position="end">%</InputAdornment>}
                             />
@@ -463,6 +434,7 @@ class VehicleWashForm extends React.Component {
                         disabled
                         name="vehicle_wash.water_use"
                         label="Water use"
+                        mask = {DEFAULT_DECIMAL_MASK}
                         component={MaterialInput}
                         type="text"
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
@@ -527,7 +499,7 @@ class VehicleWashForm extends React.Component {
                                         color="primary"
                                         aria-label="Water Use"
                                         title="Water Use"
-                                        style={style}
+                                        style={fabStyle}
                                     >
                                     {this.state.waterUse}
                                     </Fab>
