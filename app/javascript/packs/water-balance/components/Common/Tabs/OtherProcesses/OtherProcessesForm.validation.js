@@ -1,4 +1,4 @@
-import { isWithinNumericRange, isPositiveNumeric } from './shared/arrayValidationFunctions';
+import { isWithinNumericRange, isPositiveNumeric } from '../shared/arrayValidationFunctions';
 import selectn from 'selectn';
 
 const resolve = (path, values) => selectn(path)(values);

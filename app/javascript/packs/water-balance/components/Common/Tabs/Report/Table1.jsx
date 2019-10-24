@@ -29,7 +29,7 @@ export default function UseTable(props) {
 		.map(function(key) {
 			return key.name;
 		})
-		.indexOf("Sum of end-uses");
+		.indexOf("Sum of End-Uses");
 
 	if(endUse >= 0){
 		waterUseArray.splice(endUse, 1);	

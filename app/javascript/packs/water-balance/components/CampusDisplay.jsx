@@ -6,18 +6,18 @@ import Paper from '@material-ui/core/Paper';
 
 import RemoteApi from '../RemoteApi';
 import MaterialTabs from './Common/TabContainer/MaterialTabs';
-import CampusForm from './Common/CampusForm';
-import selectn from 'selectn';
-import VehicleWashForm from "./Common/VehicleWashForm";
-import WaterSupplyForm from "./Common/WaterSupplyForm";
-import KitchensForm from "./Common/KitchensForm";
-import LaundryForm from "./Common/LaundryForm";
-import PlumbingForm from "./Common/PlumbingForm";
-import OtherProcessesForm from "./Common/OtherProcessesForm";
-import SteamBoilersForm from "./Common/SteamBoilersForm";
-import Report from "./Report/Report";
+import VehicleWashForm from "./Common/Tabs/VehicleWash/VehicleWashForm";
+import WaterSupplyForm from "./Common/Tabs/WaterSupply/WaterSupplyForm";
+import KitchensForm from "./Common/Tabs/Kitchens/KitchensForm";
+import LaundryForm from "./Common/Tabs/Laundry/LaundryForm";
+import PlumbingForm from "./Common/Tabs/Plumbing/PlumbingForm";
+import OtherProcessesForm from "./Common/Tabs/OtherProcesses/OtherProcessesForm";
+import SteamBoilersForm from "./Common/Tabs/SteamBoilers/SteamBoilersForm";
+import CoolingTowersForm from './Common/Tabs/CoolingTowers/CoolingTowersForm';
+import Report from "./Common/Tabs/Report/Report";
 
 import {Engine} from 'json-rules-engine';
+
 
 const moduleKeys = [
     'water_supply',
@@ -26,7 +26,8 @@ const moduleKeys = [
     'plumbing',
     'laundry',
     'kitchen_facilities',
-    'steam_boilers'
+    'steam_boilers',
+    'cooling_towers'
 ];
 
 
@@ -224,10 +225,13 @@ class CampusDisplay extends React.Component {
                 tabName: 'Cooling Towers',
                 tabContent: (
                     <TabContainer>
-                        <Typography variant="h5" gutterBottom>Cooling Towers</Typography>
-                        <Typography variant="body2" gutterBottom>
-                            Enter the following information only for cooling towers that use potable water on the campus
-                        </Typography>
+                        <CoolingTowersForm
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule} 
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules} 
+                            {...this.props} 
+                        />
                     </TabContainer>
                 ),
             },
@@ -290,9 +294,7 @@ class CampusDisplay extends React.Component {
                 tabContent: (
                     <TabContainer>
                         <Report 
-                            
                             campus={campus} 
-                            
                         />
                     </TabContainer>
                 ),

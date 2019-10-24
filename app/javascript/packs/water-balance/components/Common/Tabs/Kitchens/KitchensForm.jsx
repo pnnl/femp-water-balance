@@ -13,18 +13,17 @@ import {
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import MaterialInput from './MaterialInput';
+import MaterialInput from '../../MaterialInput';
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
 import selectn from 'selectn';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from './shared/submitAlert'
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
+import {submitAlert} from '../shared/submitAlert'
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from '../shared/sharedStyles'; 
 
 import formValidation from './kitchensForm.validation';
-
 
 const nonMeteredFields = ['weekend_meals', 
                     'weekday_meals', 
