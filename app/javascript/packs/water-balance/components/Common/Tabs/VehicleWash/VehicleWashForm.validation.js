@@ -1,4 +1,4 @@
-import { isPositiveNumeric, isWithinNumericRange, resolve } from './shared/validationFunctions';
+import { isPositiveNumeric, isWithinNumericRange, resolve } from '../shared/validationFunctions';
 import selectn from 'selectn';
 
 const validateAutomatedFacility = (values, basePath) => {

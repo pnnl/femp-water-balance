@@ -12,8 +12,8 @@ import DateFnsUtils from "@date-io/date-fns";
 import withWidth, {isWidthDown} from '@material-ui/core/withWidth';
 import createDecorator from 'final-form-calculate';
 import selectn from 'selectn';
-import MaterialInput from './MaterialInput';
-import { DEFAULT_NUMBER_MASK } from './shared/sharedStyles'; 
+import MaterialInput from '../../MaterialInput';
+import { DEFAULT_NUMBER_MASK } from '../shared/sharedStyles'; 
 
 
 const numberFormat = new Intl.NumberFormat('en-US');
@@ -196,7 +196,7 @@ class WaterSupplyForm extends React.Component {
                                 <Fragment>
                                     <Grid item xs={12}>
                                         <FormControlLabel
-                                            label= {`Is the potable water use for the campus in ${values.year} available by month`}
+                                            label= {`Is the potable water use for the campus in ${values.year} available by month?`}
                                             control={
                                                 <Field
                                                     name="monthly_usage"

@@ -9,11 +9,11 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import MaterialInput from './MaterialInput';
+import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from './shared/submitAlert'
-import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
+import {submitAlert} from '../shared/submitAlert'
+import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat } from '../shared/sharedStyles'; 
 
 import formValidation from './SteamBoilersForm.validation';
 
@@ -388,7 +388,7 @@ class SteamBoilersForm extends React.Component {
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
                                 <FormControlLabel
-                                    label="My campus has steam boilers"
+                                    label="My campus has steam boilers?"
                                     control={
                                         <Field
                                             name="has_steam_boilers"

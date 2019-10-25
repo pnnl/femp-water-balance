@@ -207,6 +207,7 @@ class Report extends React.Component {
 			"steam",
 			"plumbing",
 			"laundry",
+			"tower"
 		];
 
 		let lables = [
@@ -217,6 +218,7 @@ class Report extends React.Component {
 			"Steam Boilers",
 			"Plumbing",
 			"Laundry",
+			"Cooling Towers"
 		];
 
 		let waterUse = [
@@ -233,6 +235,7 @@ class Report extends React.Component {
 			toNumber(selectn("modules.steam_boilers.water_use")(values)),
 			toNumber(selectn("modules.plumbing.plumbing.water_usage")(values)),
 			toNumber(selectn("modules.laundry.laundry.water_usage")(values)),
+			toNumber(selectn("modules.cooling_towers.water_use")(values))
 		];
 
 		for (let i = 0; i < keys.length; i++) {
@@ -245,6 +248,7 @@ class Report extends React.Component {
 			WaterUse.other.water +
 			WaterUse.steam.water +
 			WaterUse.plumbing.water +
+			WaterUse.tower.water +
 			WaterUse.laundry.water;
 
 		if (total < WaterUse.waterSupply.water) {
@@ -258,7 +262,7 @@ class Report extends React.Component {
 			this.addPercent(WaterUse.waterSupply.water);
 		} else if (total > WaterUse.waterSupply.water) {
 			let roundTotal = Math.round(total * 10) / 10;
-			this.createWaterUse("endUse", "Sum of end-uses", roundTotal);
+			this.createWaterUse("endUse", "Sum of End-Uses", roundTotal);
 			scenario = 2;
 		}
 

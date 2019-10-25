@@ -1,4 +1,4 @@
-import { isPositiveNumeric, isWithinNumericRange, resolve } from './shared/validationFunctions';
+import { isPositiveNumeric, isWithinNumericRange, resolve } from '../shared/validationFunctions';
 
 const validateLaundryFacility = (values, basePath) => {
 	const errors = {};

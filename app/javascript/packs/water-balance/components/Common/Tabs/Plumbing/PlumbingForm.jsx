@@ -5,12 +5,12 @@ import {Checkbox, Select} from 'final-form-material-ui';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import MaterialInput from './MaterialInput';
+import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import Divider from '@material-ui/core/Divider';
-import {submitAlert} from './shared/submitAlert'
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat} from './shared/sharedStyles'; 
+import {submitAlert} from '../shared/submitAlert'
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat} from '../shared/sharedStyles'; 
 import formValidation from './PlumbingForm.validation';
 
 import {

@@ -9,11 +9,11 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from './shared/sharedStyles'; 
-import MaterialInput from './MaterialInput';
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from '../shared/sharedStyles'; 
+import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from './shared/submitAlert'
+import {submitAlert} from '../shared/submitAlert'
 
 import formValidation from './OtherProcessesForm.validation';
 import {
@@ -353,7 +353,7 @@ class OtherProcessesForm extends React.Component {
                 <ExpansionPanelSummary>
                     <Field
                         name={`other_processes.has_batch_processes`}
-                        label="My campus has other batch processes (such as laboratory glassware washing)."
+                        label="My campus has other batch processes (such as laboratory glassware washing)"
                         component={ToggleAdapter}
                         type="checkbox"
                     />
@@ -426,7 +426,7 @@ class OtherProcessesForm extends React.Component {
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
                                 <FormControlLabel
-                                    label="My campus has other water-consuming processes that are not already covered. (e.g. laboratory and medical equipment)"
+                                    label="My campus has other water-consuming processes that are not already covered? (e.g. laboratory and medical equipment)"
                                     control={
                                         <Field
                                             name="has_other_processes"

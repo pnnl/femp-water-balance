@@ -1,4 +1,4 @@
-import { isWithinNumericRange, isPositiveNumeric } from './shared/arrayValidationFunctions';
+import { isWithinNumericRange, isPositiveNumeric } from '../shared/arrayValidationFunctions';
 
 const validateSoftner = values => {
 	const errors = {};
