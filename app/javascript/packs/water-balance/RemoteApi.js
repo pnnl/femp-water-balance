@@ -138,6 +138,44 @@ class RemoteApi {
             );
     };
 
+    static getRainFall = (zip, onSuccess, onError, caller = undefined) => {
+        fetch(`${RemoteApi.BASE_V1_URI}/water-balance/rain-falls/${zip.zip}`, RemoteApi.DEFAULT_FETCH_CONFIG)
+            .then((response) => response.json())
+            .then(
+                // onFulfilled:
+                (result) => {
+                    if (onSuccess) {
+                        onSuccess.call(caller, result);
+                    }
+                },
+                // onRejected:
+                (error) => {
+                    if (onError) {
+                        onError.call(caller, error);
+                    }
+                }
+            )
+    };
+
+    static getEto = (zip, onSuccess, onError, caller = undefined) => {
+        fetch(`${RemoteApi.BASE_V1_URI}/water-balance/etos/${zip.zip}`, RemoteApi.DEFAULT_FETCH_CONFIG)
+            .then((response) => RemoteApi.captureAuthorization(response))
+            .then(
+                // onFulfilled:
+                (result) => {
+                    if (onSuccess) {
+                        onSuccess.call(caller, result);
+                    }
+                },
+                // onRejected:
+                (error) => {
+                    if (onError) {
+                        onError.call(caller, error);
+                    }
+                }
+            );
+    };
+
     static createOrUpdateCampusModule = (campus, campusModule, onSuccess, onError, caller = undefined) => {
         let targetURL = null;
         let fetchConfig = Object.assign({}, RemoteApi.DEFAULT_FETCH_CONFIG, {

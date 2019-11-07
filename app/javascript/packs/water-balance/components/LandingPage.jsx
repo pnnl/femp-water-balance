@@ -84,7 +84,11 @@ class LandingPage extends React.Component {
 							Fill out the form with information regarding the campus being evaluated
 							for water usage.
 						</DialogContentText>
-						<CampusForm createNewCampus={this.createNewCampus} />
+						<CampusForm
+							createNewCampus={this.createNewCampus}
+							getRainFall={this.getRainFall}
+							getEto={this.getEto}
+						/>
 					</DialogContent>
 				</Dialog>
 

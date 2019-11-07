@@ -14,6 +14,7 @@ import PlumbingForm from "./Common/Tabs/Plumbing/PlumbingForm";
 import OtherProcessesForm from "./Common/Tabs/OtherProcesses/OtherProcessesForm";
 import SteamBoilersForm from "./Common/Tabs/SteamBoilers/SteamBoilersForm";
 import CoolingTowersForm from './Common/Tabs/CoolingTowers/CoolingTowersForm';
+import IrrigationForm from './Common/Tabs/Irrigation/IrrigationForm';
 import Report from "./Common/Tabs/Report/Report";
 
 import {Engine} from 'json-rules-engine';
@@ -27,7 +28,8 @@ const moduleKeys = [
     'laundry',
     'kitchen_facilities',
     'steam_boilers',
-    'cooling_towers'
+    'cooling_towers',
+    'irrigation'
 ];
 
 
@@ -178,7 +180,7 @@ class CampusDisplay extends React.Component {
 
     getCampusTabs = () => {
         const { campus, events } = this.state;
-
+        
         return [
                {
                 tabName: 'Water Supply',
@@ -198,6 +200,20 @@ class CampusDisplay extends React.Component {
                 tabContent: (
                     <TabContainer>
                         <PlumbingForm
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Landscape Irrigation',
+                tabContent: (
+                    <TabContainer>
+                        <IrrigationForm
                             createOrUpdateCampusModule={this.createOrUpdateCampusModule}
                             campus={campus}
                             events={events}
@@ -317,6 +333,7 @@ class CampusDisplay extends React.Component {
                         campus.modules[moduleKey] = {
                             name: moduleKey,
                             year: campus.year,
+                            zip: campus.postal_code, 
                             campus_id: campus.id
                         };
                     }
