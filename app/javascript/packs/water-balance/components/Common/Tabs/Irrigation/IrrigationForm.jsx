@@ -115,11 +115,12 @@ const formatData = (values, data, monthMap) => {
 		if (index !== undefined) {
 			if (index < values.start_month || index > values.end_month) {
 				array[index] = 0;
+			} else {
+				array[index] = data[key];
 			}
-			array[index] = data[key];
 		}
 	}
-	console.log(array);
+
 	return array;
 };
 
@@ -133,22 +134,18 @@ const getTotalRequirement = (values, rf, eto, coefficient) => {
 	let requirement = '';
 	let need = '';
 
-	//monthlyRequirement = coefficient * eto;
 	eto.map((month, index) => {
 		MonthlyRequirement[index] = month * coefficient;
 	});
 
-	//effectivePrecipitation = rf * soil type;
 	rf.map((month, index) => {
 		effectivePrecipitation[index] = month * soilType;
 	});
 
-	//monthlySupplementalNeeds = monthlyRequirement - effectivePrecipitation;
 	effectivePrecipitation.map((monthlyPrecipitation, index) => {
 		monthlySupplementalNeed[index] = MonthlyRequirement[index] - monthlyPrecipitation;
 	});
 
-	//If monthlyRequirement < effectivePrecipitation ? 0 : monthlySupplementalNeeds;
 	effectivePrecipitation.map((monthlyPrecipitation, index) => {
 		requirement = MonthlyRequirement[index];
 		need = monthlySupplementalNeed[index];
@@ -750,7 +747,6 @@ class IrrigationForm extends React.Component {
 								</Grid>
 							</Grid>
 							<FormRulesListener handleFormChange={applyRules} />
-							<pre>{JSON.stringify(values, 0, 2)}</pre>
 						</form>
 					)}
 				/>

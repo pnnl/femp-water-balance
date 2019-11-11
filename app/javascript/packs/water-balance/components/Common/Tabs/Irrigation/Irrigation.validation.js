@@ -90,13 +90,16 @@ const validateIrrigation = (values, allBoilers) => {
 			errors['annual_water_use'] = 'Annual water usage is required if water is metered.';
 		}
 	} else {
-		valuePath = values.start_month;
-		if (valuePath == undefined) {
+		let startMonth = values.start_month;
+		if (startMonth == undefined) {
 			errors['start_month'] = 'Month irrigation starts';
 		}
-		valuePath = values.end_month;
-		if (valuePath == undefined) {
+		let endMonth = values.end_month;
+		if (endMonth == undefined) {
 			errors['end_month'] = 'Month irrigation ends';
+		}
+		if (startMonth > endMonth) {
+			errors['start_month'] = 'Start month must be before end month.';
 		}
 		valuePath = values.type;
 		if (valuePath == undefined) {
@@ -156,7 +159,7 @@ const validate = values => {
 	if (irrigationErrors.length > 0) {
 		errors['irrigation'] = irrigationErrors;
 	}
-	console.log('%o', errors);
+
 	return errors;
 };
 export default validate;

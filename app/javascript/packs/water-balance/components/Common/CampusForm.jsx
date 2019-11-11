@@ -6,59 +6,57 @@ import MaterialInput from './MaterialInput';
 import MaterialDatePicker from './MaterialDatePicker';
 import RemoteApi from '../../RemoteApi';
 
-const validate = values => {
-	const errors = {};
-	const currentYear = new Date().getFullYear();
-	if (!values.name) {
-		errors.name = 'A name is required for creating a campus';
-	}
-	if (!values.evaluator) {
-		errors.evaluator = 'An evaluator email address is required for creating a new campus.';
-	}
-	if (!values.city) {
-		errors.city = 'A city name is required for creating a new campus.';
-	}
-	if (!values.region) {
-		errors.region = 'A state designation is required for creating a new campus.';
-	}
-	if (!values.year) {
-		errors.year = 'A water supply year is required for creating a new campus';
-	} else if (values.year < 2010 || values.year > currentYear) {
-		errors.year = 'Calendar year must be between 2010 and ' + currentYear + '.';
-	}
-	if (!values.postal_code) {
-		errors.postal_code = 'A zip code is required for creating a new campus.';
-	} else if (values.postal_code.length < 5 || values.postal_code.length > 5) {
-		errors.postal_code = 'Zip Code must be be five digits.';
-	} else {
-		if (this.state.error != '') {
-			CampusForm.validRainFall(values.postal_code).then(console.log(this.state.error));
-		}
-	}
-
-	return errors;
-};
-
-export class CampusForm extends React.Component {
+class CampusForm extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			error: '',
-		};
+		this.validate = this.validate.bind(this);
 		this.validRainFall = this.validRainFall.bind(this);
+		this.state = {
+			zipError: 'noError',
+		};
 	}
 
+	validate = values => {
+		const errors = {};
+		const currentYear = new Date().getFullYear();
+		if (!values.name) {
+			errors.name = 'A name is required for creating a campus test5';
+		}
+		if (!values.evaluator) {
+			errors.evaluator = 'An evaluator email address is required for creating a new campus.';
+		}
+		if (!values.city) {
+			errors.city = 'A city name is required for creating a new campus.';
+		}
+		if (!values.region) {
+			errors.region = 'A state designation is required for creating a new campus.';
+		}
+		if (!values.year) {
+			errors.year = 'A water supply year is required for creating a new campus';
+		} else if (values.year < 2010 || values.year > currentYear) {
+			errors.year = 'Calendar year must be between 2010 and ' + currentYear + '.';
+		}
+		if (!values.postal_code) {
+			errors.postal_code = 'A zip code is required for creating a new campus.';
+		} else if (values.postal_code.length < 5 || values.postal_code.length > 5) {
+			errors.postal_code = 'Zip Code must be be five digits.';
+		}
+		return errors;
+	};
+
 	validRainFall = async zip => {
+		if (!zip) {
+			return 'A zip code is required for creating a new campus.';
+		}
+		if (zip.length < 5 || zip.length > 5) {
+			return 'Zip Code must be be five digits.';
+		}
 		zip = zip.replace(/^0+/, '');
-		RemoteApi.getRainFall({ zip: zip }, data => {
-			if (data.errors) {
-				//window.alert('Could not find zip code. Please enter another another.');
-				console.log('error');
-				this.setState({ error: 'Could not find zip code. Please enter another another.' });
-			}
-			console.log('success');
-			this.setState({ error: '' });
-		});
+
+		let result = await RemoteApi.checkZip({ zip: zip });
+		if (result.errors) {
+			return "We can't find your zip code please enter another one near your location.";
+		}
 	};
 
 	render() {
@@ -66,7 +64,7 @@ export class CampusForm extends React.Component {
 		return (
 			<Form
 				onSubmit={createNewCampus}
-				validate={validate}
+				validate={this.validate}
 				render={({ handleSubmit, reset, submitting, pristine, invalid, values }) => (
 					<form id={formId} onSubmit={handleSubmit} noValidate>
 						<Grid container alignItems='flex-start' spacing={16}>
@@ -137,6 +135,7 @@ export class CampusForm extends React.Component {
 							</Grid>
 							<Grid item xs={12}>
 								<Field
+									validate={this.validRainFall}
 									fullWidth
 									required
 									name='postal_code'
