@@ -20,7 +20,7 @@ class CampusForm extends React.Component {
 		const errors = {};
 		const currentYear = new Date().getFullYear();
 		if (!values.name) {
-			errors.name = 'A name is required for creating a campus test5';
+			errors.name = 'A name is required for creating a campus.';
 		}
 		if (!values.evaluator) {
 			errors.evaluator = 'An evaluator email address is required for creating a new campus.';
