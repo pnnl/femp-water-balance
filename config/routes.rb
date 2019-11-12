@@ -9,6 +9,9 @@ Rails.application.routes.draw do
     scope(path: 'api', module: 'api', as: :api, defaults: {format: :json}) do
       scope(path: 'v1', module: 'v1', as: :v1) do
         scope(path: 'water-balance', module: :water_balance, as: :water_balance) do
+          resource(:rain_falls, path: 'rain-falls/:zip', only: [:show], constraint:{zip:/\d{1,5}/ }) 
+          resource(:etos, path: 'etos/:zip', only: [:show], constraint:{zip:/\d{1,5}/ }) 
+          
           resources(:campuses, except: [:new, :edit]) do
             resources(:campus_modules, path: 'modules', except: [:new, :edit])
           end

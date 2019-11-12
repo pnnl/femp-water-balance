@@ -1,24 +1,23 @@
-import React, { Fragment } from "react";
-import Typography from "@material-ui/core/Typography";
-import { DiscreteColorLegend, RadialChart } from "react-vis";
+import React, { Fragment } from 'react';
+import Typography from '@material-ui/core/Typography';
+import { DiscreteColorLegend, RadialChart } from 'react-vis';
 
 const title = {
 	textAlign: 'center',
-	marginTop: '14px'
-}
+	marginTop: '14px',
+};
 
 const legend = {
 	width: '35%',
 	float: 'right',
-	marginTop: '145px'
-}
+	marginTop: '145px',
+};
 
 const pieChart = {
 	float: 'left',
 	width: '65%',
-	padding: '37px'
-}
-
+	padding: '37px',
+};
 
 class BarChart extends React.Component {
 	render(props) {
@@ -27,17 +26,18 @@ class BarChart extends React.Component {
 		let i = 0;
 		waterUse.map((key, i) => {
 			const colors = [
-				"#47ACB1",
-				"#FFCD33",
-				"#F9AA7B",
-				"#FF991F",
-				"#676766",
-				"#ADD5D7",
-				"#A5A8AA",
-				"#F26522",
+				'#47ACB1',
+				'#FFCD33',
+				'#F9AA7B',
+				'#FF991F',
+				'#676766',
+				'#ADD5D7',
+				'#A5A8AA',
+				'#F26522',
+				'#703740',
 			];
 
-			if (key.water != 0 && key.name != "Total Water Supply") {
+			if (key.water != 0 && key.name != 'Total Water Supply') {
 				data.push({
 					label: key.name.toString(),
 					angle: key.water,
