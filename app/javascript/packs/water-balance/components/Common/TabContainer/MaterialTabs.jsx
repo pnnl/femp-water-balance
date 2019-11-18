@@ -1,16 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import withStyles from '@material-ui/core/styles/withStyles';
-import {
-    Tabs,
-    Tab,
-    AppBar,
-    Typography,
-} from '@material-ui/core';
+import { Tabs, Tab, AppBar, Typography } from '@material-ui/core';
 import customTabsStyle from './tabStyles';
 
 class MaterialTabs extends React.Component {
-
     static defaultProps = {
         variant: 'thick',
         title: null,
@@ -26,15 +20,24 @@ class MaterialTabs extends React.Component {
     };
 
     handleChange = (event, selectedTab) => {
-        const { onTabChange, tabs } = this.props;
-        this.setState({ selectedTab });
-        if (onTabChange) {
-            onTabChange(selectedTab, tabs[selectedTab]);
+        const { onTabChange, tabs, isDirty, isNotDirty } = this.props;
+        let proceed = true;
+        if (isDirty) {
+            proceed = window.confirm(
+                'Are you sure you would like to leave this page?\n\nYou have unsaved changes. '
+            );
+        }
+        if (proceed) {
+            this.setState({ selectedTab });
+            isNotDirty();
+            if (onTabChange) {
+                onTabChange(selectedTab, tabs[selectedTab]);
+            }
         }
     };
 
     renderTabNavs = () => {
-        const { classes, tabs } = this.props;
+        const { classes, tabs, isDirty } = this.props;
         const { selectedTab } = this.state;
         return (
             <Tabs
@@ -89,13 +92,14 @@ class MaterialTabs extends React.Component {
     };
 
     render() {
-        const {
-            headerColor,
-            title,
-        } = this.props;
+        const { headerColor, title } = this.props;
         return (
             <div style={{ flexGrow: 1 }}>
-                <AppBar color={headerColor} position="sticky" style={{ zIndex: 0 }}>
+                <AppBar
+                    color={headerColor}
+                    position="sticky"
+                    style={{ zIndex: 0 }}
+                >
                     {title && (
                         <Typography variant="h6" color="inherit">
                             {title}
@@ -125,7 +129,7 @@ MaterialTabs.propTypes = {
             tabName: PropTypes.string.isRequired,
             tabIcon: PropTypes.func,
             tabContent: PropTypes.node.isRequired,
-        }),
+        })
     ),
     rtlActive: PropTypes.bool,
     plainTabs: PropTypes.bool,

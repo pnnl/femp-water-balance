@@ -4,7 +4,7 @@ const validateProcesses = (values, allTowers) => {
 	const errors = {};
 	if (!values.name) {
 		errors['name'] =
-			'Enter a unique name identifier for this cooling tower system (such as the building name/number it is associated)';
+			'Enter a unique name identifier for this cooling tower system (such as the building name/number the cooling tower is associated with)';
 	}
 	if (!values.is_metered) {
 		errors['is_metered'] = 'Is the makeup water metered?';
@@ -26,7 +26,8 @@ const validateProcesses = (values, allTowers) => {
 		}
 		valuePath = values.days_per_year;
 		if (!isWithinNumericRange(valuePath, 1, 365)) {
-			errors['days_per_year'] = 'The number of days per year the system operates must be between 1 and 365.';
+			errors['days_per_year'] =
+				'The number of days per year the system operates must be between 1 and 365.';
 		}
 	}
 

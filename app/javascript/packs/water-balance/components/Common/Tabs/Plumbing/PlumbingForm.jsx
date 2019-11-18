@@ -9,7 +9,7 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import Divider from '@material-ui/core/Divider';
-import {submitAlert} from '../shared/submitAlert'
+import {submitAlert, updateIsDirty} from '../shared/sharedFunctions'
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat} from '../shared/sharedStyles'; 
 import formValidation from './PlumbingForm.validation';
 
@@ -64,7 +64,7 @@ const FormRulesListener = ({handleFormChange}) => (
 
 const focusOnError = createDecorator ()
 
-const caluclateOccupancy = (values, basePath, subgroup) => {
+const calculateOccupancy = (values, basePath, subgroup) => {
     let hoursPerDay = null;
     let daysPerYear = getDaysPerYear(basePath, values, subgroup);
     let occupants = getOccupants(basePath, values, subgroup);
@@ -220,7 +220,7 @@ class PlumbingForm extends React.Component {
         this.calculateWaterUse = this.calculateWaterUse.bind(this);
     }
 
-    calulateTotalOccupants = (values, basePath) => {
+    calculateTotalOccupants = (values, basePath) => {
         values.plumbing.hospital.total_occupants = toNumber(selectn(`${basePath}.inpatient_per_day`)(values)) + toNumber(selectn(`${basePath}.daily_staff`)(values));
     }
 
@@ -246,13 +246,13 @@ class PlumbingForm extends React.Component {
         }
 
         //Occupancy 
-        let lodgingOccupancy = caluclateOccupancy(values, 'plumbing.lodging');
-        let hospitalAdminOccupancy = caluclateOccupancy(values, 'plumbing.hospital', 'admin');
-        let hospitalStaffOccupancy = caluclateOccupancy(values, 'plumbing.hospital', 'staff');
-        let hospitalOutPatientOccupancy = caluclateOccupancy(values, 'plumbing.hospital', 'outPatient');
-        let hospitalInPatientOccupancy = caluclateOccupancy(values, 'plumbing.hospital', 'inPatient');
-        let weekDaygeneralCampusOccupancy = caluclateOccupancy(values, 'plumbing.facility', 'weekday');
-        let weekendDaygeneralCampusOccupancy = caluclateOccupancy(values, 'plumbing.facility', 'weekend');
+        let lodgingOccupancy = calculateOccupancy(values, 'plumbing.lodging');
+        let hospitalAdminOccupancy = calculateOccupancy(values, 'plumbing.hospital', 'admin');
+        let hospitalStaffOccupancy = calculateOccupancy(values, 'plumbing.hospital', 'staff');
+        let hospitalOutPatientOccupancy = calculateOccupancy(values, 'plumbing.hospital', 'outPatient');
+        let hospitalInPatientOccupancy = calculateOccupancy(values, 'plumbing.hospital', 'inPatient');
+        let weekDaygeneralCampusOccupancy = calculateOccupancy(values, 'plumbing.facility', 'weekday');
+        let weekendDaygeneralCampusOccupancy = calculateOccupancy(values, 'plumbing.facility', 'weekend');
 
         // Urinals
         let lodgingUrinals = calculateUrinals(lodgingOccupancy, 'plumbing.lodging', values);
@@ -709,7 +709,7 @@ class PlumbingForm extends React.Component {
                 </Field>
             </Grid>
             {selectn(`${basePath}.inpatient_per_day`)(values) != undefined && selectn(`${basePath}.daily_staff`)(values) != undefined && (
-                this.calulateTotalOccupants(values, basePath)
+                this.calculateTotalOccupants(values, basePath)
             )}
             {selectn(`${basePath}.inpatient_per_day`)(values) == 0 && (
                 this.clearValues(['shower_usage_inpatient'], basePath, values)
@@ -742,7 +742,7 @@ class PlumbingForm extends React.Component {
         </Fragment>)
     }
 
-    renderFacilityTypes = (values) => {
+    renderFacilityTypes = (values, valid) => {
         return (<Fragment>
             <Grid item xs={12}>
                 <Typography variant="subtitle1" gutterBottom>Occupancy Information</Typography>
@@ -824,14 +824,27 @@ class PlumbingForm extends React.Component {
                     label="Total Water Use"
                     component={MaterialInput}
                     type="text"
+                    meta={{
+                        visited: true,
+                        error: valid
+                            ? null
+                            : "Fix errors and click 'Calculate Water Use' button to update value.",
+                    }}
                     endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                 />
             </Grid>
         </Fragment>);
     }
 
+    updateIsDirty = (dirty, updateParent) => {
+        if(dirty && this.state.isDirty != true) {
+            this.setState({isDirty:true});
+            updateParent();
+        }
+    }
+
     render() {
-            const {createOrUpdateCampusModule, campus, applyRules} = this.props;
+            const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
             const module = (campus) ? campus.modules.plumbing : {};
             return (<Fragment>
                 <Typography variant="h5" gutterBottom>Plumbing</Typography>
@@ -841,10 +854,10 @@ class PlumbingForm extends React.Component {
                     initialValues={module}
                     validate={formValidation}
                     decorators={[focusOnError]}
-                    render={({handleSubmit, reset, submitting, pristine, values, valid}) => (
+                    render={({handleSubmit, reset, submitting, pristine, dirty , values, valid}) => (
                         <form onSubmit={handleSubmit} noValidate>
                             <Grid container alignItems="flex-start" spacing={16}>
-                                {this.renderFacilityTypes(values)}
+                                {this.renderFacilityTypes(values, valid)}
                             </Grid>
                                 <Button
                                     variant="contained"
@@ -870,6 +883,7 @@ class PlumbingForm extends React.Component {
                                     {this.state.waterUse}
                                     </Fab>
                                 )}
+                                {this.updateIsDirty(dirty, updateParent)}
                             <FormRulesListener handleFormChange={applyRules}/>
                         </form>
                     )}

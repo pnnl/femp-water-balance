@@ -18,7 +18,7 @@ import {
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import { submitAlert } from '../shared/submitAlert';
+import { submitAlert } from '../shared/sharedFunctions';
 
 import { Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem } from '@material-ui/core';
 import formValidation from './Irrigation.validation';
@@ -586,7 +586,7 @@ class IrrigationForm extends React.Component {
 		);
 	};
 
-	coolingTowersTypes = values => {
+	irrigationTypes = (values, valid) => {
 		if (!values.has_irrigation) {
 			return null;
 		}
@@ -638,6 +638,12 @@ class IrrigationForm extends React.Component {
 						label='Water use'
 						component={MaterialInput}
 						type='text'
+						meta={{
+							visited: true,
+							error: valid
+								? null
+								: "Fix errors and click 'Calculate Water Use' button to update value.",
+						}}
 						endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
 					/>
 				</Grid>
@@ -645,8 +651,15 @@ class IrrigationForm extends React.Component {
 		);
 	};
 
+	updateIsDirty = (dirty, updateParent) => {
+        if(dirty && this.state.isDirty != true) {
+            this.setState({isDirty:true});
+            updateParent();
+        }
+    }
+
 	render() {
-		const { createOrUpdateCampusModule, campus, applyRules } = this.props;
+		const { createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
 		const module = campus ? campus.modules.irrigation : {};
 
@@ -673,6 +686,7 @@ class IrrigationForm extends React.Component {
 					render={({
 						handleSubmit,
 						values,
+						dirty,
 						valid,
 						form: {
 							mutators: { push },
@@ -693,7 +707,7 @@ class IrrigationForm extends React.Component {
 										}
 									/>
 								</Grid>
-								{this.coolingTowersTypes(values)}
+								{this.irrigationTypes(values, valid)}
 								<Grid item xs={12}>
 									{values.has_irrigation === true && (
 										<Button
@@ -746,6 +760,7 @@ class IrrigationForm extends React.Component {
 									)}
 								</Grid>
 							</Grid>
+							{this.updateIsDirty(dirty, updateParent)}
 							<FormRulesListener handleFormChange={applyRules} />
 						</form>
 					)}

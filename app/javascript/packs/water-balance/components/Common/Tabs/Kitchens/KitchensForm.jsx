@@ -20,7 +20,7 @@ import selectn from 'selectn';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from '../shared/submitAlert'
+import {submitAlert} from '../shared/sharedFunctions'
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat } from '../shared/sharedStyles'; 
 
 import formValidation from './kitchensForm.validation';
@@ -427,7 +427,7 @@ class KitchensForm extends React.Component {
 
     onSubmit = values => {};
 
-    renderFacilityTypes = (values) => {
+    renderFacilityTypes = (values, valid) => {
         if(!values.has_kitchens) {
             return null;
         }
@@ -486,14 +486,27 @@ class KitchensForm extends React.Component {
                     label="Water use"
                     component={MaterialInput}
                     type="text"
+                    meta={{
+                        visited: true,
+                        error: valid
+                            ? null
+                            : "Fix errors and click 'Calculate Water Use' button to update value.",
+                    }}
                     endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                 />
             </Grid>
             </Fragment>);
     }
 
+    updateIsDirty = (dirty, updateParent) => {
+        if(dirty && this.state.isDirty != true) {
+            this.setState({isDirty:true});
+            updateParent();
+        }
+    }
+
     render() {
-        const { createOrUpdateCampusModule, campus, applyRules } = this.props;
+        const { createOrUpdateCampusModule, campus, applyRules, updateParent } = this.props;
 
         const module = (campus) ? campus.modules.kitchen_facilities : {};
 
@@ -516,6 +529,7 @@ class KitchensForm extends React.Component {
                 render={({
                     handleSubmit,
                     values,
+                    dirty,
                     valid,
                     form: { mutators: { push, pop } }
                 }) => (
@@ -534,7 +548,7 @@ class KitchensForm extends React.Component {
                                     }
                                 />
                             </Grid>
-                            {this.renderFacilityTypes(values)}
+                            {this.renderFacilityTypes(values, valid)}
                            
                             <Grid item xs={12}>
                                 {(values.has_kitchens === false || values.has_kitchens === undefined) ? null : (<Fragment>
@@ -572,6 +586,7 @@ class KitchensForm extends React.Component {
                                 </Fragment>)}
                             </Grid>
                         </Grid>
+                        {this.updateIsDirty(dirty, updateParent)}
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
                   )}

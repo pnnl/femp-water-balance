@@ -1,13 +1,14 @@
-import React, { Fragment } from "react";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-import Grid from "@material-ui/core/Grid";
-import BarChart from "./BarChart";
-import PieChart from "./PieChart"
+import React, { Fragment } from 'react';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
+import BarChart from './BarChart';
+import PieChart from './PieChart';
+import { numberFormat } from '../shared/sharedStyles';
 
 export default function UseTable(props) {
 	let waterUse = props.values;
@@ -21,19 +22,19 @@ export default function UseTable(props) {
 		.map(function(key) {
 			return key.name;
 		})
-		.indexOf("Unknown");
+		.indexOf('Unknown');
 
 	waterUseArray.push(waterUseArray.splice(unknown, 1)[0]);
-	
+
 	let endUse = waterUseArray
 		.map(function(key) {
 			return key.name;
 		})
-		.indexOf("Sum of End-Uses");
+		.indexOf('Sum of End-Uses');
 
-	if(endUse >= 0){
-		waterUseArray.splice(endUse, 1);	
-	} 
+	if (endUse >= 0) {
+		waterUseArray.splice(endUse, 1);
+	}
 	let length = waterUseArray.length - 1;
 	let temp = waterUseArray[length - 1];
 	waterUseArray[length - 1] = waterUseArray[length];
@@ -44,9 +45,9 @@ export default function UseTable(props) {
 			<TableCell component='th' scope='row'>
 				{key.name}
 			</TableCell>
-			<TableCell align='right'>{key.water}</TableCell>
+			<TableCell align='right'>{numberFormat.format(key.water)}</TableCell>
 			<TableCell align='right'>
-				{key.percent != undefined ? key.percent + "%" : null}
+				{key.percent != undefined ? key.percent + '%' : null}
 			</TableCell>
 		</TableRow>
 	));
@@ -62,9 +63,7 @@ export default function UseTable(props) {
 								<TableCell align='right'>
 									Estimated Annual Potable Water Use (kgal)
 								</TableCell>
-								<TableCell align='right'>
-									Percent of Total
-								</TableCell>
+								<TableCell align='right'>Percent of Total</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>{rows}</TableBody>
@@ -74,9 +73,9 @@ export default function UseTable(props) {
 			<Grid item xs={4}>
 				<Paper
 					style={{
-						height: "100%",
-						width: "calc(100% - 15px)",
-						float: "right",
+						height: '100%',
+						width: 'calc(100% - 15px)',
+						float: 'right',
 					}}
 				>
 					<BarChart data={waterUseArray} />
@@ -85,9 +84,9 @@ export default function UseTable(props) {
 			<Grid item xs={4}>
 				<Paper
 					style={{
-						height: "100%",
-						width: "calc(100% - 15px)",
-						float: "right",
+						height: '100%',
+						width: 'calc(100% - 15px)',
+						float: 'right',
 					}}
 				>
 					<PieChart data={waterUseArray} />

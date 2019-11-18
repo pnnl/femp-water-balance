@@ -18,7 +18,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from '../shared/submitAlert'
+import {submitAlert} from '../shared/sharedFunctions'
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat} from '../shared/sharedStyles'; 
 
 import formValidation from './VehicleWashForm.validation';
@@ -318,7 +318,7 @@ class VehicleWashForm extends React.Component {
         </Grid>
     );
 
-    renderFormInputs = (values) => {
+    renderFormInputs = (values, valid) => {
         const elements = [];
 
         if (selectn(`vehicle_wash.vw_facilities`)(values) === true) {
@@ -437,6 +437,12 @@ class VehicleWashForm extends React.Component {
                         mask = {DEFAULT_DECIMAL_MASK}
                         component={MaterialInput}
                         type="text"
+                        meta={{
+							visited: true,
+							error: valid
+								? null
+								: "Fix errors and click 'Calculate Water Use' button to update value.",
+						}}
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                 />
                 </Grid>
@@ -445,8 +451,15 @@ class VehicleWashForm extends React.Component {
         return elements;
     };
 
+    updateIsDirty = (dirty, updateParent) => {
+        if(dirty && this.state.isDirty != true) {
+            this.setState({isDirty:true});
+            updateParent();
+        }
+    }
+
     render() {
-        const {createOrUpdateCampusModule, campus, applyRules} = this.props;
+        const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
         const module = (campus) ? campus.modules.vehicle_wash : {};
 
@@ -459,7 +472,7 @@ class VehicleWashForm extends React.Component {
                 initialValues={module}
                 validate={formValidation}
                 decorators={[focusOnError]}
-                render={({handleSubmit, reset, submitting, pristine, values, valid}) => (
+                render={({handleSubmit, reset, submitting, pristine, values, dirty, valid}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -475,7 +488,7 @@ class VehicleWashForm extends React.Component {
                                     }
                                 />
                             </Grid>
-                            {this.renderFormInputs(values)}
+                            {this.renderFormInputs(values, valid)}
                             <Grid item xs={12}>
                                 {(selectn(`vehicle_wash.vw_facilities`)(values) === false || selectn(`vehicle_wash.vw_facilities`)(values) === undefined) ? null : (<Fragment>
                                     <Button
@@ -506,6 +519,7 @@ class VehicleWashForm extends React.Component {
                                 )}
                             </Grid>
                         </Grid>
+                        {this.updateIsDirty(dirty, updateParent)}
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
                 )}
