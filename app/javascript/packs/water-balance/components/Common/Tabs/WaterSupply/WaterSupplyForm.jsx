@@ -60,6 +60,15 @@ const FormRulesListener = ({handleFormChange}) => (
 );
 
 class WaterSupplyForm extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            isDirty: false 
+        };
+    }
+
+
     onSubmit = values => {
         const {onSubmit} = this.props;
         if (onSubmit) {
@@ -165,8 +174,15 @@ class WaterSupplyForm extends React.Component {
         return elements;
     };
 
+    updateIsDirty = (dirty, updateParent) => {
+        if(dirty && this.state.isDirty != true) {
+            this.setState({isDirty:true});
+            updateParent();
+        }
+    }
+
     render() {
-        const {createOrUpdateCampusModule, campus, applyRules} = this.props;
+        const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
         const module = (campus) ? campus.modules.water_supply : {};
 
@@ -178,7 +194,7 @@ class WaterSupplyForm extends React.Component {
                 onSubmit={createOrUpdateCampusModule}
                 decorators={[calculator]}
                 initialValues={module}
-                render={({handleSubmit, reset, submitting, pristine, values}) => (
+                render={({handleSubmit, reset, submitting, dirty, pristine, values}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -230,6 +246,7 @@ class WaterSupplyForm extends React.Component {
                                     </Button>
                                 </Fragment>
                         </Grid>
+                        {this.updateIsDirty(dirty, updateParent)}
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
                 )}

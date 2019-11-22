@@ -12,7 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from '../shared/submitAlert'
+import {submitAlert} from '../shared/sharedFunctions'
 import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat } from '../shared/sharedStyles'; 
 
 import formValidation from './SteamBoilersForm.validation';
@@ -317,7 +317,7 @@ class SteamBoilersForm extends React.Component {
         </Fragment>)
     }
 
-    boilerSystemTypes = (values) => {
+    boilerSystemTypes = (values, valid) => {
         if(!values.has_steam_boilers) {
             return null;
         }
@@ -359,15 +359,27 @@ class SteamBoilersForm extends React.Component {
                         label="Water use"
                         component={MaterialInput}
                         type="text"
+                        meta={{
+							visited: true,
+							error: valid
+								? null
+								: "Fix errors and click 'Calculate Water Use' button to update value.",
+						}}
                         endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                 />
             </Grid>
-            </Fragment>)
-        }
+        </Fragment>)
+    }
 
+    updateIsDirty = (dirty, updateParent) => {
+        if(dirty && this.state.isDirty != true) {
+            this.setState({isDirty:true});
+            updateParent();
+        }
+    }
 
     render() {
-        const {createOrUpdateCampusModule, campus, applyRules} = this.props;
+        const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
         const module = (campus) ? campus.modules.steam_boilers : {};
 
         if (!('steam_boilers' in module)) {
@@ -383,7 +395,7 @@ class SteamBoilersForm extends React.Component {
                 validate={formValidation}
                 decorators={[focusOnError]}
                 mutators={{...arrayMutators }}
-                render={({ handleSubmit, values, valid, form: { mutators: { push, pop } }}) => (
+                render={({ handleSubmit, values, dirty, valid, form: { mutators: { push, pop } }}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -399,7 +411,7 @@ class SteamBoilersForm extends React.Component {
                                     }
                                 />
                             </Grid>
-                            {this.boilerSystemTypes(values)}
+                            {this.boilerSystemTypes(values, valid)}
                              <Grid item xs={12}>
                                 {values.has_steam_boilers === true && (
                                     <Button
@@ -439,6 +451,7 @@ class SteamBoilersForm extends React.Component {
                                 )}
                             </Grid>
                         </Grid>
+                        {this.updateIsDirty(dirty, updateParent)}
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
                 )}

@@ -19,17 +19,10 @@ import {
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import { submitAlert } from '../shared/submitAlert';
+import { submitAlert } from '../shared/sharedFunctions';
 
 import formValidation from './CoolingTowers.validation';
-import {
-	Fab,
-	Grid,
-	Button,
-	FormControlLabel,
-	InputAdornment,
-	MenuItem,
-} from '@material-ui/core';
+import { Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem } from '@material-ui/core';
 
 const waterUseLookUp = [
 	[5480, 4930, 4660, 4380, 4380, 4110],
@@ -37,16 +30,16 @@ const waterUseLookUp = [
 	[21920, 19730, 18360, 17530, 17260, 16710],
 	[27400, 24380, 23010, 21920, 21370, 21100],
 	[33150, 29320, 27400, 26580, 25750, 25210],
-	[44110,	39180, 36710, 35340, 34250, 33700],
-	[55070,	49040, 46030, 44110, 42740,	41920],
-	[82740, 73420, 68770, 66030, 64380,	63010],
-	[110140, 97810,	91780, 88220, 85480, 83840],
+	[44110, 39180, 36710, 35340, 34250, 33700],
+	[55070, 49040, 46030, 44110, 42740, 41920],
+	[82740, 73420, 68770, 66030, 64380, 63010],
+	[110140, 97810, 91780, 88220, 85480, 83840],
 	[137810, 122470, 114790, 110140, 107120, 104930],
 	[165210, 146850, 137810, 132330, 128490, 126030],
 	[192880, 171510, 160550, 154250, 149860, 146850],
 	[220270, 195890, 183560, 176160, 171510, 167950],
-	[275340, 245480, 229590, 220270, 214250, 209860]
-]
+	[275340, 245480, 229590, 220270, 214250, 209860],
+];
 
 const chillerTonnage = [
 	'100',
@@ -86,11 +79,11 @@ const FormRulesListener = ({ handleFormChange }) => (
 
 const focusOnError = createDecorator();
 
-const coolingTowerCalculation = (values) => {
+const coolingTowerCalculation = values => {
 	let waterUse = waterUseLookUp[values.tonnage][values.cycles];
-	let total = (waterUse * values.days_per_year)/1000;
-	return total; 
-}
+	let total = (waterUse * values.days_per_year) / 1000;
+	return total;
+};
 
 class CoolingTowersForm extends React.Component {
 	constructor(props) {
@@ -128,14 +121,14 @@ class CoolingTowersForm extends React.Component {
 			return;
 		}
 		let total = 0;
-        values.cooling_towers.map((tower, index) => {
-            if(tower) { 
-                if(tower.is_metered == 'yes') {
-                    total += toNumber(tower.annual_water_use);
-                } else {
-                    total += coolingTowerCalculation(tower);
-                }
-            }
+		values.cooling_towers.map((tower, index) => {
+			if (tower) {
+				if (tower.is_metered == 'yes') {
+					total += toNumber(tower.annual_water_use);
+				} else {
+					total += coolingTowerCalculation(tower);
+				}
+			}
 		});
 		let formatTotal = numberFormat.format(total);
 		values.water_use = formatTotal;
@@ -188,7 +181,7 @@ class CoolingTowersForm extends React.Component {
 						component={MaterialInput}
 						type='text'
 						label='Number of days per year the system is operating'
-						endAdornment={<InputAdornment position="end">days</InputAdornment>}
+						endAdornment={<InputAdornment position='end'>days</InputAdornment>}
 					/>
 				</Grid>
 			</Fragment>
@@ -214,9 +207,8 @@ class CoolingTowersForm extends React.Component {
 						></Field>
 					</Grid>
 				)}
-				{isMetered == 'yes' && (
-					this.clearValues(['tonnage', 'cycles', 'days_per_year'], basePath, values)
-				)}
+				{isMetered == 'yes' &&
+					this.clearValues(['tonnage', 'cycles', 'days_per_year'], basePath, values)}
 				{isMetered == 'no' && this.clearValues(['annual_water_use'], basePath, values)}
 				{isMetered == 'no' && this.nonMetered(basePath)}
 			</Fragment>
@@ -243,63 +235,80 @@ class CoolingTowersForm extends React.Component {
 		);
 	};
 
-	coolingTowersTypes = values => {
+	coolingTowersTypes = (values, valid) => {
 		if (!values.has_cooling_towers) {
 			return null;
 		}
-		return (<Fragment>
-			<FieldArray name='cooling_towers'>
-				{({ fields }) => fields.map((name, index) => (
-					<Grid item xs={12} key={index}>
-						<ExpansionPanel
-							expanded={selectn(`${name}.name`)(values) !== undefined}
-						>
-							<ExpansionPanelSummary>
-								<Field
-									fullWidth
-									required
-									name={`${name}.name`}
-									component={MaterialInput}
-									type='text'
-									label='Enter a unique name identifier for this cooling tower system (such as the building name/number it is associated).'
-								/>
-								<IconButton
-									style={{
-										padding: 'initial',
-										height: '40px',
-										width: '40px',
-									}}
-									onClick={() => fields.remove(index)}
-									aria-label='Delete'
+		return (
+			<Fragment>
+				<FieldArray name='cooling_towers'>
+					{({ fields }) =>
+						fields.map((name, index) => (
+							<Grid item xs={12} key={index}>
+								<ExpansionPanel
+									expanded={selectn(`${name}.name`)(values) !== undefined}
 								>
-									<DeleteIcon />
-								</IconButton>
-							</ExpansionPanelSummary>
-							<ExpansionPanelDetails>
-								<Grid container alignItems='flex-start' spacing={16}>
-									{this.isMetered(values, `${name}`)}
-								</Grid>
-							</ExpansionPanelDetails>
-						</ExpansionPanel>
-					</Grid>
-				))}
-			</FieldArray>
-			<Grid item xs={12} sm={4}>
-				<Field
-					fullWidth
-					disabled
-					name='water_use'
-					label='Water use'
-					component={MaterialInput}
-					type='text'
-					endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
-				/>
-			</Grid>
-		</Fragment>);
+									<ExpansionPanelSummary>
+										<Field
+											fullWidth
+											required
+											name={`${name}.name`}
+											component={MaterialInput}
+											type='text'
+											label='Enter a unique name identifier for this cooling tower system (such as the building name/number it is associated).'
+										/>
+										<IconButton
+											style={{
+												padding: 'initial',
+												height: '40px',
+												width: '40px',
+											}}
+											onClick={() => fields.remove(index)}
+											aria-label='Delete'
+										>
+											<DeleteIcon />
+										</IconButton>
+									</ExpansionPanelSummary>
+									<ExpansionPanelDetails>
+										<Grid container alignItems='flex-start' spacing={16}>
+											{this.isMetered(values, `${name}`)}
+										</Grid>
+									</ExpansionPanelDetails>
+								</ExpansionPanel>
+							</Grid>
+						))
+					}
+				</FieldArray>
+				<Grid item xs={12} sm={4}>
+					<Field
+						fullWidth
+						disabled
+						name='water_use'
+						label='Water use'
+						component={MaterialInput}
+						type='text'
+						meta={{
+							visited: true,
+							error: valid
+								? null
+								: "Fix errors and click 'Calculate Water Use' button to update value.",
+						}}
+						endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
+					/>
+				</Grid>
+			</Fragment>
+		);
 	};
 
+	 updateIsDirty = (dirty, updateParent) => {
+        if(dirty && this.state.isDirty != true) {
+            this.setState({isDirty:true});
+            updateParent();
+        }
+    }
+
 	render() {
-		const { createOrUpdateCampusModule, campus, applyRules } = this.props;
+		const { createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
 		const module = campus ? campus.modules.cooling_towers : {};
 
@@ -308,94 +317,107 @@ class CoolingTowersForm extends React.Component {
 			module.cooling_towers.push({});
 		}
 
-		return (<Fragment>
-			<Typography variant='h5' gutterBottom>
-				Cooling Towers
-			</Typography>
-			<Typography variant='body2' gutterBottom>
-				Enter the following information only for cooling towers that use potable water
-				on the campus
-			</Typography>
-			<Form
-				onSubmit={this.onSubmit}
-				initialValues={module}
-				validate={formValidation}
-				mutators={{ ...arrayMutators }}
-				decorators={[focusOnError]}
-				render={({
-					handleSubmit,
-					values,
-					valid,
-					form: {
-						mutators: { push },
-					},
-				}) => (
-					<form onSubmit={handleSubmit} noValidate>
-						<Grid container alignItems='flex-start' spacing={16}>
-							<Grid item xs={12}>
-								<FormControlLabel
-									label='My campus has cooling towers?'
-									control={
-										<Field
-											name='has_cooling_towers'
-											component={Checkbox}
-											indeterminate={
-												values.has_cooling_towers === undefined
-											}
-											type='checkbox'
-										/>
-									}
-								/>
-							</Grid>
-							{this.coolingTowersTypes(values)}
-							<Grid item xs={12}>
-								{values.has_cooling_towers === true && (
-									<Button
-										style={{ marginLeft: '10px' }}
-										variant='contained'
-										color='primary'
-										onClick={() => push('cooling_towers', {})}
-									>
-										Add Another Cooling Tower
-									</Button>
-								)}
-								{values.has_cooling_towers === false || values.has_cooling_towers === undefined ? null : (
-									<Fragment>
+		return (
+			<Fragment>
+				<Typography variant='h5' gutterBottom>
+					Cooling Towers
+				</Typography>
+				<Typography variant='body2' gutterBottom>
+					Enter the following information only for cooling towers that use potable water
+					on the campus
+				</Typography>
+				<Form
+					onSubmit={this.onSubmit}
+					initialValues={module}
+					validate={formValidation}
+					mutators={{ ...arrayMutators }}
+					decorators={[focusOnError]}
+					render={({
+						handleSubmit,
+						values,
+						dirty,
+						valid,
+						form: {
+							mutators: { push },
+						},
+					}) => (
+						<form onSubmit={handleSubmit} noValidate>
+							<Grid container alignItems='flex-start' spacing={16}>
+								<Grid item xs={12}>
+									<FormControlLabel
+										label='My campus has cooling towers?'
+										control={
+											<Field
+												name='has_cooling_towers'
+												component={Checkbox}
+												indeterminate={
+													values.has_cooling_towers === undefined
+												}
+												type='checkbox'
+											/>
+										}
+									/>
+								</Grid>
+								{this.coolingTowersTypes(values, valid)}
+								<Grid item xs={12}>
+									{values.has_cooling_towers === true && (
 										<Button
-										style={{marginLeft: '10px'}}
-										variant="contained"
-										type="submit"
-										onClick={() => this.calculateWaterUse(values, valid)}
-									>
-										Calculate Water Use
-									</Button>
-									<Button
-										variant="contained"
-										type="button"
-										onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
-										style={{marginLeft: '10px'}}
-									>
-										Save 
-									</Button>
-									</Fragment>
-								)}
-								{this.state.waterUse != '' && (
-									<Fab
-										color='primary'
-										aria-label='Water Use'
-										title='Water Use'
-										style={fabStyle}
-									>
-										{this.state.waterUse}
-									</Fab>
-								)}
+											style={{ marginLeft: '10px' }}
+											variant='contained'
+											color='primary'
+											onClick={() => push('cooling_towers', {})}
+										>
+											Add Another Cooling Tower
+										</Button>
+									)}
+									{values.has_cooling_towers === false ||
+									values.has_cooling_towers === undefined ? null : (
+										<Fragment>
+											<Button
+												style={{ marginLeft: '10px' }}
+												variant='contained'
+												type='submit'
+												onClick={() =>
+													this.calculateWaterUse(values, valid)
+												}
+											>
+												Calculate Water Use
+											</Button>
+											<Button
+												variant='contained'
+												type='button'
+												onClick={() =>
+													submitAlert(
+														valid,
+														createOrUpdateCampusModule,
+														values
+													)
+												}
+												style={{ marginLeft: '10px' }}
+											>
+												Save
+											</Button>
+										</Fragment>
+									)}
+									{this.state.waterUse != '' && (
+										<Fab
+											color='primary'
+											aria-label='Water Use'
+											title='Water Use'
+											style={fabStyle}
+										>
+											{this.state.waterUse}
+										</Fab>
+									)}
+								</Grid>
 							</Grid>
-						</Grid>
-						<FormRulesListener handleFormChange={applyRules} />
-					</form>
-				)}
-			/>
-		</Fragment>);
+							{this.updateIsDirty(dirty, updateParent)}
+							<FormRulesListener handleFormChange={applyRules} />
+						</form>
+					)}
+				/>
+			</Fragment>
+		);
 	}
 }
 

@@ -9,7 +9,7 @@ import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, n
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from '../shared/submitAlert'
+import {submitAlert} from '../shared/sharedFunctions'
 
 import formValidation from './LaundryForm.validation';
 import {
@@ -37,8 +37,7 @@ const singleLoadFields = [
 
 const industrialLoadFields = [
     'weight',
-    'industrial_weeks', 
-    'single_load_weeks',    
+    'industrial_weeks',     
     'water_use',
     'recycled'
 ];
@@ -334,7 +333,7 @@ class LaundryForm extends React.Component {
         </Fragment>)
     }
 
-    renderFacilityTypes = (values) => {
+    renderFacilityTypes = (values, valid) => {
         if (!values.has_laundry_facility) {
             return null; 
         }
@@ -383,14 +382,27 @@ class LaundryForm extends React.Component {
                     label="Water use"
                     component={MaterialInput}
                     type="text"
+                    meta={{
+                        visited: true,
+                        error: valid
+                            ? null
+                            : "Fix errors and click 'Calculate Water Use' button to update value.",
+                    }}
                     endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                 />
             </Grid>
         </Fragment>);
     }
 
+    updateIsDirty = (dirty, updateParent) => {
+        if(dirty && this.state.isDirty != true) {
+            this.setState({isDirty:true});
+            updateParent();
+        }
+    }
+
     render() {
-        const {createOrUpdateCampusModule, campus, applyRules} = this.props;
+        const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
         const module = (campus) ? campus.modules.laundry : {};
 
         return (<Fragment>
@@ -401,7 +413,7 @@ class LaundryForm extends React.Component {
                 initialValues={module}
                 validate={formValidation}
                 decorators={[focusOnError]}
-                render={({handleSubmit, reset, submitting, pristine, values, valid}) => (
+                render={({handleSubmit, reset, submitting, pristine, values, dirty, valid}) => (
                     <form onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -417,7 +429,7 @@ class LaundryForm extends React.Component {
                                     }
                                 />
                             </Grid>
-                            {this.renderFacilityTypes(values)}
+                            {this.renderFacilityTypes(values, valid)}
                              <Grid item xs={12}>
                                 {(values.has_laundry_facility === false || values.has_laundry_facility === undefined) ? null : (<Fragment>
                                     <Button
@@ -447,6 +459,7 @@ class LaundryForm extends React.Component {
                                 )}
                             </Grid>
                         </Grid>
+                        {this.updateIsDirty(dirty, updateParent)}
                         <FormRulesListener handleFormChange={applyRules}/>
                     </form>
                 )}
