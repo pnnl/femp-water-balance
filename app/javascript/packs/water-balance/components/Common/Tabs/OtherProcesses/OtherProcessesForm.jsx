@@ -394,7 +394,7 @@ class OtherProcessesForm extends React.Component {
                     type="text"
                     meta={{
                         visited: true,
-                        error: valid
+                        error: (valid || selectn('other_processes.water_use')(values) == null)
                             ? null
                             : "Fix errors and click 'Calculate Water Use' button to update value.",
                     }}
