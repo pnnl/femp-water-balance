@@ -161,9 +161,21 @@ const getTotalRequirement = (values, rf, eto, coefficient) => {
 	return totalRequirement;
 };
 
+const getEquipmentValue = equipment => {
+	if(equipment == 'Spray' || equipment == 'Micro-spray' || equipment == 'Drip') {
+		return 1;
+	}
+	if(equipment == 'Rotor'){
+		return 2;
+	} 
+	if(equipment == 'Manual') {
+		return 3;
+	}
+} 
+
 const getIndex = values => {
 	let schedule = toNumber(values.controls);
-	let equipment = toNumber(values.equipment);
+	let equipment = getEquipmentValue(values.equipment);
 	let puddles = toNumber(values.puddles_observed);
 	let runOff = toNumber(values.runoff_observed);
 	let leaks = toNumber(values.leaks_observed);
@@ -206,12 +218,6 @@ const irrigationCalculation = (values, rfObject, etoObject) => {
 const focusOnError = createDecorator();
 
 class IrrigationForm extends React.Component {
-	componentWillMount() {
-		let zip = selectn(`campus.postal_code`)(this.props);
-		zip = zip.replace(/^0+/, '');
-		this.getRainFall(zip);
-		this.getEto(zip);
-	}
 
 	constructor(props) {
 		super(props);
@@ -233,33 +239,23 @@ class IrrigationForm extends React.Component {
 		}
 	};
 
-	getRainFall = zip => {
-		RemoteApi.getRainFall({ zip: zip }, data => {
-			if (data.errors) {
-				console.log('error');
-			}
-			this.setState({ rainFall: data });
-			console.log('success');
-		});
+	getRainFall = async zip => {
+		let data = await RemoteApi.getRainFall({ zip: zip })
+		this.setState({ rainFall: data });
 	};
 
-	getEto = zip => {
-		RemoteApi.getEto({ zip: zip }, data => {
-			if (data.errors) {
-				console.log('error');
-			}
-			this.setState({ eto: data });
-			console.log('success');
-		});
+	getEto = async zip => {
+		let data = await RemoteApi.getEto({ zip: zip }); 
+		this.setState({ eto: data });
 	};
-
+	
 	calculateWaterUse = (values, valid) => {
 		if (!valid) {
 			window.alert('Missing or incorrect values.');
 			return;
 		}
 		let total = 0;
-
+		
 		values.irrigation.map((area, index) => {
 			if (area) {
 				if (area.is_metered == 'yes') {
@@ -270,10 +266,29 @@ class IrrigationForm extends React.Component {
 			}
 		});
 		let formatTotal = numberFormat.format(total);
-		values.water_use = formatTotal;
 		this.setState({
 			waterUse: ' Water Use: ' + formatTotal + ' kgal',
 		});
+		values.water_use = formatTotal; 
+	};
+
+	validRainFall = async zip => {
+		if (!zip) {
+			return 'A zip code is required for creating a new campus.';
+		}
+		if (zip.length < 5 || zip.length > 5) {
+			return 'Zip Code must be be five digits.';
+		}
+		zip = zip.replace(/^0+/, '');
+
+		let result = await RemoteApi.getRainFall({ zip: zip });
+		if (result.errors) {
+			return "We could not find your zip code in our records since zip code data changes frequently. Please enter the next closest zip code. (Note: zip code is needed to lookup relevant data for water use calculation)";
+		} else {
+			this.setState({ rainFall: result });
+			let data = await RemoteApi.getEto({ zip: zip }); 
+			this.setState({ eto: data });
+		}
 	};
 
 	onSubmit = values => {};
@@ -394,11 +409,11 @@ class IrrigationForm extends React.Component {
 						component={Select}
 						label='Irrigation equipment type'
 					>
-						<MenuItem value='2'>Rotor</MenuItem>
-						<MenuItem value='1'>Spray</MenuItem>
-						<MenuItem value='1'>Micro-spray</MenuItem>
-						<MenuItem value='1'>Drip</MenuItem>
-						<MenuItem value='3'>Manual</MenuItem>
+						<MenuItem value='Rotor'>Rotor</MenuItem>
+						<MenuItem value='Spray'>Spray</MenuItem>
+						<MenuItem value='Micro-spray'>Micro-spray</MenuItem>
+						<MenuItem value='Drip'>Drip</MenuItem>
+						<MenuItem value='Manual'>Manual</MenuItem>
 					</Field>
 				</Grid>
 				<Grid item xs={12}>
@@ -631,6 +646,18 @@ class IrrigationForm extends React.Component {
 					}
 				</FieldArray>
 				<Grid item xs={12} sm={4}>
+				<Field
+					validate={this.validRainFall}
+					fullWidth
+					required
+					name='postal_code'
+					component={MaterialInput}
+					type='text'
+					label='Zip Code'
+					/>
+			</Grid>
+			<Grid sm={12}/>
+				<Grid item xs={12} sm={4}>
 					<Field
 						fullWidth
 						disabled
@@ -640,7 +667,7 @@ class IrrigationForm extends React.Component {
 						type='text'
 						meta={{
 							visited: true,
-							error: valid
+							error: (valid || values.water_use == null)
 								? null
 								: "Fix errors and click 'Calculate Water Use' button to update value.",
 						}}
@@ -708,6 +735,7 @@ class IrrigationForm extends React.Component {
 									/>
 								</Grid>
 								{this.irrigationTypes(values, valid)}
+
 								<Grid item xs={12}>
 									{values.has_irrigation === true && (
 										<Button

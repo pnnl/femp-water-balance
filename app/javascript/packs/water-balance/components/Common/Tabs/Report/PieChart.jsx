@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import Typography from '@material-ui/core/Typography';
-import { DiscreteColorLegend, RadialChart } from 'react-vis';
+import { DiscreteColorLegend, RadialChart, Hint } from 'react-vis';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const title = {
     textAlign: 'center',
@@ -16,11 +17,26 @@ const legend = {
 const pieChart = {
     float: 'left',
     width: '65%',
-    padding: '37px',
+    paddingLeft: '49px',
+    margin: '48px 0px',
 };
 
 class BarChart extends React.Component {
+    state = {
+        value: '',
+        active: false,
+    };
+
+    onValueMouseOver = v => {
+        this.setState({ value: v, active: true });
+    };
+
+    onSeriesMouseOut = () => {
+        this.setState({ active: false });
+    };
+
     render(props) {
+        const { value, active } = this.state;
         let waterUse = this.props.data;
         let data = [];
         let i = 0;
@@ -42,6 +58,8 @@ class BarChart extends React.Component {
                     label: key.name.toString(),
                     angle: key.water,
                     color: colors[i++],
+                    water: key.water,
+                    percent: key.percent,
                 });
             }
         });
@@ -51,20 +69,28 @@ class BarChart extends React.Component {
                     <Typography style={title} variant="body2" gutterBottom>
                         Water Balance Pie Chart
                     </Typography>
-                    <div style={pieChart}>
-                        <RadialChart
-                            data={data}
-                            height={300}
-                            width={300}
-                            margin={{
-                                left: 70,
-                                right: 10,
-                                top: 30,
-                                bottom: 90,
-                            }}
-                            colorType="literal"
-                        />
-                    </div>
+                    <Tooltip
+                        placement="top"
+                        title={`${value.label} :${value.percent}%`}
+                        interactive={active}
+                    >
+                        <div style={pieChart}>
+                            <RadialChart
+                                data={data}
+                                height={300}
+                                width={300}
+                                margin={{
+                                    left: 70,
+                                    right: 10,
+                                    top: 30,
+                                    bottom: 90,
+                                }}
+                                colorType="literal"
+                                onValueMouseOver={this.onValueMouseOver}
+                                onSeriesMouseOut={this.onSeriesMouseOut}
+                            ></RadialChart>
+                        </div>
+                    </Tooltip>
                     <div style={legend}>
                         <DiscreteColorLegend
                             items={data.map(d => d.label)}

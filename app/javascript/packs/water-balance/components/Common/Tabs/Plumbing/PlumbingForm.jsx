@@ -94,9 +94,14 @@ const calculateOccupancy = (values, basePath, subgroup) => {
 
 const calculateUrinals = (occupancy, basePath, values, subgroup) => {
     let waterUse = 0;
+    let malePercent = 0;
     if(selectn(`${basePath}.urinals`)(values) == 'Yes') {
         let flushRatePerHour = subgroup == 'inPatient'? 4 : .25;
-        let malePercent = toNumber(selectn(`plumbing.facility.male_population`)(values));
+        if(subgroup == 'admin' || subgroup == 'staff') {
+            malePercent = toNumber(selectn(`plumbing.hospital.hospital_male`)(values));
+        } else {
+            malePercent = toNumber(selectn(`plumbing.facility.male_population`)(values));
+        }
         let flushRate = toNumber(selectn(`${basePath}.urinal_flush_rate`)(values));
         let flushesPerYear = occupancy * (malePercent/100) * flushRatePerHour;
         waterUse = (flushesPerYear * flushRate)/1000;
@@ -107,6 +112,7 @@ const calculateUrinals = (occupancy, basePath, values, subgroup) => {
 const calculateToilets = (occupancy, basePath, values, subgroup) => {
     let maleFlush = 0;
     let femaleFlush = 0; 
+    let malePercent = 0;
     if(subgroup == 'inPatient') {
         maleFlush = selectn(`${basePath}.urinals`)(values) == 'Yes'? 3 : 7;
         femaleFlush = 7; 
@@ -115,7 +121,12 @@ const calculateToilets = (occupancy, basePath, values, subgroup) => {
         femaleFlush = 0.375;
     }
     let averageFlushRate = toNumber(selectn(`${basePath}.typical_flush_rate`)(values));
-    let malePercent = toNumber(selectn(`plumbing.facility.male_population`)(values))/100;
+
+    if(subgroup == 'admin' || subgroup == 'staff') {
+        malePercent = toNumber(selectn(`plumbing.hospital.hospital_male`)(values))/100;
+    } else {
+        malePercent = toNumber(selectn(`plumbing.facility.male_population`)(values))/100;
+    }
     let maleFlushesPerYear = occupancy * maleFlush * malePercent;
     let femaleFlushesPerYear = occupancy * femaleFlush * (1 - malePercent);
 
@@ -151,7 +162,7 @@ const getDaysPerYear = (basePath, values, subgroup) => {
 const getOccupants = (basePath, values, subgroup) => {
     let occupants = null;
     if(basePath == 'plumbing.lodging') { 
-         occupants = toNumber(selectn(`${basePath}.total_population`)(values));
+         occupants = (toNumber(selectn(`${basePath}.total_population`)(values)) * 12)/350;
     }
     if(basePath == 'plumbing.hospital') {
         let dailyStaff = toNumber(selectn(`${basePath}.daily_staff`)(values));
@@ -256,8 +267,8 @@ class PlumbingForm extends React.Component {
 
         // Urinals
         let lodgingUrinals = calculateUrinals(lodgingOccupancy, 'plumbing.lodging', values);
-        let hospitalAdminUrinals = calculateUrinals(hospitalAdminOccupancy, 'plumbing.hospital', values);
-        let hospitalStaffUrinals = calculateUrinals(hospitalStaffOccupancy, 'plumbing.hospital', values);
+        let hospitalAdminUrinals = calculateUrinals(hospitalAdminOccupancy, 'plumbing.hospital', values, 'admin');
+        let hospitalStaffUrinals = calculateUrinals(hospitalStaffOccupancy, 'plumbing.hospital', values, 'staff');
         let hospitalOutPatientUrinals = calculateUrinals(hospitalOutPatientOccupancy, 'plumbing.hospital', values);
         let hospitalInPatientUrinals = calculateUrinals(hospitalInPatientOccupancy, 'plumbing.hospital', values, 'inPatient');
         let weekDaygeneralCampusUrinals = calculateUrinals(weekDaygeneralCampusOccupancy, 'plumbing.facility', values);
@@ -265,8 +276,8 @@ class PlumbingForm extends React.Component {
 
         //Toilets
         let lodgingToilets = calculateToilets(lodgingOccupancy, 'plumbing.lodging', values);
-        let hospitalAdminToilets = calculateToilets(hospitalAdminOccupancy, 'plumbing.hospital', values);
-        let hospitalStaffToilets = calculateToilets(hospitalStaffOccupancy, 'plumbing.hospital', values);
+        let hospitalAdminToilets = calculateToilets(hospitalAdminOccupancy, 'plumbing.hospital', values, 'admin' );
+        let hospitalStaffToilets = calculateToilets(hospitalStaffOccupancy, 'plumbing.hospital', values, 'staff');
         let hospitalOutPatientToilets = calculateToilets(hospitalOutPatientOccupancy, 'plumbing.hospital', values);
         let hospitalInPatientToilets = calculateToilets(hospitalInPatientOccupancy, 'plumbing.hospital', values, 'inPatient');
         let weekDaygeneralCampusToilets = calculateToilets(weekDaygeneralCampusOccupancy, 'plumbing.facility', values);
@@ -647,6 +658,19 @@ class PlumbingForm extends React.Component {
                 </Field>
             </Grid>
             <Grid item xs={12}>
+            <Field
+                formControlProps={{fullWidth: true}}
+                required
+                name={`${basePath}.hospital_male`}
+                component={MaterialInput}
+                type="text"
+                mask={DEFAULT_DECIMAL_MASK}
+                label="Approximately what percentage of hospital clinic staff are male?"
+                endAdornment={<InputAdornment position="end">%</InputAdornment>}
+                >
+            </Field>
+        </Grid>
+            <Grid item xs={12}>
                 <Field
                     formControlProps={{fullWidth: true}}
                     required
@@ -826,7 +850,7 @@ class PlumbingForm extends React.Component {
                     type="text"
                     meta={{
                         visited: true,
-                        error: valid
+                        error: (valid || selectn('plumbing.water_usage')(values) == null)
                             ? null
                             : "Fix errors and click 'Calculate Water Use' button to update value.",
                     }}
@@ -884,6 +908,7 @@ class PlumbingForm extends React.Component {
                                     </Fab>
                                 )}
                                 {this.updateIsDirty(dirty, updateParent)}
+                                <pre>{JSON.stringify(values, 0, 2)}</pre>
                             <FormRulesListener handleFormChange={applyRules}/>
                         </form>
                     )}

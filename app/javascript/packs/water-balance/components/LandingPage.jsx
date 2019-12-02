@@ -12,105 +12,135 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
+import Introduction from './Common/Introduction';
+import CloseIcon from '@material-ui/icons/Close';
 
 import RemoteApi from '../RemoteApi';
 import CampusForm from './Common/CampusForm';
 
 class LandingPage extends React.Component {
-	state = {
-		error: undefined,
-		open: false,
-		campuses: [],
-		isLoaded: false,
-	};
+    state = {
+        error: undefined,
+        addOpen: false,
+        introOpen: true,
+        campuses: [],
+        isLoaded: false,
+    };
 
-	componentDidMount() {
-		RemoteApi.getCurrentCampuses(
-			campusList =>
-				this.setState({
-					isLoaded: true,
-					campuses: campusList,
-				}),
-			error =>
-				this.setState({
-					isLoaded: true,
-					error,
-				}),
-			this
-		);
-	}
+    componentDidMount() {
+        RemoteApi.getCurrentCampuses(
+            campusList =>
+                this.setState({
+                    isLoaded: true,
+                    campuses: campusList,
+                }),
+            error =>
+                this.setState({
+                    isLoaded: true,
+                    error,
+                }),
+            this
+        );
+    }
 
-	createNewCampus = values => {
-		RemoteApi.createCampus(
-			values,
-			newCampus => {
-				const { campuses } = this.state;
-				const clone = campuses.slice();
-				clone.push(newCampus);
-				this.setState({
-					isLoaded: true,
-					open: false,
-					campuses: clone,
-				});
-			},
-			error => {
-				this.setState({
-					isLoaded: true,
-					error,
-				});
-			}
-		);
-	};
+    createNewCampus = values => {
+        RemoteApi.createCampus(
+            values,
+            newCampus => {
+                const { campuses } = this.state;
+                const clone = campuses.slice();
+                clone.push(newCampus);
+                this.setState({
+                    isLoaded: true,
+                    addOpen: false,
+                    campuses: clone,
+                });
+            },
+            error => {
+                this.setState({
+                    isLoaded: true,
+                    error,
+                });
+            }
+        );
+    };
 
-	handleClose = () => {
-		this.setState({ open: false });
-	};
+    handleClose = () => {
+        this.setState({ addOpen: false, introOpen: false });
+    };
 
-	handleClickOpen = () => {
-		this.setState({ open: true });
-	};
+    handleClickOpen = () => {
+        this.setState({ addOpen: true, introOpen: false });
+    };
 
-	render() {
-		const { campuses, open } = this.state;
-		return (
-			<Grid container>
-				<Dialog open={open} onClose={this.handleClose} aria-labelledby='form-dialog-title'>
-					<DialogTitle id='form-dialog-title'>Create a new Campus</DialogTitle>
-					<DialogContent>
-						<DialogContentText>
-							Fill out the form with information regarding the campus being evaluated
-							for water usage.
-						</DialogContentText>
-						<CampusForm createNewCampus={this.createNewCampus} />
-					</DialogContent>
-				</Dialog>
+    render() {
+        const { campuses, addOpen, introOpen } = this.state;
+        return (
+            <Grid container>
+                <Dialog
+                    open={addOpen}
+                    onClose={this.handleClose}
+                    aria-labelledby="form-dialog-title"
+                >
+                    <DialogTitle id="form-dialog-title">
+                        Create a new Campus
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Fill out the form with information regarding the
+                            campus being evaluated for water usage.
+                        </DialogContentText>
+                        <CampusForm createNewCampus={this.createNewCampus} />
+                    </DialogContent>
+                </Dialog>
+                <Dialog
+                    open={introOpen}
+                    onClose={this.handleClose}
+                    aria-labelledby="form-dialog-title"
+                >
+                    <DialogTitle id="form-dialog-title">
+                        Welcome to the FEMP Water Balance Tool
+                        <CloseIcon
+                            color="action"
+                            onClick={this.handleClose}
+                            style={{ float: 'right' }}
+                        />
+                    </DialogTitle>
+                    <DialogContent>
+                        <Introduction />
+                    </DialogContent>
+                </Dialog>
 
-				<Grid item xs={12}>
-					<List dense>
-						{(campuses || []).map(c => (
-							<ListItem
-								key={`campus-${c.id}`}
-								button
-								component='a'
-								href={`/secure/water-balance/campuses/${c.id}`}
-							>
-								<ListItemText primary={c.name} />
-							</ListItem>
-						))}
-					</List>
-				</Grid>
-				<Grid item xs={12}>
-					<Fab
-						style={{ position: 'absolute', bottom: '1em', right: '1em' }}
-						color='primary'
-						onClick={this.handleClickOpen}
-					>
-						<AddIcon />
-					</Fab>
-				</Grid>
-			</Grid>
-		);
-	}
+                <Grid item xs={12}>
+                    <List dense>
+                        {(campuses || []).map(c => (
+                            <ListItem
+                                key={`campus-${c.id}`}
+                                button
+                                component="a"
+                                href={`/secure/water-balance/campuses/${c.id}`}
+                            >
+                                <ListItemText primary={c.name} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Grid>
+                <Grid item xs={12}>
+                    <Fab
+                        style={{
+                            position: 'absolute',
+                            bottom: '1em',
+                            right: '1em',
+                        }}
+                        color="primary"
+                        onClick={this.handleClickOpen}
+                    >
+                        <AddIcon />
+                    </Fab>
+                </Grid>
+            </Grid>
+        );
+    }
 }
 
 export default LandingPage;

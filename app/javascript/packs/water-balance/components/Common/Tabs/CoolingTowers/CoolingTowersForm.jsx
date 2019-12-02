@@ -289,7 +289,7 @@ class CoolingTowersForm extends React.Component {
 						type='text'
 						meta={{
 							visited: true,
-							error: valid
+							error: (valid || values.water_use == null)
 								? null
 								: "Fix errors and click 'Calculate Water Use' button to update value.",
 						}}

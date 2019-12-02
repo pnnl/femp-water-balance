@@ -17,6 +17,7 @@ import CoolingTowersForm from './Common/Tabs/CoolingTowers/CoolingTowersForm';
 import IrrigationForm from './Common/Tabs/Irrigation/IrrigationForm';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Report from './Common/Tabs/Report/Report';
+import CampusIntroduction from './Common/CampusIntroduction';
 
 import { Engine } from 'json-rules-engine';
 
@@ -216,6 +217,21 @@ class CampusDisplay extends React.Component {
 
         return [
             {
+                tabName: 'Introduction',
+                tabContent: (
+                    <TabContainer>
+                        <Typography variant="h5" gutterBottom>
+                            Welcome to your Water Balance
+                        </Typography>
+                        <Grid container spacing={3} justify="space-between">
+                            <Grid item xs={6}>
+                                <CampusIntroduction />
+                            </Grid>
+                        </Grid>
+                    </TabContainer>
+                ),
+            },
+            {
                 tabName: 'Water Supply',
                 tabContent: (
                     <TabContainer>
@@ -237,23 +253,6 @@ class CampusDisplay extends React.Component {
                 tabContent: (
                     <TabContainer>
                         <PlumbingForm
-                            createOrUpdateCampusModule={
-                                this.createOrUpdateCampusModule
-                            }
-                            campus={campus}
-                            events={events}
-                            applyRules={this.executeRules}
-                            updateParent={this.isDirty}
-                            {...this.props}
-                        />
-                    </TabContainer>
-                ),
-            },
-            {
-                tabName: 'Landscape Irrigation',
-                tabContent: (
-                    <TabContainer>
-                        <IrrigationForm
                             createOrUpdateCampusModule={
                                 this.createOrUpdateCampusModule
                             }
@@ -352,6 +351,23 @@ class CampusDisplay extends React.Component {
                 ),
             },
             {
+                tabName: 'Landscape Irrigation',
+                tabContent: (
+                    <TabContainer>
+                        <IrrigationForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
                 tabName: 'Other Processes',
                 tabContent: (
                     <TabContainer>
@@ -393,7 +409,6 @@ class CampusDisplay extends React.Component {
                     campus.modules[moduleKey] = {
                         name: moduleKey,
                         year: campus.year,
-                        zip: campus.postal_code,
                         campus_id: campus.id,
                     };
                 }
