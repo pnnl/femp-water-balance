@@ -1,0 +1,22 @@
+version: '2'
+services:
+  rails:
+    image: docker.artifactory.pnnl.gov/asset-score/water-balance:bamboo
+    environment:
+      RAILS_ENV: 'test'
+      REDIS_URL: 'redis://redis:6379/0'
+      DATABASE_HOST: 'db'
+    depends_on:
+      - db
+      - redis
+    entrypoint: bundle exec
+    volumes:
+      - ./output/logs:/water-balance/log
+  redis:
+    image: redis
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: 'water_balance_test'
+      POSTGRES_USER: 'vagrant'
+      POSTGRES_PASSWORD: 'vagrant'

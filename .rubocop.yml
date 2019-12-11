@@ -1,0 +1,37 @@
+require: rubocop-performance
+AllCops:
+  Include:
+    - 'app/**/*.rb'
+    - 'app/**/*.yml'
+    - 'spec/**/*.rb'
+    - 'Rakefile'
+    - 'Gemfile'
+    - 'config.ru'
+  Exclude:
+    - 'bin/**'
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'test/**/*'
+    - 'script/**/*'
+    - 'vendor/**/*'
+Rails: 
+  Enabled: true
+LineLength:
+  Enabled: false
+  Max: 120
+ActionFilter:
+  Enabled: false
+CaseIndentation:
+  Enabled: false
+Layout/IndentFirstHashElement:
+  Enabled: false
+IndentFirstArrayElement:
+  Enabled: false
+MethodLength:
+  Max: 30
+SpaceInsideHashLiteralBraces:
+  Enabled: false
+RedundantSelf:
+  Enabled: false
+TrailingBlankLines:
+  Enabled: false
