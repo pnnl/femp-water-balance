@@ -1,0 +1,1 @@
+OmniAuth.config.full_host =  ENV.fetch('OAUTH_URL','http://10.10.10.20')

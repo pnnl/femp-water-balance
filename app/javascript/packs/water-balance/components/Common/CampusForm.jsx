@@ -1,42 +1,52 @@
 import React from 'react';
 import { Form, Field } from 'react-final-form';
-import {
-    Grid,
-    Button,
-} from '@material-ui/core';
+import { Grid, Button } from '@material-ui/core';
 import emailMask from 'text-mask-addons/dist/emailMask';
-import MaterialInput from "./MaterialInput";
-import MaterialDatePicker from "./MaterialDatePicker";
+import MaterialInput from './MaterialInput';
+import MaterialDatePicker from './MaterialDatePicker';
 
-const validate = values => {
-    const errors = {};
-    if (!values.name) {
-        errors.name = 'A name is required for creating a campus';
-    }
-    if (!values.evaluator) {
-        errors.evaluator = 'An evaluator email adress is required for creating a new campus.';
-    }
-    if (!values.city) {
-        errors.city = 'A city name is required for creating a new campus';
-    }
-    if (!values.region) {
-        errors.region = 'A state designation is required for creating a new campus';
-    }
-    if (!values.postal_code) {
-        errors.postal_code = 'A zip code is required for creating a new campus.';
-    }
-    return errors;
-};
-
-class CampusForm extends React.Component  {
+class CampusForm extends React.Component {
+    validate = values => {
+        const errors = {};
+        const currentYear = new Date().getFullYear();
+        if (!values.name) {
+            errors.name = 'A name is required for creating a campus.';
+        }
+        if (!values.evaluator) {
+            errors.evaluator =
+                'An evaluator email address is required for creating a new campus.';
+        }
+        if (!values.city) {
+            errors.city = 'A city name is required for creating a new campus.';
+        }
+        if (!values.region) {
+            errors.region =
+                'A state designation is required for creating a new campus.';
+        }
+        if (!values.year) {
+            errors.year =
+                'A water supply year is required for creating a new campus';
+        } else if (values.year < 2010 || values.year > currentYear) {
+            errors.year =
+                'Calendar year must be between 2010 and ' + currentYear + '.';
+        }
+        return errors;
+    };
 
     render() {
         const { createNewCampus, formId } = this.props;
         return (
             <Form
                 onSubmit={createNewCampus}
-                validate={validate}
-                render={({handleSubmit, reset, submitting, pristine, invalid}) => (
+                validate={this.validate}
+                render={({
+                    handleSubmit,
+                    reset,
+                    submitting,
+                    pristine,
+                    invalid,
+                    values,
+                }) => (
                     <form id={formId} onSubmit={handleSubmit} noValidate>
                         <Grid container alignItems="flex-start" spacing={16}>
                             <Grid item xs={12}>
@@ -76,6 +86,17 @@ class CampusForm extends React.Component  {
                                 <Field
                                     fullWidth
                                     required
+                                    name="year"
+                                    mask={[/\d/, /\d/, /\d/, /\d/]}
+                                    component={MaterialInput}
+                                    type="text"
+                                    label="Water Supply Year"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Field
+                                    fullWidth
+                                    required
                                     name="city"
                                     component={MaterialInput}
                                     type="text"
@@ -93,18 +114,7 @@ class CampusForm extends React.Component  {
                                     label="State"
                                 />
                             </Grid>
-                            <Grid item xs={12}>
-                                <Field
-                                    fullWidth
-                                    required
-                                    name="postal_code"
-                                    component={MaterialInput}
-                                    mask={[/\d/, /\d/, /\d/, /\d/, /\d/]}
-                                    type="text"
-                                    label="Zip Code"
-                                />
-                            </Grid>
-                            <Grid item style={{marginTop: 16}}>
+                            <Grid item style={{ marginTop: 16 }}>
                                 <Button
                                     type="button"
                                     onClick={reset}
@@ -113,7 +123,7 @@ class CampusForm extends React.Component  {
                                     Reset
                                 </Button>
                             </Grid>
-                            <Grid item style={{marginTop: 16}}>
+                            <Grid item style={{ marginTop: 16 }}>
                                 <Button
                                     color="primary"
                                     type="submit"

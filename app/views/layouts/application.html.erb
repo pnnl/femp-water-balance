@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>AssetScore :: Water Balance @ PNNL</title>
+  <title>FEMP :: Water Balance @ PNNL</title>
   <%= csrf_meta_tags %>
   <%= csp_meta_tag %>
   <meta httpEquiv="x-ua-compatible" content="ie=edge"/>
@@ -16,6 +16,11 @@
   <script type="text/javascript">const current_account = undefined;</script>
 <% else %>
   <script type="text/javascript">const current_account = Object.assign({}, <%= ActiveModelSerializers::SerializableResource.new(current_account, {}).to_json.html_safe %>);</script>
+<% end %>
+<% if session['devise.google_data'].nil? %>
+  <script type="text/javascript">const remote_account = undefined;</script>
+<% else %>
+  <script type="text/javascript">const remote_account = Object.assign({}, <%= session['devise.google_data'].to_json.html_safe %>);</script>
 <% end %>
 <%= yield %>
 </body>

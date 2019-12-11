@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_23_182843) do
+ActiveRecord::Schema.define(version: 2019_12_11_181414) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,8 +37,26 @@ ActiveRecord::Schema.define(version: 2019_05_23_182843) do
     t.inet "last_sign_in_ip"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "provider"
+    t.string "uid"
+    t.string "token"
+    t.integer "expires_at"
+    t.boolean "expires"
+    t.string "refresh_token"
+    t.json "oauth_meta"
     t.index ["email"], name: "index_accounts_on_email", unique: true
     t.index ["reset_password_token"], name: "index_accounts_on_reset_password_token", unique: true
+  end
+
+  create_table "campus_modules", force: :cascade do |t|
+    t.bigint "campus_id"
+    t.string "name", null: false
+    t.json "data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["campus_id"], name: "index_campus_modules_on_campus_id"
+    t.index ["name", "campus_id"], name: "index_campus_modules_on_name_and_campus_id", unique: true
+    t.index ["name"], name: "index_campus_modules_on_name"
   end
 
   create_table "campuses", force: :cascade do |t|
@@ -57,12 +75,51 @@ ActiveRecord::Schema.define(version: 2019_05_23_182843) do
     t.bigint "owner_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "year"
     t.index ["owner_type", "owner_id"], name: "index_campuses_on_owner_type_and_owner_id"
+  end
+
+  create_table "etos", force: :cascade do |t|
+    t.string "zip"
+    t.decimal "jan_et"
+    t.decimal "feb_et"
+    t.decimal "mar_et"
+    t.decimal "apr_et"
+    t.decimal "may_et"
+    t.decimal "jun_et"
+    t.decimal "jul_et"
+    t.decimal "aug_et"
+    t.decimal "sep_et"
+    t.decimal "oct_et"
+    t.decimal "nov_et"
+    t.decimal "dec_et"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["zip"], name: "index_etos_on_zip"
   end
 
   create_table "jwt_blacklist", force: :cascade do |t|
     t.string "jti", null: false
     t.index ["jti"], name: "index_jwt_blacklist_on_jti"
+  end
+
+  create_table "rain_falls", force: :cascade do |t|
+    t.string "zip"
+    t.decimal "jan_rf"
+    t.decimal "feb_rf"
+    t.decimal "mar_rf"
+    t.decimal "apr_rf"
+    t.decimal "may_rf"
+    t.decimal "jun_rf"
+    t.decimal "jul_rf"
+    t.decimal "aug_rf"
+    t.decimal "sep_rf"
+    t.decimal "oct_rf"
+    t.decimal "nov_rf"
+    t.decimal "dec_rf"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["zip"], name: "index_rain_falls_on_zip"
   end
 
   create_table "sessions", force: :cascade do |t|

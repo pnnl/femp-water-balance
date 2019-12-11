@@ -6,13 +6,32 @@ import Paper from '@material-ui/core/Paper';
 
 import RemoteApi from '../RemoteApi';
 import MaterialTabs from './Common/TabContainer/MaterialTabs';
-import CampusForm from './Common/CampusForm';
+import VehicleWashForm from './Common/Tabs/VehicleWash/VehicleWashForm';
+import WaterSupplyForm from './Common/Tabs/WaterSupply/WaterSupplyForm';
+import KitchensForm from './Common/Tabs/Kitchens/KitchensForm';
+import LaundryForm from './Common/Tabs/Laundry/LaundryForm';
+import PlumbingForm from './Common/Tabs/Plumbing/PlumbingForm';
+import OtherProcessesForm from './Common/Tabs/OtherProcesses/OtherProcessesForm';
+import SteamBoilersForm from './Common/Tabs/SteamBoilers/SteamBoilersForm';
+import CoolingTowersForm from './Common/Tabs/CoolingTowers/CoolingTowersForm';
+import IrrigationForm from './Common/Tabs/Irrigation/IrrigationForm';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Report from './Common/Tabs/Report/Report';
+import CampusIntroduction from './Common/CampusIntroduction';
 
-import VehicleWashForm from "./Common/VehicleWashForm";
-import WaterSupplyForm from "./Common/WaterSupplyForm";
-import KitchensForm from "./Common/KitchensForm";
+import { Engine } from 'json-rules-engine';
 
-import {Engine} from 'json-rules-engine';
+const moduleKeys = [
+    'water_supply',
+    'vehicle_wash',
+    'other_processes',
+    'plumbing',
+    'laundry',
+    'kitchen_facilities',
+    'steam_boilers',
+    'cooling_towers',
+    'irrigation',
+];
 
 const formRules = [
     {
@@ -21,92 +40,109 @@ const formRules = [
                 {
                     fact: 'vw_facilities',
                     operator: 'equal',
-                    value: true
-                }
+                    value: true,
+                },
             ],
         },
         event: {
             type: 'displayCentralFacilityQuestions',
             params: {
-                value: true
-            }
-        }
+                value: true,
+            },
+        },
     },
     {
         conditions: {
-            any: [{
-                all: [{
-                    fact: 'vw_central_facilities',
-                    operator: 'equal',
-                    value: false
-                }, {
-                    fact: 'vw_facilities',
-                    operator: 'equal',
-                    value: true
-                }]
-            }]
+            any: [
+                {
+                    all: [
+                        {
+                            fact: 'vw_central_facilities',
+                            operator: 'equal',
+                            value: false,
+                        },
+                        {
+                            fact: 'vw_facilities',
+                            operator: 'equal',
+                            value: true,
+                        },
+                    ],
+                },
+            ],
         },
         event: {
             type: 'displayFrictionWashQuestions',
             params: {
-                value: true
-            }
-        }
+                value: true,
+            },
+        },
     },
     {
         conditions: {
-            any: [{
-                all: [{
-                    fact: 'vw_fw_facilities',
-                    operator: 'equal',
-                    value: false
-                }, {
-                    fact: 'vw_facilities',
-                    operator: 'equal',
-                    value: true
-                }]
-            },
+            any: [
+                {
+                    all: [
+                        {
+                            fact: 'vw_fw_facilities',
+                            operator: 'equal',
+                            value: false,
+                        },
+                        {
+                            fact: 'vw_facilities',
+                            operator: 'equal',
+                            value: true,
+                        },
+                    ],
+                },
             ],
         },
         event: {
             type: 'displayWashPadsQuestions',
             params: {
-                value: true
-            }
-        }
+                value: true,
+            },
+        },
     },
     {
         conditions: {
-            any: [{
-                all: [{
-                    fact: 'vw_wash_pads',
-                    operator: 'equal',
-                    value: false
-                }, {
-                    fact: 'vw_facilities',
-                    operator: 'equal',
-                    value: true
-                }]
-            },
+            any: [
+                {
+                    all: [
+                        {
+                            fact: 'vw_wash_pads',
+                            operator: 'equal',
+                            value: false,
+                        },
+                        {
+                            fact: 'vw_facilities',
+                            operator: 'equal',
+                            value: true,
+                        },
+                    ],
+                },
             ],
         },
         event: {
             type: 'displayLargeQuestions',
             params: {
-                value: true
-            }
-        }
-    }
+                value: true,
+            },
+        },
+    },
 ];
 
-const TabContainer = (props) => {
+const TabContainer = props => {
     return (
-        <Grid style={{margin: '0.75em 0.50em 0.25em'}} container direction="row" justify="center" alignItems="center"
-              spacing={0}>
-            <Grid item xs={12 } style={{margin: '0em 1em  0em 0em'}} >
-                <Paper style={{padding: 16}}>
-                    {props.children}
-                </Paper>
+        <Grid
+            style={{ margin: '0.75em 0.50em 0.25em' }}
+            container
+            direction="row"
+            justify="center"
+            alignItems="center"
+            spacing={0}
+        >
+            <Grid item xs={12} style={{ margin: '0em 1em  0em 0em' }}>
+                <Paper style={{ padding: 16 }}>{props.children}</Paper>
             </Grid>
         </Grid>
     );
@@ -117,36 +153,81 @@ class CampusDisplay extends React.Component {
         error: undefined,
         campus: undefined,
         isLoaded: false,
-        engine: new Engine([], {allowUndefinedFacts: true}),
+        engine: new Engine([], { allowUndefinedFacts: true }),
     };
 
-    updateCampus = (values) => {
-        RemoteApi.updateCampus(values,
-            (data) => this.setState({
-                isLoaded: true,
-                campus: Object.assign({}, {vehicle_wash: {}}, data)
-            }),
-            (data) => this.setState({
-                isLoaded: true,
-                error: data
-            })
+    updateCampus = values => {
+        RemoteApi.updateCampus(
+            values,
+            data =>
+                this.setState({
+                    isLoaded: true,
+                    campus: Object.assign({}, { vehicle_wash: {} }, data),
+                }),
+            data =>
+                this.setState({
+                    isLoaded: true,
+                    error: data,
+                })
         );
     };
 
-    executeRules = async (facts) => {
+    updateModuleState = data => {
+        const { campus } = this.state;
+        campus.modules[data.name] = data.data;
+        campus.modules[data.name].id = data.id;
+        this.setState({
+            isLoaded: true,
+            campus: campus,
+            isDirty: false,
+        });
+        window.alert('Values saved');
+    };
+
+    createOrUpdateCampusModule = module => {
+        let campus = {};
+        campus.id = module.campus_id;
+        RemoteApi.createOrUpdateCampusModule(
+            campus,
+            { name: module.name, data: module, id: module.id },
+            data => this.updateModuleState(data),
+            data => console.log(data)
+        );
+    };
+
+    executeRules = async facts => {
         const { engine } = this.state;
-        this.setState({events: await engine.run(facts)});
+        this.setState({ events: await engine.run(facts) });
+    };
+
+    isDirty = () => {
+        if (this.state.isDirty != true) {
+            this.setState({ isDirty: true });
+        }
+    };
+
+    isNotDirty = () => {
+        if (this.state.isDirty != false) {
+            this.setState({ isDirty: false });
+        }
     };
 
     getCampusTabs = () => {
-        const {campus, events} = this.state;
+        const { campus, events } = this.state;
+
         return [
             {
-                tabName: 'Vehicle Wash',
+                tabName: 'Introduction',
                 tabContent: (
                     <TabContainer>
-                        <VehicleWashForm campus={campus} events={events}
-                                         applyRules={this.executeRules} {...this.props} />
+                        <Typography variant="h5" gutterBottom>
+                            Welcome to your Water Balance
+                        </Typography>
+                        <Grid container spacing={3} justify="space-between">
+                            <Grid item xs={6}>
+                                <CampusIntroduction />
+                            </Grid>
+                        </Grid>
                     </TabContainer>
                 ),
             },
@@ -154,65 +235,242 @@ class CampusDisplay extends React.Component {
                 tabName: 'Water Supply',
                 tabContent: (
                     <TabContainer>
-                        <WaterSupplyForm campus={campus} events={events}
-                                         applyRules={this.executeRules} {...this.props} />
+                        <WaterSupplyForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
                     </TabContainer>
                 ),
             },
             {
-                tabName: 'Waste Water',
+                tabName: 'Plumbing',
                 tabContent: (
                     <TabContainer>
-                        [PH] => Waste Waters
+                        <PlumbingForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
                     </TabContainer>
                 ),
             },
             {
-                tabName: 'Kitchens',
+                tabName: 'Commercial Kitchen',
                 tabContent: (
                     <TabContainer>
-                        <KitchensForm campus={campus} events={events}
-                            applyRules={this.executeRules} {...this.props} />
+                        <KitchensForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
                     </TabContainer>
                 ),
             },
             {
-                tabName: 'Laundry',
+                tabName: 'Cooling Towers',
                 tabContent: (
                     <TabContainer>
-                        [PH] => Laundry
+                        <CoolingTowersForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Steam Boilers',
+                tabContent: (
+                    <TabContainer>
+                        <SteamBoilersForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Laundry (Washing Machines)',
+                tabContent: (
+                    <TabContainer>
+                        <LaundryForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Vehicle Wash',
+                tabContent: (
+                    <TabContainer>
+                        <VehicleWashForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Landscape Irrigation',
+                tabContent: (
+                    <TabContainer>
+                        <IrrigationForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Other Processes',
+                tabContent: (
+                    <TabContainer>
+                        <OtherProcessesForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Water Balance Results',
+                tabContent: (
+                    <TabContainer>
+                        <Report campus={campus} />
                     </TabContainer>
                 ),
             },
         ];
     };
 
-    componentDidMount() {
-        const {engine} = this.state;
-        const {match: {params: {id}}} = this.props;
-        formRules.forEach((rule) => engine.addRule(rule));
+    getModules(campus) {
+        RemoteApi.getCampusModules(campus, data => {
+            campus.modules = {};
+            for (let i = 0; i < data.length; i++) {
+                const module = data[i];
+                campus.modules[module.name] = module.data;
+                campus.modules[module.name].id = module.id;
+            }
+            for (let i = 0; i < moduleKeys.length; i++) {
+                const moduleKey = moduleKeys[i];
+                if (!campus.modules[moduleKey]) {
+                    campus.modules[moduleKey] = {
+                        name: moduleKey,
+                        year: campus.year,
+                        campus_id: campus.id,
+                    };
+                }
+            }
+            this.setState({
+                isLoaded: true,
+                campus: campus,
+            });
+        });
+    }
 
-        RemoteApi.getCampus(id, (campus) => (
-            this.setState({
-                isLoaded: true,
-                campus: Object.assign({}, {vehicle_wash: {}}, campus)
-            })
-        ), (error) => (
-            this.setState({
-                isLoaded: true,
-                error
-            })
-        ), this);
+    componentDidMount() {
+        const { engine } = this.state;
+        const {
+            match: {
+                params: { id },
+            },
+        } = this.props;
+        formRules.forEach(rule => engine.addRule(rule));
+
+        RemoteApi.getCampus(
+            id,
+            campus => (
+                this.getModules(campus),
+                error =>
+                    this.setState({
+                        isLoaded: true,
+                        error,
+                    })
+            )
+        );
     }
 
     render() {
-        const {campus} = this.state;
-        return (
-            <div>
-                <Typography variant="h4" gutterBottom>{campus ? campus.name : ''}</Typography>
-                <MaterialTabs headerColor="primary" tabs={this.getCampusTabs()}/>
+        const { campus } = this.state;
+        return !this.state.isLoaded ? (
+            <div
+                style={{
+                    top: '50%',
+                    position: 'initial',
+                    left: '50%',
+                    textAlign: 'center',
+                }}
+            >
+                <Typography variant="h4" gutterBottom>
+                    Loading ...
+                </Typography>
+                <CircularProgress />
             </div>
-        )
+        ) : (
+            <div>
+                <Typography variant="h4" gutterBottom>
+                    {campus ? campus.name : ''}
+                </Typography>
+                <MaterialTabs
+                    headerColor="primary"
+                    tabs={this.getCampusTabs()}
+                    isDirty={this.state.isDirty}
+                    isNotDirty={this.isNotDirty}
+                />
+            </div>
+        );
     }
 }
 
@@ -220,4 +478,4 @@ CampusDisplay.propTypes = {
     match: PropTypes.object.isRequired,
 };
 
-export default CampusDisplay
+export default CampusDisplay;

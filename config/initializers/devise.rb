@@ -261,6 +261,9 @@ Devise.setup do |config|
   # up on your models and hooks.
   # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
 
+  # Configure Google omniauth with proper scope
+  config.omniauth(:google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET'], skip_jwt: true)
+
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or
   # change the failure app, you can configure them inside the config.warden block.
@@ -299,7 +302,7 @@ Devise.setup do |config|
   #
   # devise-jwt configuration
   config.jwt do |jwt|
-    jwt.secret = ENV['DEVISE_JWT_SECRET_KEY']
+    jwt.secret = ENV.fetch('DEVISE_JWT_SECRET_KEY','30b116a5116cab68ac2be7262c387232f4a3b022bc75a119ccf8f2bd43178a5f23d20a5f70a5b9d43488287ca00cbfee6871931fcdb0e19eb3a28b4ce5ae3f72')
     jwt.dispatch_requests = [
         ['POST', %r{^/login$}],
         ['GET', %r{^/secure/.*$}],

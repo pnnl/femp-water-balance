@@ -1,0 +1,2 @@
+class Eto < ApplicationRecord
+end
