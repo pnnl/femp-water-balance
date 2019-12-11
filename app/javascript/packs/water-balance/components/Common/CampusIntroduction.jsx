@@ -5,7 +5,6 @@ import minusIcon from 'images/minus.png';
 import sliderActiveIcon from 'images/slider-active.png';
 import sliderIcon from 'images/slider.png';
 import trashIcon from 'images/trash.png';
-import HelpDocument from 'images/Help_Document.pdf';
 
 const imgStyle = {
     verticalAlign: 'middle',
@@ -21,10 +20,10 @@ class CampusIntroduction extends React.Component {
             <Fragment>
                 <Typography variant="body2" gutterBottom>
                     &nbsp;
-                    Click&nbsp;
-                    <a href={HelpDocument} target="_blank" download>
-                        here
-                    </a> to download the full help guide
+                    Help Guide&nbsp;
+                    <a href="/femp-water-balance-help-2019.pdf" target="_blank" download>
+                        click here to download
+                    </a> the full help guide :
                 </Typography>&nbsp;
                 <Typography variant="h6" gutterBottom>
                     How to use the tool

@@ -207,7 +207,7 @@ class LaundryForm extends React.Component {
                         name={`${basePath}.water_use`}
                         component={MaterialInput}
                         type="text"
-                        mask={DEFAULT_NUMBER_MASK}
+                        mask={ONE_DECIMAL_MASK}
                         label="Estimated water use per pound of laundry."
                         endAdornment={
                             <InputAdornment position="end">gal</InputAdornment>
