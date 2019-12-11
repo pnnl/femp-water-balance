@@ -144,16 +144,16 @@ const calculateRestroomSink = (occupancy, basePath, values, minutesPerHour) => {
 }
 const getDaysPerYear = (basePath, values, subgroup) => {
     let daysPerYear = null;
-    if(basePath == 'plumbing.lodging') {
+    if(basePath === 'plumbing.lodging') {
        daysPerYear = 350; 
     }
-    if(basePath == 'plumbing.hospital') { 
+    if(basePath === 'plumbing.hospital') {
         daysPerYear = toNumber(selectn(`${basePath}.days_per_year`)(values));
     }
-    if(subgroup == "weekday") {
+    if(subgroup === "weekday") {
         daysPerYear = toNumber(selectn(`${basePath}.operating_weeks`)(values));
     }
-    if(subgroup == "weekend") {
+    if(subgroup === "weekend") {
         daysPerYear = toNumber(selectn(`${basePath}.operating_weekend`)(values));
     }
     return daysPerYear;
@@ -161,27 +161,27 @@ const getDaysPerYear = (basePath, values, subgroup) => {
 
 const getOccupants = (basePath, values, subgroup) => {
     let occupants = null;
-    if(basePath == 'plumbing.lodging') { 
+    if(basePath === 'plumbing.lodging') {
          occupants = (toNumber(selectn(`${basePath}.total_population`)(values)) * 12)/350;
     }
-    if(basePath == 'plumbing.hospital') {
+    if(basePath === 'plumbing.hospital') {
         let dailyStaff = toNumber(selectn(`${basePath}.daily_staff`)(values));
         let administrative = toNumber(selectn(`${basePath}.administrative`)(values))/100;
         occupants = dailyStaff * administrative;
-        if(subgroup == 'staff') { 
+        if(subgroup === 'staff') {
             occupants = dailyStaff - occupants;
         }
     }
-    if(subgroup == "outPatient"){
+    if(subgroup === "outPatient"){
         occupants = toNumber(selectn(`${basePath}.outpatient_visits`)(values));
     }
-    if(subgroup == "inPatient"){
+    if(subgroup === "inPatient"){
         occupants = toNumber(selectn(`${basePath}.inpatient_per_day`)(values));
     }
-    if(subgroup == "weekday") {
+    if(subgroup === "weekday") {
         occupants = toNumber(selectn(`${basePath}.total_population`)(values));
     }
-    if(subgroup == "weekend") {
+    if(subgroup === "weekend") {
         occupants = toNumber(selectn(`${basePath}.total_population_weekends`)(values));
     }
     return occupants; 
@@ -199,19 +199,19 @@ const calculateShowers = (basePath, values, subgroup, timeUsed)  => {
     let occupants = getOccupants(basePath, values, subgroup);
     let daysPerYear = getDaysPerYear(basePath, values, subgroup);
     let showerUsage = null;
-    if(subgroup == 'lodging') {
+    if(subgroup === 'lodging') {
         showerUsage = 69;
     } 
-    if(subgroup == 'inPatient'){
+    if(subgroup === 'inPatient'){
         showerUsage = toNumber(selectn(`${basePath}.shower_usage_inpatient`)(values));
     }
-    if(subgroup == 'staff' || subgroup == 'admin'){
+    if(subgroup === 'staff' || subgroup == 'admin'){
         showerUsage = toNumber(selectn(`${basePath}.shower_usage_staff`)(values));
     }
-    if(subgroup == 'weekday' || subgroup == 'weekend'){
+    if(subgroup === 'weekday' || subgroup == 'weekend'){
         showerUsage = toNumber(selectn(`${basePath}.shower_usage`)(values));
     }
-    if(subgroup == 'outPatient'){
+    if(subgroup === 'outPatient'){
         showerUsage = 0;
     }
     let flowRate = toNumber(selectn(`${basePath}.shower_flow_rate`)(values));
@@ -722,13 +722,12 @@ class PlumbingForm extends React.Component {
             </Grid>
             <Grid item xs={12}>
                 <Field
-                    formControlProps={{fullWidth: true}}
                     disabled
+                    formControlProps={{fullWidth: true}}
                     name={`${basePath}.total_occupants`}
                     component={MaterialInput}
-                    type="text"
                     mask={DEFAULT_NUMBER_MASK}
-                    label="Average daily hospital/clinic occupancy"
+                    helperText="Average daily hospital/clinic occupancy"
                     >
                 </Field>
             </Grid>
@@ -908,7 +907,6 @@ class PlumbingForm extends React.Component {
                                     </Fab>
                                 )}
                                 {this.updateIsDirty(dirty, updateParent)}
-                                <pre>{JSON.stringify(values, 0, 2)}</pre>
                             <FormRulesListener handleFormChange={applyRules}/>
                         </form>
                     )}

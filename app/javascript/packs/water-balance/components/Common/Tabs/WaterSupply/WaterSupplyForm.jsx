@@ -205,7 +205,7 @@ class WaterSupplyForm extends React.Component {
                                     component={MaterialInput}
                                     type="text"
                                     mask={DEFAULT_NUMBER_MASK}
-                                    label="The total annual potable water use for the campus"
+                                    label="The total annual potable water use (in thousand gallons - kgal) for the campus"
                                     endAdornment={<InputAdornment position="end">kgal</InputAdornment>}
                                 />
                             </Grid>

@@ -433,7 +433,7 @@ class VehicleWashForm extends React.Component {
                         fullWidth
                         disabled
                         name="vehicle_wash.water_use"
-                        label="Water use"
+                        helperText="Water use"
                         mask = {DEFAULT_DECIMAL_MASK}
                         component={MaterialInput}
                         type="text"
