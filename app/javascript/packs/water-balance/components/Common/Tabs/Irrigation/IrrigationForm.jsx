@@ -460,7 +460,7 @@ class IrrigationForm extends React.Component {
 						required
 						name={`${basePath}.leaks_observed`}
 						component={Select}
-						label='Leaks observed with the equipment'
+						label='Sprinkler head leaks observed'
 					>
 						<MenuItem value='3'>Many</MenuItem>
 						<MenuItem value='2'>Few</MenuItem>
