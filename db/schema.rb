@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_29_171353) do
+ActiveRecord::Schema.define(version: 2019_12_11_181414) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -95,6 +95,7 @@ ActiveRecord::Schema.define(version: 2019_10_29_171353) do
     t.decimal "dec_et"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["zip"], name: "index_etos_on_zip"
   end
 
   create_table "jwt_blacklist", force: :cascade do |t|
@@ -118,6 +119,7 @@ ActiveRecord::Schema.define(version: 2019_10_29_171353) do
     t.decimal "dec_rf"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["zip"], name: "index_rain_falls_on_zip"
   end
 
   create_table "sessions", force: :cascade do |t|
