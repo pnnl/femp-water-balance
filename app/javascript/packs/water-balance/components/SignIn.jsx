@@ -40,6 +40,9 @@ function SignIn(props) {
         <Paper className={classes.paper}>
             <Grid container justify="center" alignItems="center" spacing={16}>
                 <Grid item>
+                    <Typography component="h1" variant="h5">
+                        Click or tap below to sign in with Google
+                    </Typography>
                     <GoogleLoginButton buttonTheme="dark" />
                     <br />
                     <Typography variant="subtitle1" align="left" gutterBottom>
@@ -49,7 +52,8 @@ function SignIn(props) {
                         </a>
                     </Typography>
                 </Grid>
-                <Grid item>
+                {NODE_ENV === 'development' && (
+                    <Grid item>
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon />
                     </Avatar>
@@ -94,6 +98,7 @@ function SignIn(props) {
                         Sign in
                     </Button>
                 </Grid>
+                )}
             </Grid>
         </Paper>
     );
