@@ -68,7 +68,7 @@ const validateFacility = (values, basePath) => {
             errors['shift_weekday'] = 'The average length of a weekday shift.';
         }
         valuePath = `${basePath}.operating_weeks`;
-        if (!isWithinNumericRange(valuePath, values, 1, 260, true)) {
+        if (!isWithinNumericRange(valuePath, values, 0, 260, true)) {
             errors['operating_weeks'] =
                 'The number of weekdays per year the campus operates must be between 0 and 260.';
         }
