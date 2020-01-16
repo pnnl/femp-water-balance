@@ -37,4 +37,4 @@ export const ONE_DECIMAL_MASK = createNumberMask({
 	decimalLimit: 1,
 });
 
-export const numberFormat = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 });
+export const numberFormat = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1, minimumFractionDigits: 1 });

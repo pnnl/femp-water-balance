@@ -47,7 +47,7 @@ export default function UseTable(props) {
 			</TableCell>
 			<TableCell align='right'>{numberFormat.format(key.water)}</TableCell>
 			<TableCell align='right'>
-				{key.percent != undefined ? key.percent + '%' : null}
+				{key.percent != undefined ? numberFormat.format(key.percent) + '%' : null}
 			</TableCell>
 		</TableRow>
 	));
