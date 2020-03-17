@@ -22,9 +22,14 @@ const fempLogo = {
     margin: '6px 17px',
 };
 
+const waterBalanceLogo = {
+    height: '63px'
+}
+
 const primaryColor = '#9c27b0';
 
 export default theme => ({
+    waterBalanceLogo,
     fempLogo,
     pnnlLogo,
     root: {

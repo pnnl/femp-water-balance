@@ -10,15 +10,15 @@ import {
 } from '@material-ui/core';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Divider from '@material-ui/core/Divider';
-import fempLogo from 'images/FEMP_Logo2.png';
+import fempLogo from 'images/FEMP_logo.png';
 import HelpIcon from '@material-ui/icons/Help';
-import HelpDialog from './../Help';
 import CampusIntroduction from '../CampusIntroduction';
 import CloseIcon from '@material-ui/icons/Close';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import HomeIcon from '@material-ui/icons/Home';
+import waterBalanceLogo from 'images/water-balance-logo.png';
 
 import styles from './styles';
 
@@ -71,23 +71,23 @@ class DefaultToolbar extends React.Component {
             const { anchorEl } = this.state;
             const open = Boolean(anchorEl);
             return (
-                <div>
+                <div style={{marginLeft: 'auto'}}>
                     <IconButton
-                        color="inherit"
+                        color="primary"
                         onClick={() => {
                             window.location.href = '/';
                         }}
                     >
                         <HomeIcon />
                     </IconButton>
-                    <IconButton color="inherit" onClick={this.handleHelp}>
+                    <IconButton color="primary" onClick={this.handleHelp}>
                         <HelpIcon />
                     </IconButton>
                     <IconButton
                         aria-owns={open ? 'menu-appbar' : null}
                         aria-haspopup="true"
                         onClick={this.handleMenu}
-                        color="inherit"
+                        color="primary"
                     >
                         {user.oauth_meta.image && (
                             <Avatar
@@ -131,45 +131,29 @@ class DefaultToolbar extends React.Component {
     }
 
     renderToolbarTitle() {
-        const { classes, toolbarText } = this.props;
-        if (toolbarText) {
-            return (
-                <Typography
-                    variant="h6"
-                    color="inherit"
-                    className={classes.flex}
-                >
-                    {toolbarText}
-                </Typography>
-            );
-        }
+        const { classes } = this.props;
         return (
             <Fragment>
                 <img src={fempLogo} className={classes.fempLogo} />
-                <Typography
-                    variant="h6"
-                    color="inherit"
-                    className={classes.flex}
+                <a
+                    href="/"
+                    style={{ textDecoration: 'none', color: 'inherit' }}
                 >
-                    <a
-                        href="/"
-                        style={{ textDecoration: 'none', color: 'inherit' }}
-                    >
-                        FEMP Water Balance Tool
-                    </a>
-                </Typography>
+                    <img src={waterBalanceLogo} className={classes.waterBalanceLogo} />
+                </a>
             </Fragment>
         );
     }
-
     render() {
         return (
             <Fragment>
-                <Toolbar>
-                    {this.renderToolbarTitle()}
-                    {this.props.children}
-                    {this.renderUserNavMenu()}
-                    {this.renderUserMenu()}
+                <Toolbar style={{ background: 'white' }}>
+                    
+                        {this.renderToolbarTitle()}
+                        {this.props.children}
+                        {this.renderUserNavMenu()}
+                        {this.renderUserMenu()}
+                    
                 </Toolbar>
                 <Dialog
                     open={this.state.open}
