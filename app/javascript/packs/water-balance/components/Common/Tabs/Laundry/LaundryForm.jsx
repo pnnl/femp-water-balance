@@ -5,14 +5,18 @@ import {Checkbox, Select} from 'final-form-material-ui';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat} from '../shared/sharedStyles';
+import {FieldArray} from 'react-final-form-arrays';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
+import arrayMutators from 'final-form-arrays';
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, noShadow, noPadding} from '../shared/sharedStyles';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert} from '../shared/sharedFunctions';
 
 import formValidation from './LaundryForm.validation';
-import {Fab, Icon, Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
+import {Fab, Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
 
 const singleLoadFields = [
   'people',
@@ -71,14 +75,14 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
 );
 
 const calculateSingleLoad = (values) => {
-  let esPercent = toNumber(selectn(`laundry.energy_star`)(values));
-  let people = toNumber(selectn(`laundry.people`)(values));
-  let loadsPerPerson = toNumber(selectn(`laundry.loads_per_person`)(values));
-  let singleLoadWeeks = toNumber(selectn(`laundry.single_load_weeks`)(values));
-  let energyStarCapacity = toNumber(selectn(`laundry.energy_star_capacity`)(values));
-  let energyStarFactor = toNumber(selectn(`laundry.energy_star_factor`)(values));
-  let nonenergyStarCapacity = toNumber(selectn(`laundry.nonenergy_star_capacity`)(values));
-  let nonenergyStarFactor = toNumber(selectn(`laundry.nonenergy_star_factor`)(values));
+  let esPercent = toNumber(selectn(`energy_star`)(values));
+  let people = toNumber(selectn(`people`)(values));
+  let loadsPerPerson = toNumber(selectn(`loads_per_person`)(values));
+  let singleLoadWeeks = toNumber(selectn(`single_load_weeks`)(values));
+  let energyStarCapacity = toNumber(selectn(`energy_star_capacity`)(values));
+  let energyStarFactor = toNumber(selectn(`energy_star_factor`)(values));
+  let nonenergyStarCapacity = toNumber(selectn(`nonenergy_star_capacity`)(values));
+  let nonenergyStarFactor = toNumber(selectn(`nonenergy_star_factor`)(values));
 
   let loadsPerYear = people * loadsPerPerson * singleLoadWeeks;
   let esGalPerCycle = energyStarCapacity * energyStarFactor;
@@ -90,10 +94,10 @@ const calculateSingleLoad = (values) => {
 };
 
 const calculateIndustrialLoad = (values) => {
-  let weight = toNumber(selectn(`laundry.weight`)(values));
-  let industrialWeeks = toNumber(selectn(`laundry.industrial_weeks`)(values));
-  let laundryRecycled = toNumber(selectn(`laundry.recycled`)(values));
-  let waterUse = toNumber(selectn(`laundry.water_use`)(values));
+  let weight = toNumber(selectn(`weight`)(values));
+  let industrialWeeks = toNumber(selectn(`industrial_weeks`)(values));
+  let laundryRecycled = toNumber(selectn(`recycled`)(values));
+  let waterUse = toNumber(selectn(`water_use`)(values));
 
   let totalIndustrialLoad = (weight * industrialWeeks * waterUse * (1 - laundryRecycled / 100)) / 1000;
 
@@ -121,8 +125,12 @@ class LaundryForm extends React.Component {
       window.alert('Missing or incorrect values.');
       return;
     }
-    let singleLoad = calculateSingleLoad(values);
-    let industrialLoad = calculateIndustrialLoad(values);
+    let singleLoad = 0;
+    let industrialLoad = 0;
+    values.laundry_facilities.map((facility) => {
+      singleLoad += calculateSingleLoad(facility);
+      industrialLoad += calculateIndustrialLoad(facility);
+    });
     let total = singleLoad + industrialLoad;
     let formatTotal = numberFormat.format(total);
     values.laundry.water_usage = formatTotal;
@@ -321,17 +329,14 @@ class LaundryForm extends React.Component {
     );
   };
 
-  renderFacilityTypes = (values, valid) => {
-    if (!values.has_laundry_facility) {
-      return null;
-    }
+  renderFacilityTypes = (values, valid, basePath) => {
     return (
       <Fragment>
-        <Grid item xs={12}>
-          <ExpansionPanel expanded={selectn(`laundry.has_single_load`)(values) === true}>
+        <Grid item xs={12} style={noPadding}>
+          <ExpansionPanel expanded={selectn(`${basePath}.has_single_load`)(values) === true} style={noShadow}>
             <ExpansionPanelSummary>
               <Field
-                name='laundry.has_single_load'
+                name={`${basePath}.has_single_load`}
                 label='My campus has single-load and/or multi-load washing machines.'
                 component={ToggleAdapter}
                 type='checkbox'
@@ -339,17 +344,17 @@ class LaundryForm extends React.Component {
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
               <Grid container alignItems='flex-start' spacing={16}>
-                {this.singleLoad(values, 'laundry')}
+                {this.singleLoad(values, basePath)}
               </Grid>
             </ExpansionPanelDetails>
           </ExpansionPanel>
         </Grid>
-        {selectn(`laundry.has_single_load`)(values) == false && this.clearValues(singleLoadFields, values)}
-        <Grid item xs={12}>
-          <ExpansionPanel expanded={selectn(`laundry.has_industrial_machines`)(values) === true}>
+        {selectn(`${basePath}.has_single_load`)(values) == false && this.clearValues(singleLoadFields, values)}
+        <Grid item xs={12} style={noPadding}>
+          <ExpansionPanel expanded={selectn(`${basePath}.has_industrial_machines`)(values) === true} style={noShadow}>
             <ExpansionPanelSummary>
               <Field
-                name='laundry.has_industrial_machines'
+                name={`${basePath}.has_industrial_machines`}
                 label='My campus has industrial washing machines, such as tunnel washers or washer extractors.'
                 component={ToggleAdapter}
                 type='checkbox'
@@ -357,12 +362,50 @@ class LaundryForm extends React.Component {
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
               <Grid container alignItems='flex-start' spacing={16}>
-                {this.industrialMachines(values, 'laundry')}
+                {this.industrialMachines(values, basePath)}
               </Grid>
             </ExpansionPanelDetails>
           </ExpansionPanel>
         </Grid>
-        {selectn(`laundry.has_industrial_machines`)(values) == false && this.clearValues(industrialLoadFields, values)}
+        {selectn(`${basePath}.has_industrial_machines`)(values) == false && this.clearValues(industrialLoadFields, values)}
+      </Fragment>
+    );
+  };
+
+  renderFacility = (values, valid) => {
+    if (!values.has_laundry_facility) {
+      return null;
+    }
+    return (
+      <Fragment>
+        <FieldArray name='laundry_facilities'>
+          {({fields}) =>
+            fields.map((name, index) => (
+              <Grid item xs={12} key={index}>
+                <ExpansionPanel expanded={selectn(`${name}.name`)(values) !== undefined}>
+                  <ExpansionPanelSummary>
+                    <Field
+                      fullWidth
+                      required
+                      name={`${name}.name`}
+                      component={MaterialInput}
+                      type='text'
+                      label='Enter a unique name identifier for this laundry system (such as the building name/number it is associated).'
+                    />
+                    <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
+                      <DeleteIcon />
+                    </IconButton>
+                  </ExpansionPanelSummary>
+                  <ExpansionPanelDetails>
+                    <Grid container alignItems='flex-start' spacing={16}>
+                      {this.renderFacilityTypes(values, valid,  `${name}`)}
+                    </Grid>
+                  </ExpansionPanelDetails>
+                </ExpansionPanel>
+              </Grid>
+            ))
+          }
+        </FieldArray>
         <Grid item xs={12} sm={4}>
           <Field
             fullWidth
@@ -373,8 +416,7 @@ class LaundryForm extends React.Component {
             type='text'
             meta={{
               visited: true,
-              error:
-                valid || selectn('laundry.water_usage')(values) == null ? null : "Fix errors and click 'Calculate Water Use' button to update value.",
+              error: valid || values.laundry.water_usage == null ? null : "Fix errors and click 'Calculate Water Use' button to update value.",
             }}
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
           />
@@ -393,7 +435,10 @@ class LaundryForm extends React.Component {
   render() {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
     const module = campus ? campus.modules.laundry : {};
-
+    if (!('laundry_facilities' in module)) {
+      const startingValues = module.laundry ? {...module.laundry} : {};
+      module.laundry_facilities = [startingValues];
+    } 
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
@@ -407,7 +452,16 @@ class LaundryForm extends React.Component {
           initialValues={module}
           validate={formValidation}
           decorators={[focusOnError]}
-          render={({handleSubmit, values, dirty, valid}) => (
+          mutators={{...arrayMutators}}
+          render={({
+            handleSubmit,
+            values,
+            dirty,
+            valid,
+            form: {
+              mutators: {push},
+            },
+          }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Grid container alignItems='flex-start' spacing={16}>
                 <Grid item xs={12}>
@@ -423,11 +477,16 @@ class LaundryForm extends React.Component {
                     }
                   />
                 </Grid>
-                {this.renderFacilityTypes(values, valid)}
+                {this.renderFacility(values, valid)}
                 <Grid item xs={12}>
+                  {values.has_laundry_facility === true && (
+                    <Button variant='contained' color='primary' onClick={() => push('laundry_facilities', {})}>
+                      Add Another Laundry Facility
+                    </Button>
+                  )}
                   {values.has_laundry_facility === false || values.has_laundry_facility === undefined ? null : (
                     <Fragment>
-                      <Button variant='contained' type='submit' onClick={() => this.calculateWaterUse(values, valid)}>
+                      <Button variant='contained' style={{marginLeft: '10px'}} type='submit' onClick={() => this.calculateWaterUse(values, valid)}>
                         Calculate Water Use
                       </Button>
                       <Button

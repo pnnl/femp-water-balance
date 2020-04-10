@@ -15,6 +15,14 @@ export const fabStyle = {
 	},
 };
 
+export const noShadow = {
+	boxShadow: 'none'
+}
+
+export const noPadding = {
+	padding: '0px'
+}
+
 export const DEFAULT_NUMBER_MASK = createNumberMask({
 	prefix: "",
 	includeThousandsSeparator: true,
