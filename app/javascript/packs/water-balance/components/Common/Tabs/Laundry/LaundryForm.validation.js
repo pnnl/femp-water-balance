@@ -9,6 +9,7 @@ const validateLaundryFacility = (values, allValues) => {
     const {
       people,
       loads_per_person,
+      loads_per_person_weekend,
       single_load_weeks,
       energy_star,
       energy_star_capacity,
@@ -21,6 +22,9 @@ const validateLaundryFacility = (values, allValues) => {
     }
     if (!isPositiveNumeric(loads_per_person, true)) {
       errors['loads_per_person'] = 'The number of loads of laundry per person per week.';
+    }
+    if (!isPositiveNumeric(loads_per_person_weekend, true)) {
+      errors['loads_per_person_weekend'] = 'The number of loads of laundry per person per weekend.';
     }
     if (!isWithinNumericRange(single_load_weeks, 1, 52)) {
       errors['single_load_weeks'] = 'The number of weeks single-load/multi-load washing machines are operated must be between 1 and 52.';
@@ -74,18 +78,19 @@ const validateLaundryFacility = (values, allValues) => {
   let isUsed = false;
   let resolvedValue = undefined;
 
-  allValues && allValues.map((facility, index) => {
-    if (facility != undefined) {
-      resolvedValue = facility.name;
-      if (resolvedValue == values.name && isUsed == true && values.name != undefined) {
-        errors['name'] = 'Identifiers must be unique.';
-        isUsed = false;
+  allValues &&
+    allValues.map((facility) => {
+      if (facility != undefined) {
+        resolvedValue = facility.name;
+        if (resolvedValue == values.name && isUsed == true && values.name != undefined) {
+          errors['name'] = 'Identifiers must be unique.';
+          isUsed = false;
+        }
+        if (resolvedValue == values.name) {
+          isUsed = true;
+        }
       }
-      if (resolvedValue == values.name) {
-        isUsed = true;
-      }
-    }
-  });
+    });
 
   return Object.keys(errors).length === 0 ? undefined : errors;
 };
@@ -104,7 +109,6 @@ const validate = (values) => {
     }
   });
 
-  console.log('%o', laundryErrors);
   if (laundryErrors.length > 0) {
     errors['laundry_facilities'] = laundryErrors;
   }

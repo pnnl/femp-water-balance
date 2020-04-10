@@ -78,13 +78,14 @@ const calculateSingleLoad = (values) => {
   let esPercent = toNumber(selectn(`energy_star`)(values));
   let people = toNumber(selectn(`people`)(values));
   let loadsPerPerson = toNumber(selectn(`loads_per_person`)(values));
+  let loadsPerPersonWeekend = toNumber(selectn(`loads_per_person_weekend`)(values));
   let singleLoadWeeks = toNumber(selectn(`single_load_weeks`)(values));
   let energyStarCapacity = toNumber(selectn(`energy_star_capacity`)(values));
   let energyStarFactor = toNumber(selectn(`energy_star_factor`)(values));
   let nonenergyStarCapacity = toNumber(selectn(`nonenergy_star_capacity`)(values));
   let nonenergyStarFactor = toNumber(selectn(`nonenergy_star_factor`)(values));
 
-  let loadsPerYear = people * loadsPerPerson * singleLoadWeeks;
+  let loadsPerYear = people * (loadsPerPerson + loadsPerPersonWeekend) * singleLoadWeeks;
   let esGalPerCycle = energyStarCapacity * energyStarFactor;
 
   let nesGalPerCycle = nonenergyStarCapacity * nonenergyStarFactor;
@@ -141,7 +142,7 @@ class LaundryForm extends React.Component {
 
   onSubmit = (values) => {};
 
-  industrialMachines = (values, basePath) => {
+  industrialMachines = (basePath) => {
     return (
       <Fragment>
         <Grid item xs={12}>
@@ -305,6 +306,17 @@ class LaundryForm extends React.Component {
           <Field
             required
             formControlProps={{fullWidth: true}}
+            name={`${basePath}.loads_per_person_weekend`}
+            component={MaterialInput}
+            type='text'
+            mask={DEFAULT_NUMBER_MASK}
+            label='Estimated loads of laundry per person per weekend.'
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Field
+            required
+            formControlProps={{fullWidth: true}}
             name={`${basePath}.single_load_weeks`}
             component={MaterialInput}
             type='text'
@@ -362,7 +374,7 @@ class LaundryForm extends React.Component {
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
               <Grid container alignItems='flex-start' spacing={16}>
-                {this.industrialMachines(values, basePath)}
+                {this.industrialMachines(basePath)}
               </Grid>
             </ExpansionPanelDetails>
           </ExpansionPanel>
@@ -398,7 +410,7 @@ class LaundryForm extends React.Component {
                   </ExpansionPanelSummary>
                   <ExpansionPanelDetails>
                     <Grid container alignItems='flex-start' spacing={16}>
-                      {this.renderFacilityTypes(values, valid,  `${name}`)}
+                      {this.renderFacilityTypes(values, valid, `${name}`)}
                     </Grid>
                   </ExpansionPanelDetails>
                 </ExpansionPanel>
@@ -438,7 +450,7 @@ class LaundryForm extends React.Component {
     if (!('laundry_facilities' in module)) {
       const startingValues = module.laundry ? {...module.laundry} : {};
       module.laundry_facilities = [startingValues];
-    } 
+    }
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
