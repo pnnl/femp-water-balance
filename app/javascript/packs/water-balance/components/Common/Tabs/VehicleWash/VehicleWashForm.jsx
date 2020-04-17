@@ -106,7 +106,7 @@ class VehicleWashForm extends React.Component {
   clearValues = (clearValues, basePath, values) => {
     let field = basePath.replace('vehicle_wash.', '');
     for (let i = 0; i < clearValues.length; i++) {
-      (values['vehicle_wash'][field]) && (values['vehicle_wash'][field][clearValues[i]] = null);
+      values['vehicle_wash'][field] && (values['vehicle_wash'][field][clearValues[i]] = null);
     }
   };
 
@@ -146,9 +146,8 @@ class VehicleWashForm extends React.Component {
   onSubmit = (values) => {};
 
   renderWashpadForm = (values, basePath) => {
-    const washpadType = selectn(`${basePath}.type`)(values);
     return (
-      <Fragment>
+      <Grid container alignItems='flex-start' spacing={16}>
         <Grid item xs={12}>
           <Field
             fullWidth
@@ -185,7 +184,7 @@ class VehicleWashForm extends React.Component {
             endAdornment={<InputAdornment position='end'>Minutes</InputAdornment>}
           />
         </Grid>
-        {washpadType === 'open_hose' && (
+        {basePath === 'wash_pad_open_hose' && (
           <Grid item xs={12}>
             <Field
               fullWidth
@@ -199,7 +198,7 @@ class VehicleWashForm extends React.Component {
             />
           </Grid>
         )}
-        {washpadType === 'pressure_washer' && (
+        {basePath === 'wash_pad_pressure_washer' && (
           <Grid item xs={12}>
             <Field
               fullWidth
@@ -213,12 +212,11 @@ class VehicleWashForm extends React.Component {
             />
           </Grid>
         )}
-      </Fragment>
+      </Grid>
     );
   };
 
-  renderFacilityForm = (values, basePath) => {
-    const year = values.year;
+  renderArray = (fieldsToRender, basePath, values) => {
     return (
       <FieldArray name={basePath || null}>
         {({fields}) =>
@@ -238,82 +236,87 @@ class VehicleWashForm extends React.Component {
                     <DeleteIcon />
                   </IconButton>
                 </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
-                <Grid container alignItems='flex-start' spacing={16}>
-                  {this.renderWaterMeteredControl(`${name}`, values, true)}
-                  {selectn(`${name}.metered`)(values) === 'yes' && (
-                    <Grid item xs={12}>
-                      <Field
-                        fullWidth
-                        required
-                        name={`${name}.water_usage`}
-                        component={MaterialInput}
-                        type='text'
-                        mask={ONE_DECIMAL_MASK}
-                        label={`${year} total annual water use for all vehicle wash facilities on campus`}
-                        endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
-                      />
-                    </Grid>
-                  )}
-                  {selectn(`${name}.metered`)(values) === 'no' && (
-                    <Fragment>
-                      <Grid item xs={12}>
-                        <Field
-                          fullWidth
-                          required
-                          name={`${name}.vpw`}
-                          component={MaterialInput}
-                          type='text'
-                          mask={DEFAULT_NUMBER_MASK}
-                          label='Average number of vehicles washed per week'
-                          endAdornment={<InputAdornment position='end'>Vehicles</InputAdornment>}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Field
-                          fullWidth
-                          required
-                          name={`${name}.wpy`}
-                          component={MaterialInput}
-                          type='text'
-                          mask={DEFAULT_NUMBER_MASK}
-                          label='Total number of weeks per year vehicles are washed '
-                          endAdornment={<InputAdornment position='end'>Washes</InputAdornment>}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Field
-                          fullWidth
-                          required
-                          name={`${name}.gpv`}
-                          component={MaterialInput}
-                          type='text'
-                          mask={DEFAULT_DECIMAL_MASK}
-                          label='Estimated water use per vehicle'
-                          endAdornment={<InputAdornment position='end'>gpv</InputAdornment>}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Field
-                          fullWidth
-                          required
-                          name={`${name}.recycled`}
-                          component={MaterialInput}
-                          type='text'
-                          mask={DEFAULT_NUMBER_MASK}
-                          label='Percentage of water recycled/reused (if any)'
-                          endAdornment={<InputAdornment position='end'>%</InputAdornment>}
-                        />
-                      </Grid>
-                    </Fragment>
-                  )}
-                  </Grid>
-                </ExpansionPanelDetails>
+                <ExpansionPanelDetails>{fieldsToRender(values, name)}</ExpansionPanelDetails>
               </ExpansionPanel>
             </Grid>
           ))
         }
       </FieldArray>
+    );
+  };
+
+  renderFacilityForm = (values, name) => {
+    const year = values.year;
+    return (
+      <Grid container alignItems='flex-start' spacing={16}>
+        {this.renderWaterMeteredControl(`${name}`, values, true)}
+        {selectn(`${name}.metered`)(values) === 'yes' && (
+          <Grid item xs={12}>
+            <Field
+              fullWidth
+              required
+              name={`${name}.water_usage`}
+              component={MaterialInput}
+              type='text'
+              mask={ONE_DECIMAL_MASK}
+              label={`${year} total annual water use for all vehicle wash facilities on campus`}
+              endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
+            />
+          </Grid>
+        )}
+        {selectn(`${name}.metered`)(values) === 'no' && (
+          <Fragment>
+            <Grid item xs={12}>
+              <Field
+                fullWidth
+                required
+                name={`${name}.vpw`}
+                component={MaterialInput}
+                type='text'
+                mask={DEFAULT_NUMBER_MASK}
+                label='Average number of vehicles washed per week'
+                endAdornment={<InputAdornment position='end'>Vehicles</InputAdornment>}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                fullWidth
+                required
+                name={`${name}.wpy`}
+                component={MaterialInput}
+                type='text'
+                mask={DEFAULT_NUMBER_MASK}
+                label='Total number of weeks per year vehicles are washed '
+                endAdornment={<InputAdornment position='end'>Washes</InputAdornment>}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                fullWidth
+                required
+                name={`${name}.gpv`}
+                component={MaterialInput}
+                type='text'
+                mask={DEFAULT_DECIMAL_MASK}
+                label='Estimated water use per vehicle'
+                endAdornment={<InputAdornment position='end'>gpv</InputAdornment>}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                fullWidth
+                required
+                name={`${name}.recycled`}
+                component={MaterialInput}
+                type='text'
+                mask={DEFAULT_NUMBER_MASK}
+                label='Percentage of water recycled/reused (if any)'
+                endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+              />
+            </Grid>
+          </Fragment>
+        )}
+      </Grid>
     );
   };
 
@@ -346,7 +349,7 @@ class VehicleWashForm extends React.Component {
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
                 <Grid container alignItems='flex-start' spacing={16}>
-                  {this.renderFacilityForm(values, 'auto_wash')}
+                  {this.renderArray(this.renderFacilityForm, 'auto_wash', values)}
                 </Grid>
               </ExpansionPanelDetails>
             </ExpansionPanel>
@@ -376,42 +379,48 @@ class VehicleWashForm extends React.Component {
                       <MenuItem value='frictionless'>Frictionless Washing</MenuItem>
                     </Field>
                   </Grid>
-                  {selectn('vehicle_wash.conveyor.type')(values) && this.renderFacilityForm(values, 'conveyor')}
+                  {selectn('vehicle_wash.conveyor.type')(values) && this.renderArray(this.renderFacilityForm, 'conveyor', values)}
                 </Grid>
               </ExpansionPanelDetails>
             </ExpansionPanel>
           </Grid>
           {selectn(`vehicle_wash.conveyor_facilities`)(values) == false && this.clearSection(values, 'conveyor')}
           <Grid item xs={12}>
-            <ExpansionPanel expanded={selectn(`vehicle_wash.wash_pad_facilities`)(values) === true}>
+            <ExpansionPanel expanded={selectn(`vehicle_wash.wash_pad_pressure_washer_facilities`)(values) === true}>
               <ExpansionPanelSummary>
                 <Field
-                  name='vehicle_wash.wash_pad_facilities'
-                  label='This campus has self-service wash pad(s)'
+                  name='vehicle_wash.wash_pad_pressure_washer_facilities'
+                  label='This campus has self-service wash pad(s) that use a pressure washer'
                   component={ToggleAdapter}
                   type='checkbox'
                 />
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
                 <Grid container alignItems='flex-start' spacing={16}>
-                  <Grid item xs={12}>
-                    <Field
-                      formControlProps={{fullWidth: true}}
-                      required
-                      name='vehicle_wash.wash_pads.type'
-                      component={Select}
-                      label='Are most vehicles using self-service wash pads washed with an open hose or with a pressure washer?'
-                    >
-                      <MenuItem value='open_hose'>Open Hose</MenuItem>
-                      <MenuItem value='pressure_washer'>Pressure Washer</MenuItem>
-                    </Field>
-                  </Grid>
-                  {selectn('vehicle_wash.wash_pads.type')(values) && this.renderWashpadForm(values, 'vehicle_wash.wash_pads')}
+                  {this.renderArray(this.renderWashpadForm, 'wash_pad_pressure_washer', values)}
                 </Grid>
               </ExpansionPanelDetails>
             </ExpansionPanel>
           </Grid>
-          {selectn(`vehicle_wash.wash_pad_facilities`)(values) == false && this.clearSection(values, 'wash_pads')}
+          {selectn(`vehicle_wash.wash_pad_pressure_washer_facilities`)(values) == false && this.clearSection(values, 'wash_pad_pressure_washer')}
+          <Grid item xs={12}>
+            <ExpansionPanel expanded={selectn(`vehicle_wash.wash_pad_open_hose_facilities`)(values) === true}>
+              <ExpansionPanelSummary>
+                <Field
+                  name='vehicle_wash.wash_pad_open_hose_facilities'
+                  label='This campus has self-service wash pad(s) that use an open hose'
+                  component={ToggleAdapter}
+                  type='checkbox'
+                />
+              </ExpansionPanelSummary>
+              <ExpansionPanelDetails>
+                <Grid container alignItems='flex-start' spacing={16}>
+                  {this.renderArray(this.renderWashpadForm, 'wash_pad_open_hose', values)}
+                </Grid>
+              </ExpansionPanelDetails>
+            </ExpansionPanel>
+          </Grid>
+          {selectn(`vehicle_wash.wash_pad_open_hose_facilities`)(values) == false && this.clearSection(values, 'wash_pad_open_hose')}
           <Grid item xs={12}>
             <ExpansionPanel expanded={selectn(`vehicle_wash.large_facilities`)(values) === true}>
               <ExpansionPanelSummary>
@@ -424,7 +433,7 @@ class VehicleWashForm extends React.Component {
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
                 <Grid container alignItems='flex-start' spacing={16}>
-                  {this.renderFacilityForm(values, 'large_vehicles')}
+                  {this.renderArray(this.renderFacilityForm, 'large_vehicles', values)}
                 </Grid>
               </ExpansionPanelDetails>
             </ExpansionPanel>
@@ -462,16 +471,30 @@ class VehicleWashForm extends React.Component {
     }
   };
 
-  render() {
-    const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
-    const module = campus ? campus.modules.vehicle_wash : {};
-    const fields = ['auto_wash', 'conveyor', 'wash_pads', 'large_vehicles'];
+  parseModule = (fields, module) => {
     fields.forEach((field) => {
       if (!(field in module) && module.vehicle_wash) {
-        const startingValues = module.vehicle_wash[field] ? {...module.vehicle_wash[field]} : {};
+        let startingValues;
+        if (field === 'wash_pad_pressure_washer' && module.vehicle_wash.wash_pads.type === 'pressure_washer') {
+          startingValues = {...module.vehicle_wash.wash_pads};
+          module.vehicle_wash.wash_pad_pressure_washer_facilities = true;
+        } else if (field === 'wash_pad_open_hose' && module.vehicle_wash.wash_pads.type === 'open_hose') {
+          startingValues = {...module.vehicle_wash.wash_pad_open_hose_facilities};
+          module.vehicle_wash.wash_pad_open_hose_facilities = true;
+        } else {
+          startingValues = module.vehicle_wash[field] ? {...module.vehicle_wash[field]} : {};
+        }
         module[field] = [startingValues];
       }
     });
+  };
+
+  render() {
+    const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
+    const module = campus ? campus.modules.vehicle_wash : {};
+    const fields = ['auto_wash', 'conveyor', 'wash_pad_open_hose', 'wash_pad_pressure_washer', 'large_vehicles'];
+    this.parseModule(fields, module);
+
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
