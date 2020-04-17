@@ -349,7 +349,7 @@ class LaundryForm extends React.Component {
             <ExpansionPanelSummary>
               <Field
                 name={`${basePath}.has_single_load`}
-                label='My campus has single-load and/or multi-load washing machines.'
+                label='This facility has single-load and/or multi-load washing machines.'
                 component={ToggleAdapter}
                 type='checkbox'
               />
@@ -367,7 +367,7 @@ class LaundryForm extends React.Component {
             <ExpansionPanelSummary>
               <Field
                 name={`${basePath}.has_industrial_machines`}
-                label='My campus has industrial washing machines, such as tunnel washers or washer extractors.'
+                label='This facility has industrial washing machines, such as tunnel washers or washer extractors.'
                 component={ToggleAdapter}
                 type='checkbox'
               />
