@@ -188,10 +188,11 @@ const getOccupants = (basePath, values, subgroup) => {
 }
 
 const calculateKitchenSink = (basePath, values, subgroup, minutesPerHour) => {
+    let daysPerYear = getDaysPerYear(basePath, values, subgroup);
     let occupants = getOccupants(basePath, values, subgroup);
     let flowRate = toNumber(selectn(`${basePath}.kitchenette_flow_rate`)(values));
     let minutesPerYear = occupants * minutesPerHour;
-    let totalWaterUse = (minutesPerYear * flowRate)/1000;  
+    let totalWaterUse = (minutesPerYear * flowRate * daysPerYear)/1000;  
     return totalWaterUse;
 }
 
