@@ -99,7 +99,6 @@ const validate = values => {
 	const errors = {};
 	const batchErrors = [];
 	const continuousErrors = [];
-	const sectionErrors = {};
 
 	if (!values.other_processes) {
 		errors.other_processes = 'An answer about other processes is required.';

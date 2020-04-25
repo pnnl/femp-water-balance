@@ -13,7 +13,7 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert} from '../shared/sharedFunctions';
-import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat} from '../shared/sharedStyles';
+import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat, expansionPanel} from '../shared/sharedStyles';
 
 import formValidation from './SteamBoilersForm.validation';
 
@@ -312,7 +312,7 @@ class SteamBoilersForm extends React.Component {
           {({fields}) =>
             fields.map((name, index) => (
               <Grid item xs={12} key={index}>
-                <ExpansionPanel expanded={selectn(`${name}.name`)(values) !== undefined}>
+                <ExpansionPanel style={expansionPanel} expanded={selectn(`${name}.name`)(values) !== undefined}>
                   <ExpansionPanelSummary>
                     <Field
                       fullWidth
@@ -399,7 +399,7 @@ class SteamBoilersForm extends React.Component {
                   <FormControlLabel
                     label='My campus has steam boilers?'
                     control={
-                      <Field name='has_steam_boilers' component={Checkbox} indeterminate={values.has_other_processes === undefined} type='checkbox' />
+                      <Field name='has_steam_boilers' component={Checkbox} indeterminate={values.has_steam_boilers === undefined} type='checkbox' />
                     }
                   />
                 </Grid>

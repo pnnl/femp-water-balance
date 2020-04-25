@@ -9,7 +9,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat} from '../shared/sharedStyles';
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, expansionPanel, noPadding, noShadow} from '../shared/sharedStyles';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
@@ -225,7 +225,7 @@ class OtherProcessesForm extends React.Component {
         {({fields}) =>
           fields.map((name, index) => (
             <Grid item xs={12} key={index}>
-              <ExpansionPanel expanded={selectn(`${name}.name`)(values) !== undefined}>
+              <ExpansionPanel style={{...noShadow, ...noPadding}} expanded={selectn(`${name}.name`)(values) !== undefined}>
                 <ExpansionPanelSummary>
                   <Field
                     fullWidth
@@ -259,7 +259,7 @@ class OtherProcessesForm extends React.Component {
         {({fields}) =>
           fields.map((name, index) => (
             <Grid item xs={12} key={index}>
-              <ExpansionPanel expanded={selectn(`${name}.name`)(values) !== undefined}>
+              <ExpansionPanel style={{...noShadow, ...noPadding}} expanded={selectn(`${name}.name`)(values) !== undefined}>
                 <ExpansionPanelSummary>
                   <Field
                     fullWidth
@@ -326,7 +326,7 @@ class OtherProcessesForm extends React.Component {
     return (
       <Fragment>
         <Grid item xs={12}>
-          <ExpansionPanel expanded={selectn(`other_processes.has_batch_processes`)(values) === true}>
+          <ExpansionPanel style={expansionPanel} expanded={selectn(`other_processes.has_batch_processes`)(values) === true}>
             <ExpansionPanelSummary>
               <Field
                 name={`other_processes.has_batch_processes`}
@@ -344,7 +344,7 @@ class OtherProcessesForm extends React.Component {
         </Grid>
         {selectn(`other_processes.has_batch_processes`)(values) == false && this.clearSection(values, 'batch_processes')}
         <Grid item xs={12}>
-          <ExpansionPanel expanded={selectn(`other_processes.has_continuous_processes`)(values) === true}>
+          <ExpansionPanel style={expansionPanel} expanded={selectn(`other_processes.has_continuous_processes`)(values) === true}>
             <ExpansionPanelSummary>
               <Field
                 name={`other_processes.has_continuous_processes`}
