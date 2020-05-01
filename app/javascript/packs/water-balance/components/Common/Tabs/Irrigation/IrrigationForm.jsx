@@ -9,7 +9,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import {fabStyle, ONE_DECIMAL_MASK, numberFormat, DEFAULT_DECIMAL_MASK, expansionDetails, expansionPanel} from '../shared/sharedStyles';
+import {fabStyle, ONE_DECIMAL_MASK, numberFormat, DEFAULT_DECIMAL_MASK, mediaQuery} from '../shared/sharedStyles';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
@@ -18,6 +18,9 @@ import {submitAlert} from '../shared/sharedFunctions';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import formValidation from './Irrigation.validation';
 import RemoteApi from '../../../../RemoteApi';
+
+
+let expansionPanel = mediaQuery();
 
 const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const nonmeter = [

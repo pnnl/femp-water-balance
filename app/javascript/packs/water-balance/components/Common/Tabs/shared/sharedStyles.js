@@ -19,6 +19,10 @@ export const noShadow = {
   boxShadow: 'none',
 };
 
+export function mediaQuery() {
+  return window.matchMedia('(max-width: 1265px)').matches ? {width: '100%', marginLeft: '0px'}: expansionPanel;
+}
+
 export const expansionDetails = {
   marginTop: '0px',
   paddingTop: '0px',

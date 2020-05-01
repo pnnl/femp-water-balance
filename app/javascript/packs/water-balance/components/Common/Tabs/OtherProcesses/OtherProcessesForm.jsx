@@ -9,7 +9,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, expansionPanel, noPadding, noShadow} from '../shared/sharedStyles';
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery, noPadding, noShadow} from '../shared/sharedStyles';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
@@ -17,6 +17,8 @@ import {submitAlert} from '../shared/sharedFunctions';
 
 import formValidation from './OtherProcessesForm.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
+
+let expansionPanel = mediaQuery();
 
 const toNumber = (value) => {
   if (value === undefined || value === null) {

@@ -10,10 +10,12 @@ import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import Divider from '@material-ui/core/Divider';
 import {submitAlert, updateIsDirty} from '../shared/sharedFunctions';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat, expansionPanel} from '../shared/sharedStyles';
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import formValidation from './PlumbingForm.validation';
 
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
+
+let expansionPanel = mediaQuery();
 
 const subHeader = {
   marginLeft: '7px',

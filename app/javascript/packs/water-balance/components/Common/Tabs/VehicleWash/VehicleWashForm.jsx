@@ -23,8 +23,10 @@ import {
   noShadow,
   noPadding,
   expansionDetails,
-  expansionPanel,
+  mediaQuery,
 } from '../shared/sharedStyles';
+
+let expansionPanel = mediaQuery();
 
 import formValidation from './VehicleWashForm.validation';
 

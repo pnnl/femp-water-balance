@@ -14,9 +14,11 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import createDecorator from 'final-form-focus';
 import {submitAlert} from '../shared/sharedFunctions';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, expansionPanel} from '../shared/sharedStyles';
+import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 
 import formValidation from './kitchensForm.validation';
+
+let expansionPanel = mediaQuery();
 
 const nonMeteredFields = [
   'weekend_meals',

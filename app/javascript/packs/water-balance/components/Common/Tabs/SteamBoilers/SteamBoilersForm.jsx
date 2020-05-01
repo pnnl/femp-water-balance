@@ -13,11 +13,11 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert} from '../shared/sharedFunctions';
-import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat, expansionPanel} from '../shared/sharedStyles';
-
+import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import formValidation from './SteamBoilersForm.validation';
-
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
+
+let expansionPanel = mediaQuery();
 
 const focusOnError = createDecorator();
 
