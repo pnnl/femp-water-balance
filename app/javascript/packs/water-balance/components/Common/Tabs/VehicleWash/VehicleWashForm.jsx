@@ -435,10 +435,10 @@ class VehicleWashForm extends React.Component {
           </Grid>
           {selectn(`vehicle_wash.wash_pad_open_hose_facilities`)(values) == false && this.clearSection(values, 'wash_pad_open_hose')}
           <Grid item xs={12}>
-            <ExpansionPanel style={expansionPanel} expanded={selectn(`vehicle_wash.large_vehicle_facilities`)(values) === true}>
+            <ExpansionPanel style={expansionPanel} expanded={selectn(`vehicle_wash.large_facilities`)(values) === true}>
               <ExpansionPanelSummary>
                 <Field
-                  name='vehicle_wash.large_vehicle_facilities'
+                  name='vehicle_wash.large_facilities'
                   label='This campus has vehicle wash facilities for large vehicles such as semi-trucks, tracked vehicles, or aircraft?'
                   component={ToggleAdapter}
                   type='checkbox'
@@ -449,7 +449,7 @@ class VehicleWashForm extends React.Component {
               </ExpansionPanelDetails>
             </ExpansionPanel>
           </Grid>
-          {selectn(`vehicle_wash.large_vehicle_facilities`)(values) == false && this.clearSection(values, 'large_vehicle_facilities')}
+          {selectn(`vehicle_wash.large_facilities`)(values) == false && this.clearSection(values, 'large_facilities')}
           <Grid item xs={12} sm={4}>
             <Field
               fullWidth
@@ -511,7 +511,7 @@ class VehicleWashForm extends React.Component {
       {name: 'conveyor', display_name: 'Friction or Frictionless', check: 'conveyor_facilities'},
       {name: 'wash_pad_open_hose', display_name: 'Open Hose', check: 'wash_pad_open_hose_facilities'},
       {name: 'wash_pad_pressure_washer', display_name: 'Pressure Washer', check: 'wash_pad_pressure_washer_facilities'},
-      {name: 'large_vehicles', display_name: 'Large Vehicle', check: 'large_vehicle_facilities'},
+      {name: 'large_vehicles', display_name: 'Large Vehicle', check: 'large_facilities'},
     ];
     const buttons = [];
     this.parseModule(fields, module);

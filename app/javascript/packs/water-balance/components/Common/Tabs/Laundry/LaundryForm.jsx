@@ -300,7 +300,7 @@ class LaundryForm extends React.Component {
             component={MaterialInput}
             type='text'
             mask={DEFAULT_NUMBER_MASK}
-            label='Estimated loads of laundry per person per week.'
+            label='Estimated loads of laundry per person per weekday.'
           />
         </Grid>
         <Grid item xs={12}>
