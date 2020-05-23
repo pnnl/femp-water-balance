@@ -14,11 +14,12 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert} from '../shared/sharedFunctions';
+import MaterialDatePicker from '../../MaterialDatePicker';
 
 import formValidation from './CoolingTowers.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 
-let expansionPanel = mediaQuery(); 
+let expansionPanel = mediaQuery();
 
 const waterUseLookUp = [
   [5480, 4930, 4660, 4380, 4380, 4110],
@@ -36,9 +37,6 @@ const waterUseLookUp = [
   [220270, 195890, 183560, 176160, 171510, 167950],
   [275340, 245480, 229590, 220270, 214250, 209860],
 ];
-
-const chillerTonnage = ['100', '200', '400', '500', '600', '800', '1,000', '1,500', '2,000', '2,500', '3,000', '3,500', '4,000', '5,000'];
-const concentrationCycles = ['3', '4', '5', '6', '7', '8'];
 
 const toNumber = (value) => {
   if (value === undefined || value === null) {
@@ -120,8 +118,47 @@ class CoolingTowersForm extends React.Component {
 
   onSubmit = (values) => {};
 
-  nonMetered = (basePath) => {
-    let i = 0;
+  renderParameters = (basePath, values) => {
+    return (
+      <Fragment>
+        <Grid item xs={12}>
+          <Field
+            formControlProps={{fullWidth: true}}
+            required
+            name={`${basePath}.start_date`}
+            component={MaterialDatePicker}
+            dateFormat='MM/DD/YYYY'
+            label='Cooling season start date'
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Field
+            formControlProps={{fullWidth: true}}
+            required
+            name={`${basePath}.end_date`}
+            component={MaterialDatePicker}
+            dateFormat='MM/DD/YYYY'
+            label='Cooling season end date'
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Field
+            formControlProps={{fullWidth: true}}
+            required
+            disabled
+            name={`${basePath}.days_per_year`}
+            component={MaterialInput}
+            type='text'
+            label='Number of days per year the system is operating'
+            value={Math.max(selectn(`${basePath}.end_date`)(values) - selectn(`${basePath}.start_date`)(values), 0)}
+            endAdornment={<InputAdornment position='end'>days</InputAdornment>}
+          />
+        </Grid>
+      </Fragment>
+    );
+  };
+
+  nonMetered = (basePath, values) => {
     return (
       <Fragment>
         <Grid item xs={12}>
@@ -129,42 +166,39 @@ class CoolingTowersForm extends React.Component {
             formControlProps={{fullWidth: true}}
             required
             name={`${basePath}.tonnage`}
-            component={Select}
+            component={MaterialInput}
+            mask={ONE_DECIMAL_MASK}
             label='Total tonnage of the chillers associated with the system'
-          >
-            {chillerTonnage.map((val, i) => (
-              <MenuItem key={val} value={i++}>
-                {val}
-              </MenuItem>
-            ))}
-          </Field>
+            endAdornment={<InputAdornment position='end'>tons</InputAdornment>}
+          ></Field>
         </Grid>
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
             required
             name={`${basePath}.cycles`}
-            component={Select}
+            component={MaterialInput}
+            mask={ONE_DECIMAL_MASK}
             label='Cycles of concentration for the system'
-          >
-            {concentrationCycles.map((val, i) => (
-              <MenuItem key={val} value={i++}>
-                {val}
-              </MenuItem>
-            ))}
-          </Field>
+            endAdornment={<InputAdornment position='end'>cycles</InputAdornment>}
+          ></Field>
         </Grid>
         <Grid item xs={12}>
           <Field
-            fullWidth
+            formControlProps={{fullWidth: true}}
             required
-            name={`${basePath}.days_per_year`}
-            component={MaterialInput}
-            type='text'
-            label='Number of days per year the system is operating'
-            endAdornment={<InputAdornment position='end'>days</InputAdornment>}
-          />
+            name={`${basePath}.parameters_known`}
+            component={Select}
+            label='Are operational parameters known (days and hours in operation)?'
+          >
+            <MenuItem value='yes'>Yes</MenuItem>
+            <MenuItem value='no'>No</MenuItem>
+          </Field>
         </Grid>
+        {selectn(`${basePath}.parameters_known`)(values) == 'yes' && this.renderParameters(basePath, values)}
+        {/* {basePath.parameters_known == 'no' && (
+          this.renderHandbook(basePath)
+        )} */}
       </Fragment>
     );
   };
@@ -190,7 +224,7 @@ class CoolingTowersForm extends React.Component {
         )}
         {isMetered == 'yes' && this.clearValues(['tonnage', 'cycles', 'days_per_year'], basePath, values)}
         {isMetered == 'no' && this.clearValues(['annual_water_use'], basePath, values)}
-        {isMetered == 'no' && this.nonMetered(basePath)}
+        {isMetered == 'no' && this.nonMetered(basePath, values)}
       </Fragment>
     );
   };

@@ -20,10 +20,9 @@ class CampusIntroduction extends React.Component {
             <Fragment>
                 <Typography variant="body2" gutterBottom>
                     &nbsp;
-                    Help Guide&nbsp;
                     <a href="/femp-water-balance-help-2019.pdf" target="_blank" download>
-                        click here to download
-                    </a> the full help guide :
+                        Click here to download
+                    </a> the full help guide:
                 </Typography>&nbsp;
                 <Typography variant="h6" gutterBottom>
                     How to use the tool

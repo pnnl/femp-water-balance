@@ -17,12 +17,12 @@ const validateProcesses = (values, allTowers) => {
 		}
 	} else {
 		valuePath = values.tonnage;
-		if (valuePath == undefined) {
+		if (!isPositiveNumeric(valuePath)) {
 			errors['tonnage'] = 'The total tonnage of the chillers associated with the system.';
 		}
 		valuePath = values.cycles;
-		if (valuePath == undefined) {
-			errors['cycles'] = 'The cycles of concentration for the system.';
+		if (!isWithinNumericRange(valuePath, 2.0, 10.0)) {
+			errors['cycles'] = 'The cycles of concentration for the system must be between 2.0 and 10.0.';
 		}
 		valuePath = values.days_per_year;
 		if (!isWithinNumericRange(valuePath, 1, 365)) {
