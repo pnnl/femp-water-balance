@@ -13,8 +13,11 @@ import {fabStyle, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sh
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
+import createCalculatorDecorator from 'final-form-calculate';
 import {submitAlert} from '../shared/sharedFunctions';
 import MaterialDatePicker from '../../MaterialDatePicker';
+import moment from 'moment';
+import InfoIcon from '@material-ui/icons/Info';
 
 import formValidation from './CoolingTowers.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
@@ -55,6 +58,27 @@ const FormRulesListener = ({handleFormChange}) => (
     }}
   />
 );
+
+const calculator = createCalculatorDecorator({
+  field: /\.*_date/,
+  updates: (value, name, allValues) => {
+    if (allValues.cooling_towers) {
+      allValues.cooling_towers.forEach((cooling_tower) => {
+        if (cooling_tower.start_date && cooling_tower.end_date) {
+          const startDateMoment = moment(cooling_tower.start_date);
+          const endDateMoment = moment(cooling_tower.end_date);
+          const daysBetween = endDateMoment.diff(startDateMoment, 'days').toString();
+          if (daysBetween > 0) {
+            cooling_tower.days_per_year = daysBetween;
+          } else {
+            cooling_tower.days_per_year = null;
+          }
+        }
+      });
+    }
+    return {};
+  },
+});
 
 const focusOnError = createDecorator();
 
@@ -117,7 +141,6 @@ class CoolingTowersForm extends React.Component {
   };
 
   onSubmit = (values) => {};
-
   renderParameters = (basePath, values) => {
     return (
       <Fragment>
@@ -144,14 +167,46 @@ class CoolingTowersForm extends React.Component {
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
-            required
             disabled
             name={`${basePath}.days_per_year`}
             component={MaterialInput}
-            type='text'
-            label='Number of days per year the system is operating'
-            value={Math.max(selectn(`${basePath}.end_date`)(values) - selectn(`${basePath}.start_date`)(values), 0)}
+            helperText='Number of days per year the system is operating'
             endAdornment={<InputAdornment position='end'>days</InputAdornment>}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Field
+            formControlProps={{fullWidth: true}}
+            name={`${basePath}.hours_per_day`}
+            component={MaterialInput}
+            mask={ONE_DECIMAL_MASK}
+            label='Average hours per day the system operates'
+            endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
+          />
+        </Grid>
+      </Fragment>
+    );
+  };
+
+  renderHandbook = (basePath, values) => {
+    return (
+      <Fragment>
+        <span>
+          <Typography variant='body2' gutterBottom>
+          <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
+            Click here for help calculating percent of full load cooling hours per year.
+          </Typography>
+        </span>
+        <Grid item xs={12}>
+          <Field
+            style={{marginTop: '0px'}}
+            formControlProps={{fullWidth: true}}
+            required
+            name={`${basePath}.full_load_cooling`}
+            component={MaterialInput}
+            mask={ONE_DECIMAL_MASK}
+            label='Percent of full load cooling hours per year'
+            endAdornment={<InputAdornment position='end'>%</InputAdornment>}
           />
         </Grid>
       </Fragment>
@@ -159,6 +214,7 @@ class CoolingTowersForm extends React.Component {
   };
 
   nonMetered = (basePath, values) => {
+    const parametersKnown = selectn(`${basePath}.parameters_known`)(values);
     return (
       <Fragment>
         <Grid item xs={12}>
@@ -170,7 +226,7 @@ class CoolingTowersForm extends React.Component {
             mask={ONE_DECIMAL_MASK}
             label='Total tonnage of the chillers associated with the system'
             endAdornment={<InputAdornment position='end'>tons</InputAdornment>}
-          ></Field>
+          />
         </Grid>
         <Grid item xs={12}>
           <Field
@@ -181,7 +237,7 @@ class CoolingTowersForm extends React.Component {
             mask={ONE_DECIMAL_MASK}
             label='Cycles of concentration for the system'
             endAdornment={<InputAdornment position='end'>cycles</InputAdornment>}
-          ></Field>
+          />
         </Grid>
         <Grid item xs={12}>
           <Field
@@ -195,10 +251,10 @@ class CoolingTowersForm extends React.Component {
             <MenuItem value='no'>No</MenuItem>
           </Field>
         </Grid>
+        {parametersKnown == 'no' && this.clearValues(['days_per_year', 'start_date', 'end_date', 'hours_per_day'], basePath, values)}
+        {parametersKnown == 'yes' && this.clearValues(['full_load_cooling'], basePath, values)}
         {selectn(`${basePath}.parameters_known`)(values) == 'yes' && this.renderParameters(basePath, values)}
-        {/* {basePath.parameters_known == 'no' && (
-          this.renderHandbook(basePath)
-        )} */}
+        {selectn(`${basePath}.parameters_known`)(values) == 'no' && this.renderHandbook(basePath)}
       </Fragment>
     );
   };
@@ -222,7 +278,12 @@ class CoolingTowersForm extends React.Component {
             ></Field>
           </Grid>
         )}
-        {isMetered == 'yes' && this.clearValues(['tonnage', 'cycles', 'days_per_year'], basePath, values)}
+        {isMetered == 'yes' &&
+          this.clearValues(
+            ['tonnage', 'cycles', 'days_per_year', 'start_date', 'end_date', 'hours_per_day', 'parameters_known', 'full_load_cooling'],
+            basePath,
+            values
+          )}
         {isMetered == 'no' && this.clearValues(['annual_water_use'], basePath, values)}
         {isMetered == 'no' && this.nonMetered(basePath, values)}
       </Fragment>
@@ -340,7 +401,7 @@ class CoolingTowersForm extends React.Component {
           initialValues={module}
           validate={formValidation}
           mutators={{...arrayMutators}}
-          decorators={[focusOnError]}
+          decorators={[calculator, focusOnError]}
           render={({
             handleSubmit,
             values,
@@ -391,6 +452,7 @@ class CoolingTowersForm extends React.Component {
               </Grid>
               {this.updateIsDirty(dirty, updateParent)}
               <FormRulesListener handleFormChange={applyRules} />
+              <pre>{JSON.stringify(values, 0, 2)}</pre>
             </form>
           )}
         />
