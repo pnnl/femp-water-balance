@@ -142,7 +142,6 @@ class CampusIntroduction extends React.Component {
                         <li style={liStyle}>gpm – gallons per minute</li>
                         <li style={liStyle}>gpv – gallons per vehicle</li>
                         <li style={liStyle}>lbs - pounds</li>
-                        <li style={liStyle}>--- Deployment Pipeline Test ---</li>
                     </ul>
                 </Typography>
             </Fragment>
