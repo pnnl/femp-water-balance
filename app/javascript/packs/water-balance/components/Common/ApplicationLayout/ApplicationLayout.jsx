@@ -17,7 +17,7 @@ class ApplicationLayout extends React.Component {
 		return createMuiTheme({
 			palette: {
 				primary: {
-					main: '#2196f3',
+					main: '#005E84',
 				},
 				contrastThreshold: 3,
 				tonalOffset: 0.2,

@@ -7,9 +7,9 @@ export const isPositiveNumeric = (path, values, includeZero = false, required = 
 	if (required === true && resolvedValue) {
 		const numeric = parseInt(resolvedValue.replace(/,/g, ""));
 		if (includeZero) {
-			return (isNaN(numeric) && numeric >= 0);
+			return (isFinite(numeric) && numeric >= 0);
 		} else {
-			return (isNaN(numeric) && numeric > 0);
+			return (isFinite(numeric) && numeric > 0);
 		}
 	}
 	return false;
