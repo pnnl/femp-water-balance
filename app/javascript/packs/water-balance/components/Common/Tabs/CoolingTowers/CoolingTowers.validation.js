@@ -15,13 +15,16 @@ const validateProcesses = (values, allTowers) => {
       errors['annual_water_use'] = 'Annual water usage is required if makeup water is metered.';
     }
   } else {
-    valuePath = values.tonnage;
+    valuePath = values.tonnage ? values.tonnage.toString() : null;
     if (!isPositiveNumeric(valuePath)) {
       errors['tonnage'] = 'The total tonnage of the chillers associated with the system.';
     }
-    valuePath = values.cycles;
+    valuePath = values.cycles ? values.cycles.toString() : null;
     if (!isWithinNumericRange(valuePath, 2.0, 10.0)) {
       errors['cycles'] = 'The cycles of concentration for the system must be between 2.0 and 10.0.';
+    }
+    if(!values.parameters_known) {
+      errors['parameters_known'] = 'Please indicate if the operational parameters are known.'
     }
     if (values.parameters_known === 'yes') {
       if (!values.start_date) {

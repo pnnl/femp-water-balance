@@ -7,6 +7,11 @@ import arrayMutators from 'final-form-arrays';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Link from '@material-ui/core/Link';
+import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import {fabStyle, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
@@ -21,25 +26,9 @@ import InfoIcon from '@material-ui/icons/Info';
 
 import formValidation from './CoolingTowers.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
+import FullLoadReferenceGuide from './FullLoadReferenceGuide';
 
 let expansionPanel = mediaQuery();
-
-const waterUseLookUp = [
-  [5480, 4930, 4660, 4380, 4380, 4110],
-  [10960, 9860, 9320, 8770, 8490, 8490],
-  [21920, 19730, 18360, 17530, 17260, 16710],
-  [27400, 24380, 23010, 21920, 21370, 21100],
-  [33150, 29320, 27400, 26580, 25750, 25210],
-  [44110, 39180, 36710, 35340, 34250, 33700],
-  [55070, 49040, 46030, 44110, 42740, 41920],
-  [82740, 73420, 68770, 66030, 64380, 63010],
-  [110140, 97810, 91780, 88220, 85480, 83840],
-  [137810, 122470, 114790, 110140, 107120, 104930],
-  [165210, 146850, 137810, 132330, 128490, 126030],
-  [192880, 171510, 160550, 154250, 149860, 146850],
-  [220270, 195890, 183560, 176160, 171510, 167950],
-  [275340, 245480, 229590, 220270, 214250, 209860],
-];
 
 const toNumber = (value) => {
   if (value === undefined || value === null) {
@@ -83,9 +72,19 @@ const calculator = createCalculatorDecorator({
 const focusOnError = createDecorator();
 
 const coolingTowerCalculation = (values) => {
-  let waterUse = waterUseLookUp[values.tonnage][values.cycles];
-  let total = (waterUse * values.days_per_year) / 1000;
-  return total;
+  let percentFullLoad = 0;
+  const evaporationRate = 1.65;
+  if (values.parameters_known === 'yes') {
+    percentFullLoad = (values.days_per_year * values.hours_per_day) / 8760;
+  } else {
+    percentFullLoad = values.full_load_cooling;
+  }
+  const annualOperatingHours = percentFullLoad * 24 * values.days_per_year;
+  const evaporationWaterUse = annualOperatingHours * values.tonnage * evaporationRate;
+  const blowDown = evaporationWaterUse / (values.cycles - 1)
+
+  let totalWaterUse = (evaporationWaterUse + blowDown)/1000
+  return totalWaterUse;
 };
 
 class CoolingTowersForm extends React.Component {
@@ -94,9 +93,14 @@ class CoolingTowersForm extends React.Component {
     let waterUse = selectn(`campus.modules.cooling_towers.water_use`)(props);
     this.state = {
       waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : '',
+      referenceGuideVisible: false,
     };
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
+
+  toggleDialogVisibility = () => {
+    this.setState({referenceGuideVisible: !this.state.referenceGuideVisible});
+  };
 
   clearValues = (clearValues, basePath, values) => {
     let field = basePath.split('[');
@@ -193,8 +197,8 @@ class CoolingTowersForm extends React.Component {
       <Fragment>
         <span>
           <Typography variant='body2' gutterBottom>
-          <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
-            Click here for help calculating percent of full load cooling hours per year.
+            <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
+            Click <Link onClick={() => this.toggleDialogVisibility()}>here</Link> for help calculating percent of full load cooling hours per year.
           </Typography>
         </span>
         <Grid item xs={12}>
@@ -452,10 +456,19 @@ class CoolingTowersForm extends React.Component {
               </Grid>
               {this.updateIsDirty(dirty, updateParent)}
               <FormRulesListener handleFormChange={applyRules} />
-              <pre>{JSON.stringify(values, 0, 2)}</pre>
+              {/* <pre>{JSON.stringify(values, 0, 2)}</pre> */}
             </form>
           )}
         />
+        <Dialog open={this.state.referenceGuideVisible} onClose={this.toggleDialogVisibility} maxWidth='lg' aria-labelledby='form-dialog-title'>
+          <DialogTitle id='form-dialog-title'>
+            Full Load Cooling Hours Help
+            <CloseIcon color='action' onClick={() => this.toggleDialogVisibility()} style={{float: 'right'}} />
+          </DialogTitle>
+          <DialogContent>
+            <FullLoadReferenceGuide />
+          </DialogContent>
+        </Dialog>
       </Fragment>
     );
   }
