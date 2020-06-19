@@ -72,18 +72,17 @@ const calculator = createCalculatorDecorator({
 const focusOnError = createDecorator();
 
 const coolingTowerCalculation = (values) => {
-  let percentFullLoad = 0;
+  let annualOperatingHours = 0;
   const evaporationRate = 1.65;
   if (values.parameters_known === 'yes') {
-    percentFullLoad = (values.days_per_year * values.hours_per_day) / 8760;
+    annualOperatingHours = (values.days_per_year * values.hours_per_day);
   } else {
-    percentFullLoad = values.full_load_cooling;
+    let percentFullLoad = values.full_load_cooling;
+    annualOperatingHours = (percentFullLoad / 100) * 8760;
   }
-  const annualOperatingHours = percentFullLoad * 24 * values.days_per_year;
   const evaporationWaterUse = annualOperatingHours * values.tonnage * evaporationRate;
-  const blowDown = evaporationWaterUse / (values.cycles - 1)
-
-  let totalWaterUse = (evaporationWaterUse + blowDown)/1000
+  const blowDown = evaporationWaterUse / (values.cycles - 1);
+  let totalWaterUse = (evaporationWaterUse + blowDown) / 1000;
   return totalWaterUse;
 };
 
