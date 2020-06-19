@@ -17,7 +17,7 @@ import CoolingTowersForm from './Common/Tabs/CoolingTowers/CoolingTowersForm';
 import IrrigationForm from './Common/Tabs/Irrigation/IrrigationForm';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Report from './Common/Tabs/Report/Report';
-import CampusIntroduction from './Common/CampusIntroduction';
+import CampusIntroduction from './Common/Tabs/LandingPage/CampusIntroduction';
 
 import { Engine } from 'json-rules-engine';
 

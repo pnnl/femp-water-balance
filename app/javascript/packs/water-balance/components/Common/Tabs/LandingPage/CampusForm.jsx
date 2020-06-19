@@ -2,8 +2,8 @@ import React from 'react';
 import { Form, Field } from 'react-final-form';
 import { Grid, Button } from '@material-ui/core';
 import emailMask from 'text-mask-addons/dist/emailMask';
-import MaterialInput from './MaterialInput';
-import MaterialDatePicker from './MaterialDatePicker';
+import MaterialInput from '../../MaterialInput';
+import MaterialDatePicker from '../../MaterialDatePicker';
 
 class CampusForm extends React.Component {
     validate = values => {

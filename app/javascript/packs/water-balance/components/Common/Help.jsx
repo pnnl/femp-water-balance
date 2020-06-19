@@ -1,5 +1,5 @@
 import React from 'react';
-import CampusIntroduction from './CampusIntroduction';
+import CampusIntroduction from './Tabs/LandingPage/CampusIntroduction';
 import CloseIcon from '@material-ui/icons/Close';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
