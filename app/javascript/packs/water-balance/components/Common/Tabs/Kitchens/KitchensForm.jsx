@@ -435,6 +435,7 @@ class KitchensForm extends React.Component {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
     const module = campus ? campus.modules.kitchen_facilities : {};
+    module.year = campus.year;
 
     if (!('kitchen_facilities' in module)) {
       module.kitchen_facilities = [];

@@ -14,6 +14,7 @@ export default function CampusDialog(props) {
         <DialogContentText>Fill out the form with information regarding the campus being evaluated for water usage.</DialogContentText>
         <CampusForm 
           createNewCampus={props.createNewCampus}
+          updateCampus={props.updateCampus}
           campus={props.campus} 
         />
       </DialogContent>

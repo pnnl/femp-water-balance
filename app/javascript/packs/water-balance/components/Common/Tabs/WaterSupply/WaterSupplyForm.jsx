@@ -190,6 +190,7 @@ class WaterSupplyForm extends React.Component {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
     const module = campus ? campus.modules.water_supply : {};
+    module.year = campus.year;
 
     return (
       <Fragment>

@@ -34,10 +34,17 @@ class CampusForm extends React.Component {
     };
 
     render() {
-        const { createNewCampus, formId } = this.props;
+        const { createNewCampus, formId, updateCampus, campus} = this.props;
+        let onSubmit = undefined;
+        if(campus && Object.keys(campus).length > 0) {
+            onSubmit = updateCampus;
+        } else {
+            onSubmit = createNewCampus;
+        }
         return (
             <Form
-                onSubmit={createNewCampus}
+                onSubmit={onSubmit}
+                initialValues={campus}
                 validate={this.validate}
                 render={({
                     handleSubmit,
@@ -113,15 +120,6 @@ class CampusForm extends React.Component {
                                     type="text"
                                     label="State"
                                 />
-                            </Grid>
-                            <Grid item style={{ marginTop: 16 }}>
-                                <Button
-                                    type="button"
-                                    onClick={reset}
-                                    disabled={submitting || pristine}
-                                >
-                                    Reset
-                                </Button>
                             </Grid>
                             <Grid item style={{ marginTop: 16 }}>
                                 <Button

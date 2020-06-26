@@ -396,6 +396,7 @@ class OtherProcessesForm extends React.Component {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
     const module = campus ? campus.modules.other_processes : {};
+    module.year = campus.year;
 
     if (!('batch_processes' in module)) {
       module.batch_processes = [];

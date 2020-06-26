@@ -56,6 +56,29 @@ class LandingPage extends React.Component {
         );
     };
 
+    updateCampus = values => {
+        RemoteApi.updateCampus(
+            values,
+            () => {
+                const { campuses } = this.state;
+                const clone = campuses.slice();
+                const updatedIndex = clone.findIndex(campus => campus.id === values.id);
+                clone[updatedIndex] = values;
+                this.setState({
+                    isLoaded: true,
+                    addOpen: false,
+                    campuses: clone,
+                })
+            },
+            data =>
+                this.setState({
+                    isLoaded: true,
+                    error: data,
+                })
+        );
+    };
+
+
     handleClose = () => {
         this.setState({ addOpen: false});
     };
@@ -74,6 +97,7 @@ class LandingPage extends React.Component {
             <Grid container>
                 <CampusDialog 
                     createNewCampus={this.createNewCampus} 
+                    updateCampus={this.updateCampus}
                     addOpen={addOpen} 
                     handleClose={this.handleClose}
                     campus={campus}

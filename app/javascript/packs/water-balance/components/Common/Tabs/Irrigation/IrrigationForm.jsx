@@ -627,6 +627,7 @@ class IrrigationForm extends React.Component {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
     const module = campus ? campus.modules.irrigation : {};
+    module.year = campus.year;
 
     if (!('irrigation' in module)) {
       module.irrigation = [];

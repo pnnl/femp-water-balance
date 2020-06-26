@@ -515,6 +515,7 @@ class VehicleWashForm extends React.Component {
     ];
     const buttons = [];
     this.parseModule(fields, module);
+    module.year = campus.year;
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
@@ -591,7 +592,6 @@ class VehicleWashForm extends React.Component {
               </Grid>
               {this.updateIsDirty(dirty, updateParent)}
               <FormRulesListener handleFormChange={applyRules} />
-              {/* <pre>{JSON.stringify(values, 0, 2)}</pre> */}
             </form>
           )}
         />

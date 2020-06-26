@@ -365,7 +365,7 @@ class SteamBoilersForm extends React.Component {
   render() {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
     const module = campus ? campus.modules.steam_boilers : {};
-
+    module.year = campus.year;
     if (!('steam_boilers' in module)) {
       module.steam_boilers = [];
       module.steam_boilers.push({});

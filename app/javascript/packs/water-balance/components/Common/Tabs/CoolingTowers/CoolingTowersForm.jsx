@@ -385,7 +385,7 @@ class CoolingTowersForm extends React.Component {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
     const module = campus ? campus.modules.cooling_towers : {};
-
+    module.year = campus.year;
     if (!('cooling_towers' in module)) {
       module.cooling_towers = [];
       module.cooling_towers.push({});

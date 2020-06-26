@@ -761,7 +761,7 @@ class PlumbingForm extends React.Component {
           <Grid item xs={12}>
             {this.flushRate('plumbing.hospital', values, 'hospital/medical clinic', 'Hospital/Medical Clinic', [
               'hospital staff',
-              'hospital inpatents',
+              'hospital inpatients',
             ])}
           </Grid>
         )}
