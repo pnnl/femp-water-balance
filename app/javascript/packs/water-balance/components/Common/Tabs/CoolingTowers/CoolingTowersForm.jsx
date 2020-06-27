@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
+import {Form, Field} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import {FieldArray} from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
@@ -19,7 +19,7 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import createCalculatorDecorator from 'final-form-calculate';
-import {submitAlert} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
 import MaterialDatePicker from '../../MaterialDatePicker';
 import moment from 'moment';
 import InfoIcon from '@material-ui/icons/Info';
@@ -36,17 +36,6 @@ const toNumber = (value) => {
   }
   return parseFloat(value.replace(/,/g, ''));
 };
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
-  />
-);
 
 const calculator = createCalculatorDecorator({
   field: /\.*_date/,

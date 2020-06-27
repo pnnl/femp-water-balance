@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
+import {Form, Field} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import {FieldArray} from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
@@ -12,7 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import formValidation from './SteamBoilersForm.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
@@ -20,17 +20,6 @@ import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@ma
 let expansionPanel = mediaQuery();
 
 const focusOnError = createDecorator();
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
-  />
-);
 
 const steamBoilerCalculation = (boiler) => {
   let waterRegeneration = toNumber(boiler.water_regeneration);

@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(version: 2019_12_11_181414) do
     t.bigint "owner_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "plumbing_level"
     t.integer "year"
     t.index ["owner_type", "owner_id"], name: "index_campuses_on_owner_type_and_owner_id"
   end

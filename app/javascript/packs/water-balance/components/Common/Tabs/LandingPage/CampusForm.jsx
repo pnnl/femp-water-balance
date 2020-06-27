@@ -1,6 +1,7 @@
 import React from 'react';
 import { Form, Field } from 'react-final-form';
-import { Grid, Button } from '@material-ui/core';
+import { Grid, Button, MenuItem} from '@material-ui/core';
+import { Select } from 'final-form-material-ui';
 import emailMask from 'text-mask-addons/dist/emailMask';
 import MaterialInput from '../../MaterialInput';
 import MaterialDatePicker from '../../MaterialDatePicker';
@@ -14,18 +15,22 @@ class CampusForm extends React.Component {
         }
         if (!values.evaluator) {
             errors.evaluator =
-                'An evaluator email address is required for creating a new campus.';
+                'An evaluator email address is required for a campus.';
         }
         if (!values.city) {
-            errors.city = 'A city name is required for creating a new campus.';
+            errors.city = 'A city name is required for a campus.';
         }
         if (!values.region) {
             errors.region =
-                'A state designation is required for creating a new campus.';
+                'A state designation is required for a campus.';
+        }
+        if (!values.plumbing_level) {
+            errors.plumbing_level =
+                'A plumbing level designation is required for a campus.';
         }
         if (!values.year) {
             errors.year =
-                'A water supply year is required for creating a new campus';
+                'A water supply year is required for a campus';
         } else if (values.year < 2010 || values.year > currentYear) {
             errors.year =
                 'Calendar year must be between 2010 and ' + currentYear + '.';
@@ -88,6 +93,18 @@ class CampusForm extends React.Component {
                                     type="text"
                                     label="Date of Evaluation"
                                 />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Field
+                                    formControlProps={{fullWidth: true}}
+                                    required
+                                    name="plumbing_level"
+                                    component={Select}
+                                    label="Will this campus be using campus-wide or building level data?"
+                                > 
+                                    <MenuItem value='campus'>Campus</MenuItem>
+                                    <MenuItem value='building'>Building</MenuItem>
+                                </Field>
                             </Grid>
                             <Grid item xs={12}>
                                 <Field

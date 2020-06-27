@@ -15,6 +15,7 @@ import OtherProcessesForm from './Common/Tabs/OtherProcesses/OtherProcessesForm'
 import SteamBoilersForm from './Common/Tabs/SteamBoilers/SteamBoilersForm';
 import CoolingTowersForm from './Common/Tabs/CoolingTowers/CoolingTowersForm';
 import IrrigationForm from './Common/Tabs/Irrigation/IrrigationForm';
+import GeneralBuildingForm from './Common/Tabs/GeneralBuilding/GeneralBuildingForm'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Report from './Common/Tabs/Report/Report';
 import CampusIntroduction from './Common/Tabs/LandingPage/CampusIntroduction';
@@ -236,6 +237,40 @@ class CampusDisplay extends React.Component {
                 tabContent: (
                     <TabContainer>
                         <WaterSupplyForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'General Building',
+                tabContent: (
+                    <TabContainer>
+                        <GeneralBuildingForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Occupancy',
+                tabContent: (
+                    <TabContainer>
+                        <PlumbingForm
                             createOrUpdateCampusModule={
                                 this.createOrUpdateCampusModule
                             }

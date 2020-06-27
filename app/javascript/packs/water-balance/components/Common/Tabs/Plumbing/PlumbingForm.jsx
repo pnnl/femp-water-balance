@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
-import {Checkbox, Select} from 'final-form-material-ui';
+import {Form, Field} from 'react-final-form';
+import {Select} from 'final-form-material-ui';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -9,7 +9,7 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import Divider from '@material-ui/core/Divider';
-import {submitAlert, updateIsDirty} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import formValidation from './PlumbingForm.validation';
 
@@ -48,17 +48,6 @@ const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
       />
     }
     label={label}
-  />
-);
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
   />
 );
 

@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
+import {Form, Field} from 'react-final-form';
 import {Checkbox} from 'final-form-material-ui';
 import {Grid, Button, FormControlLabel, InputAdornment} from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
@@ -8,6 +8,7 @@ import withWidth, {isWidthDown} from '@material-ui/core/withWidth';
 import createDecorator from 'final-form-calculate';
 import selectn from 'selectn';
 import MaterialInput from '../../MaterialInput';
+import {FormRulesListener} from '../shared/sharedFunctions'
 import {DEFAULT_NUMBER_MASK} from '../shared/sharedStyles';
 
 const numberFormat = new Intl.NumberFormat('en-US');
@@ -44,17 +45,6 @@ const calculator = createDecorator(
         ),
     },
   }
-);
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
-  />
 );
 
 class WaterSupplyForm extends React.Component {

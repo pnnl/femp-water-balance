@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
+import {Form, Field} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
@@ -13,7 +13,7 @@ import selectn from 'selectn';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 
 import formValidation from './kitchensForm.validation';
@@ -32,17 +32,6 @@ const nonMeteredFields = [
   'combination_oven',
   'ice_maker',
 ];
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
-  />
-);
 
 const focusOnError = createDecorator();
 

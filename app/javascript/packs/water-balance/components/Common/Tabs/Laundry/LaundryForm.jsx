@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
+import {Form, Field} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -13,7 +13,7 @@ import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, n
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
 import formValidation from './LaundryForm.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
 
@@ -22,6 +22,7 @@ let expansionPanel = mediaQuery();
 const singleLoadFields = [
   'people',
   'loads_per_person',
+  'loads_per_person_weekend',
   'single_load_weeks',
   'energy_star',
   'energy_star_capacity',
@@ -39,17 +40,6 @@ const toNumber = (value) => {
   }
   return parseFloat(value.replace(/,/g, ''));
 };
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
-  />
-);
 
 const focusOnError = createDecorator();
 
@@ -116,9 +106,20 @@ class LaundryForm extends React.Component {
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
 
-  clearValues = (clearValues, values) => {
+  // clearValues = (clearValues, values) => {
+  //   for (let i = 0; i < clearValues.length; i++) {
+  //     values.laundry[clearValues[i]] = null;
+  //   }
+  // };
+
+  clearValues = (clearValues, basePath, values) => {
+    let field = basePath.split('[');
+    let path = field[0];
+    let index = field[1].replace(']', '');
     for (let i = 0; i < clearValues.length; i++) {
-      values.laundry[clearValues[i]] = null;
+      if (values[path] != undefined) {
+        values[path][index][clearValues[i]] = null;
+      }
     }
   };
 
@@ -272,8 +273,8 @@ class LaundryForm extends React.Component {
           </Grid>
         )}
         {selectn(`${basePath}.energy_star`)(values) == 100 &&
-          this.clearValues(['machine_type', 'nonenergy_star_factor', 'nonenergy_star_capacity'], values)}
-        {selectn(`${basePath}.energy_star`)(values) == 0 && this.clearValues(['energy_star_factor', 'energy_star_capacity'], values)}
+          this.clearValues(['machine_type', 'nonenergy_star_factor', 'nonenergy_star_capacity'], basePath, values)}
+        {selectn(`${basePath}.energy_star`)(values) == 0 && this.clearValues(['energy_star_factor', 'energy_star_capacity'], basePath, values)}
       </Fragment>
     );
   };
@@ -362,7 +363,7 @@ class LaundryForm extends React.Component {
             </ExpansionPanelDetails>
           </ExpansionPanel>
         </Grid>
-        {selectn(`${basePath}.has_single_load`)(values) == false && this.clearValues(singleLoadFields, values)}
+        {selectn(`${basePath}.has_single_load`)(values) == false && this.clearValues(singleLoadFields, basePath, values)}
         <Grid item xs={12} style={noPadding}>
           <ExpansionPanel expanded={selectn(`${basePath}.has_industrial_machines`)(values) === true} style={noShadow}>
             <ExpansionPanelSummary>
@@ -380,7 +381,7 @@ class LaundryForm extends React.Component {
             </ExpansionPanelDetails>
           </ExpansionPanel>
         </Grid>
-        {selectn(`${basePath}.has_industrial_machines`)(values) == false && this.clearValues(industrialLoadFields, values)}
+        {selectn(`${basePath}.has_industrial_machines`)(values) == false && this.clearValues(industrialLoadFields, basePath, values)}
       </Fragment>
     );
   };
