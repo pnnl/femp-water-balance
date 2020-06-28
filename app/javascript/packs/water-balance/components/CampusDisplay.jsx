@@ -11,6 +11,7 @@ import WaterSupplyForm from './Common/Tabs/WaterSupply/WaterSupplyForm';
 import KitchensForm from './Common/Tabs/Kitchens/KitchensForm';
 import LaundryForm from './Common/Tabs/Laundry/LaundryForm';
 import PlumbingForm from './Common/Tabs/Plumbing/PlumbingForm';
+import PlumbingBuildingForm from './Common/Tabs/PlumbingBuilding/PlumbingBuildingForm';
 import OtherProcessesForm from './Common/Tabs/OtherProcesses/OtherProcessesForm';
 import SteamBoilersForm from './Common/Tabs/SteamBoilers/SteamBoilersForm';
 import CoolingTowersForm from './Common/Tabs/CoolingTowers/CoolingTowersForm';
@@ -21,6 +22,7 @@ import Report from './Common/Tabs/Report/Report';
 import CampusIntroduction from './Common/Tabs/LandingPage/CampusIntroduction';
 
 import { Engine } from 'json-rules-engine';
+import OccupancyForm from './Common/Tabs/Occupancy/OccupancyForm';
 
 const moduleKeys = [
     'water_supply',
@@ -216,7 +218,7 @@ class CampusDisplay extends React.Component {
     getCampusTabs = () => {
         const { campus, events } = this.state;
 
-        return [
+        const tabs = [
             {
                 tabName: 'Introduction',
                 tabContent: (
@@ -270,7 +272,7 @@ class CampusDisplay extends React.Component {
                 tabName: 'Occupancy',
                 tabContent: (
                     <TabContainer>
-                        <PlumbingForm
+                        <OccupancyForm
                             createOrUpdateCampusModule={
                                 this.createOrUpdateCampusModule
                             }
@@ -284,7 +286,24 @@ class CampusDisplay extends React.Component {
                 ),
             },
             {
-                tabName: 'Plumbing',
+                tabName: 'Plumbing Building',
+                tabContent: (
+                    <TabContainer>
+                        <PlumbingBuildingForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Plumbing Campus',
                 tabContent: (
                     <TabContainer>
                         <PlumbingForm
@@ -428,6 +447,8 @@ class CampusDisplay extends React.Component {
                 ),
             },
         ];
+        
+        return tabs;
     };
 
     getModules(campus) {

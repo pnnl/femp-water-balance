@@ -2,9 +2,19 @@ import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
 import createDecorator from 'final-form-focus';
 import {Form, Field} from 'react-final-form';
+import {FieldArray} from 'react-final-form-arrays';
+import arrayMutators from 'final-form-arrays';
 import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
-import {fabStyle, mediaQuery, DEFAULT_DECIMAL_MASK, DEFAULT_NUMBER_MASK} from '../shared/sharedStyles';
+import {mediaQuery, DEFAULT_DECIMAL_MASK, DEFAULT_NUMBER_MASK} from '../shared/sharedStyles';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import DeleteIcon from '@material-ui/icons/Delete';
+import IconButton from '@material-ui/core/IconButton';
+import selectn from 'selectn';
+import MaterialDatePicker from '../../MaterialDatePicker';
+
 // import formValidation from './PlumbingForm.validation';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import {Select} from 'final-form-material-ui';
 import {Fab, Grid, Button, MenuItem, InputAdornment} from '@material-ui/core';
 import MaterialInput from '../../MaterialInput';
@@ -12,20 +22,20 @@ import MaterialInput from '../../MaterialInput';
 let expansionPanel = mediaQuery();
 const focusOnError = createDecorator();
 
-class PlumbingForm extends React.Component {
+class GeneralBuildingForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
 
-  renderFacilityInfo = (values) => {
+  renderBuildingInfo = (values, basePath) => {
     return (
-      <Fragment>
+      <Grid container alignItems='flex-start' spacing={16}>
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
             required
-            name='primary_building_type'
+            name={`${basePath}.primary_building_type`}
             label='Primary building type (select the most appropriate building type)'
             component={Select}
           >
@@ -42,7 +52,7 @@ class PlumbingForm extends React.Component {
             <Field
               formControlProps={{fullWidth: true}}
               required
-              name='building_occupants'
+              name={`${basePath}.building_occupants`}
               label='Building occupants stationary or transient'
               component={Select}
             >
@@ -55,7 +65,7 @@ class PlumbingForm extends React.Component {
           <Field
             formControlProps={{fullWidth: true}}
             required
-            name='footage'
+            name={`${basePath}.footage`}
             label='Square footage of building'
             component={MaterialInput}
             type='text'
@@ -67,14 +77,98 @@ class PlumbingForm extends React.Component {
           <Field
             formControlProps={{fullWidth: true}}
             required
-            name='construction_date'
+            name={`${basePath}.construction_year`}
             label='Date of construction'
             component={MaterialInput}
             type='text'
             mask={DEFAULT_NUMBER_MASK}
             endAdornment={<InputAdornment position='end'>year</InputAdornment>}
-          ></Field>
+          />
         </Grid>
+        <Grid item xs={12}>
+          <Field
+            formControlProps={{fullWidth: true}}
+            required
+            name={`${basePath}.renovations_year`}
+            label='Year of last major water-related renovations'
+            component={MaterialInput}
+            type='text'
+            mask={DEFAULT_NUMBER_MASK}
+            endAdornment={<InputAdornment position='end'>year</InputAdornment>}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Field
+            formControlProps={{fullWidth: true}}
+            required
+            name={`${basePath}.renovations_list`}
+            label='List types of water-related renovations'
+            component={MaterialInput}
+            type='text'
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Field
+            formControlProps={{fullWidth: true}}
+            required
+            name={`${basePath}.building_address`}
+            label='Building address'
+            component={MaterialInput}
+            type='text'
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Field formControlProps={{fullWidth: true}} required name='evaluator_name' label='Evaluator name' component={MaterialInput} type='text' />
+        </Grid>
+        <Grid item xs={12}>
+          <Field
+            formControlProps={{fullWidth: true}}
+            required
+            name={`${basePath}.survey_date`}
+            label='Date of survey'
+            component={MaterialDatePicker}
+            dateFormat='MM/DD/YYYY'
+          />
+        </Grid>
+      </Grid>
+    );
+  };
+
+  renderBuildingArray = (values) => {
+    return (
+      <Fragment>
+        <FieldArray name='buildings'>
+          {({fields}) =>
+            fields.map((name, index) => (
+              <Grid item xs={12} key={index}>
+                <ExpansionPanel style={expansionPanel} expanded={selectn(`${name}.name`)(values) !== undefined}>
+                  <ExpansionPanelSummary>
+                    <Field
+                      fullWidth
+                      required
+                      name={`${name}.name`}
+                      component={MaterialInput}
+                      type='text'
+                      label='Enter a unique name identifier for this building.'
+                    /> 
+                    <IconButton
+                      style={{
+                        padding: 'initial',
+                        height: '40px',
+                        width: '40px',
+                      }}
+                      onClick={() => fields.remove(index)}
+                      aria-label='Delete'
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </ExpansionPanelSummary>
+                  <ExpansionPanelDetails>{this.renderBuildingInfo(values, `${name}`)}</ExpansionPanelDetails>
+                </ExpansionPanel>
+              </Grid>
+            ))
+          }
+        </FieldArray>
       </Fragment>
     );
   };
@@ -91,40 +185,51 @@ class PlumbingForm extends React.Component {
   render() {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
     const module = campus ? campus.modules.plumbing : {};
+    if (!('buildings' in module)) {
+      module.buildings = [];
+      module.buildings.push({});
+    }
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
           General Building
         </Typography>
-        <Typography variant='body2' gutterBottom>
-          Enter the following information for general building information.
+        <Typography variant='body2' gutterBottom style={{marginBottom: '23px'}}>
+          Enter the following for general building information.
         </Typography>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}
           // validate={formValidation}
+          mutators={{...arrayMutators}}
           decorators={[focusOnError]}
-          render={({handleSubmit, reset, submitting, pristine, dirty, values, valid}) => (
+          render={({
+            handleSubmit,
+            dirty,
+            values,
+            valid,
+            form: {
+              mutators: {push},
+            },
+          }) => (
             <form onSubmit={handleSubmit} noValidate>
-              <Grid container alignItems='flex-start' spacing={16} style={expansionPanel}>
-                {this.renderFacilityInfo(values, valid)}
+              <Grid container alignItems='flex-start' spacing={16}>
+                {this.renderBuildingArray(values, valid)}
+                <Grid item xs={12}>
+                  <Button style={{marginLeft: '10px'}} variant='contained' color='primary' onClick={() => push('buildings', {})}>
+                    Add Another Building
+                  </Button>
+
+                  <Button
+                    variant='contained'
+                    type='button'
+                    onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
+                    style={{marginLeft: '10px'}}
+                  >
+                    Save
+                  </Button>
+                </Grid>
               </Grid>
-              <Button variant='contained' type='submit' onClick={() => this.calculateWaterUse(values, valid)}>
-                Calculate Water Use
-              </Button>
-              <Button
-                variant='contained'
-                type='button'
-                onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
-                style={{marginLeft: '10px'}}
-              >
-                Save
-              </Button>
-              {this.state.waterUse != '' && (
-                <Fab color='primary' aria-label='Water Use' title='Water Use' style={fabStyle}>
-                  {this.state.waterUse}
-                </Fab>
-              )}
               {this.updateIsDirty(dirty, updateParent)}
               <FormRulesListener handleFormChange={applyRules} />
             </form>
@@ -135,4 +240,4 @@ class PlumbingForm extends React.Component {
   }
 }
 
-export default PlumbingForm;
+export default GeneralBuildingForm;
