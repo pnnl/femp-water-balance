@@ -12,11 +12,11 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import {DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, expansionDetails, mediaQuery} from '../shared/sharedStyles';
-// import formValidation from './OccupancyForm.validation';
+import formValidation from './OccupancyForm.validation';
 
-import {Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
+import {Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
 let expansionPanel = mediaQuery();
 
@@ -26,28 +26,6 @@ const toNumber = (value) => {
   }
   return parseFloat(value.replace(/,/g, ''));
 };
-
-const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
-  <FormControlLabel
-    control={
-      <Switch
-        checked={value}
-        onChange={(event, isInputChecked) => {
-          let proceed = true;
-          if (value == true) {
-            proceed = window.confirm('Deactivating this toggle will clear values. Do you want to proceed?');
-          }
-          if (proceed == true) {
-            onChange(isInputChecked);
-          }
-        }}
-        value={value}
-        {...rest}
-      />
-    }
-    label={label}
-  />
-);
 
 const focusOnError = createDecorator();
 
@@ -116,7 +94,7 @@ class OccupancyForm extends React.Component {
           <Field
             formControlProps={{fullWidth: true}}
             required
-            name={`${basePath}.weekday_occupancy`}
+            name={`${basePath}.weekend_occupancy`}
             component={MaterialInput}
             type='text'
             mask={DEFAULT_DECIMAL_MASK}
@@ -478,7 +456,7 @@ class OccupancyForm extends React.Component {
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}
-          //   validate={formValidation}
+          validate={formValidation}
           mutators={{...arrayMutators}}
           decorators={[focusOnError]}
           render={({

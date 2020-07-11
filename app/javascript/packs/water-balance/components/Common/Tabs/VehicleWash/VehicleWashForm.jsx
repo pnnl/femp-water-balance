@@ -2,7 +2,7 @@ import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
 import {Form, Field} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
-import {Fab, Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
+import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import selectn from 'selectn';
 import {FieldArray} from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
@@ -13,7 +13,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createDecorator from 'final-form-focus';
-import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import {
   fabStyle,
   DEFAULT_NUMBER_MASK,
@@ -38,28 +38,6 @@ const toNumber = (value) => {
 };
 
 const focusOnError = createDecorator();
-
-const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
-  <FormControlLabel
-    control={
-      <Switch
-        checked={value}
-        onChange={(event, isInputChecked) => {
-          let proceed = true;
-          if (value == true) {
-            proceed = window.confirm('Deactivating this toggle will clear values. Do you want to proceed?');
-          }
-          if (proceed == true) {
-            onChange(isInputChecked);
-          }
-        }}
-        value={value}
-        {...rest}
-      />
-    }
-    label={label}
-  />
-);
 
 const recycledCalculation = (values) => {
   let waterUsage = toNumber(values.water_usage);

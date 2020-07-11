@@ -4,7 +4,7 @@ import createDecorator from 'final-form-focus';
 import {Form, Field} from 'react-final-form';
 import {FieldArray} from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
-import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
+import {requireFieldSubmitAlert, FormRulesListener} from '../shared/sharedFunctions';
 import {mediaQuery, DEFAULT_DECIMAL_MASK, DEFAULT_NUMBER_MASK} from '../shared/sharedStyles';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -12,11 +12,10 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import selectn from 'selectn';
 import MaterialDatePicker from '../../MaterialDatePicker';
-
-// import formValidation from './PlumbingForm.validation';
+import formValidation from './GeneralBuildingForm.validation';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import {Select} from 'final-form-material-ui';
-import {Fab, Grid, Button, MenuItem, InputAdornment} from '@material-ui/core';
+import {Grid, Button, MenuItem, InputAdornment} from '@material-ui/core';
 import MaterialInput from '../../MaterialInput';
 
 let expansionPanel = mediaQuery();
@@ -47,7 +46,7 @@ class GeneralBuildingForm extends React.Component {
             <MenuItem value='other'>Other Building Type</MenuItem>
           </Field>
         </Grid>
-        {values.primary_building_type === 'other' && (
+        {selectn(`${basePath}.primary_building_type`)(values) === 'other' && (
           <Grid item xs={12}>
             <Field
               formControlProps={{fullWidth: true}}
@@ -64,7 +63,6 @@ class GeneralBuildingForm extends React.Component {
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
-            required
             name={`${basePath}.footage`}
             label='Square footage of building'
             component={MaterialInput}
@@ -76,7 +74,6 @@ class GeneralBuildingForm extends React.Component {
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
-            required
             name={`${basePath}.construction_year`}
             label='Date of construction'
             component={MaterialInput}
@@ -88,7 +85,6 @@ class GeneralBuildingForm extends React.Component {
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
-            required
             name={`${basePath}.renovations_year`}
             label='Year of last major water-related renovations'
             component={MaterialInput}
@@ -100,7 +96,6 @@ class GeneralBuildingForm extends React.Component {
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
-            required
             name={`${basePath}.renovations_list`}
             label='List types of water-related renovations'
             component={MaterialInput}
@@ -110,7 +105,6 @@ class GeneralBuildingForm extends React.Component {
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
-            required
             name={`${basePath}.building_address`}
             label='Building address'
             component={MaterialInput}
@@ -118,12 +112,11 @@ class GeneralBuildingForm extends React.Component {
           />
         </Grid>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name='evaluator_name' label='Evaluator name' component={MaterialInput} type='text' />
+          <Field formControlProps={{fullWidth: true}} name='evaluator_name' label='Evaluator name' component={MaterialInput} type='text' />
         </Grid>
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
-            required
             name={`${basePath}.survey_date`}
             label='Date of survey'
             component={MaterialDatePicker}
@@ -150,7 +143,7 @@ class GeneralBuildingForm extends React.Component {
                       component={MaterialInput}
                       type='text'
                       label='Enter a unique name identifier for this building.'
-                    /> 
+                    />
                     <IconButton
                       style={{
                         padding: 'initial',
@@ -173,7 +166,9 @@ class GeneralBuildingForm extends React.Component {
     );
   };
 
-  onSubmit = (values) => {};
+  onSubmit = (e) => {
+    e.preventDefault();
+  };
 
   updateIsDirty = (dirty, updateParent) => {
     if (dirty && this.state.isDirty != true) {
@@ -200,7 +195,7 @@ class GeneralBuildingForm extends React.Component {
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}
-          // validate={formValidation}
+          validate={formValidation}
           mutators={{...arrayMutators}}
           decorators={[focusOnError]}
           render={({
@@ -219,11 +214,10 @@ class GeneralBuildingForm extends React.Component {
                   <Button style={{marginLeft: '10px'}} variant='contained' color='primary' onClick={() => push('buildings', {})}>
                     Add Another Building
                   </Button>
-
                   <Button
                     variant='contained'
-                    type='button'
-                    onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
+                    type='submit'
+                    onClick={() => requireFieldSubmitAlert(valid, createOrUpdateCampusModule, values)}
                     style={{marginLeft: '10px'}}
                   >
                     Save
@@ -232,6 +226,7 @@ class GeneralBuildingForm extends React.Component {
               </Grid>
               {this.updateIsDirty(dirty, updateParent)}
               <FormRulesListener handleFormChange={applyRules} />
+              <pre>{JSON.stringify(values, 0, 2)}</pre>
             </form>
           )}
         />

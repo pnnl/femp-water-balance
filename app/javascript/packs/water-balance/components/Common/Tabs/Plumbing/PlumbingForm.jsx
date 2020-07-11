@@ -9,11 +9,11 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import Divider from '@material-ui/core/Divider';
-import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import formValidation from './PlumbingForm.validation';
 
-import {Fab, Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
+import {Fab, Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
 let expansionPanel = mediaQuery();
 
@@ -28,28 +28,6 @@ const toNumber = (value) => {
   }
   return parseFloat(value.replace(/,/g, ''));
 };
-
-const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
-  <FormControlLabel
-    control={
-      <Switch
-        checked={value}
-        onChange={(event, isInputChecked) => {
-          let proceed = true;
-          if (value == true) {
-            proceed = window.confirm('Deactivating this toggle will clear values. Do you want to proceed?');
-          }
-          if (proceed == true) {
-            onChange(isInputChecked);
-          }
-        }}
-        value={value}
-        {...rest}
-      />
-    }
-    label={label}
-  />
-);
 
 const focusOnError = createDecorator();
 
