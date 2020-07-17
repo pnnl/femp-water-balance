@@ -31,41 +31,16 @@ const validateFacility = (values, basePath) => {
     errors['total_population'] = 'The campus weekday and weekend day population cannot both be zero.';
     errors['total_population_weekends'] = 'The campus weekday and weekend day population cannot both be zero.';
   }
-
-  if (weekendDayPopulation != 0) {
-    valuePath = `${basePath}.shift_weekend`;
-    if (!isPositiveNumeric(valuePath, values)) {
-      errors['shift_weekend'] = 'The average length of a weekend day shift.';
-    }
-    valuePath = `${basePath}.operating_weekend`;
-    if (!isWithinNumericRange(valuePath, values, 1, 104, true)) {
-      errors['operating_weekend'] = 'The number of weekend days per year the campus operates must be between 1 and 104.';
-    }
-  }
-
-  if (weekDayPopulation != 0) {
-    valuePath = `${basePath}.shift_weekday`;
-    if (!isPositiveNumeric(valuePath, values)) {
-      errors['shift_weekday'] = 'The average length of a weekday shift.';
-    }
-    valuePath = `${basePath}.operating_weeks`;
-    if (!isWithinNumericRange(valuePath, values, 0, 260, true)) {
-      errors['operating_weeks'] = 'The number of weekdays per year the campus operates must be between 0 and 260.';
-    }
-  }
-
   valuePath = `${basePath}.male_population`;
   if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
     errors['male_population'] = 'Percentage of population that is male be between 0 and 100.';
   }
-  valuePath = `${basePath}.shower_flow_rate`;
-  if (resolve(valuePath, values) != 0 && resolve(valuePath, values) != undefined) {
-    valuePath = `${basePath}.shower_usage`;
-    if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
-      errors['shower_usage'] = 'Percentage of general campus occupants that use showers on a daily basis must be between 0 and 100.';
-    }
+  if (!(selectn(`${basePath}.individual_audit`)(values))) {
+    errors['individual_audit'] = 'Indicate if data will be entered for audited buildings.';
   }
-
+  if(values.buildings && values.buildings.length == 0 && (selectn(`${basePath}.individual_audit`)(values) === 'yes')) {
+    errors['individual_audit'] = 'Add buildings to audit in the buildings tab.';
+  }
   return Object.keys(errors).length === 0 ? undefined : errors;
 };
 
@@ -132,10 +107,23 @@ const validateAudits = (values) => {
   if (!isPositiveNumericArray(values.weekend_occupancy)) {
     errors['weekend_occupancy'] = 'The typical weekend occupancy for this building.';
   }
-  if(!isWithinNumericRangeArray(values.percent_male, 0, 100)){
-    errors[percent_male]
+  if (!isWithinNumericRangeArray(values.percent_male, 0, 100)) {
+    errors['percent_male'] = 'Percentage of occupants that are male must be between 0 and 100.';
   }
-
+  if (!isWithinNumericRangeArray(values.week_days_year, 1, 260)) {
+    errors['week_days_year'] = 'Number of week days per year must be between 1 and 260.';
+  }
+  if (!isWithinNumericRangeArray(values.week_days_hours, 1, 24)) {
+    errors['week_days_hours'] = 'Number of week day hours must be between 1 and 24.';
+  }
+  if (values.weekend_occupancy > 0) {
+    if (!isWithinNumericRangeArray(values.weekend_days_year, 1, 104)) {
+      errors['weekend_days_year'] = 'Number of weekend days per year must be between 1 and 104.';
+    }
+    if (!isWithinNumericRangeArray(values.weekend_days_hours, 1, 24)) {
+      errors['weekend_days_hours'] = 'Number of weekend day hours must be between 1 and 24.';
+    }
+  }
   return Object.keys(errors).length === 0 ? undefined : errors;
 };
 
@@ -167,7 +155,7 @@ const validate = (values) => {
   }
 
   values.audits.map((audit, index) => {
-    if (audit) {
+    if (audit && Object.keys(audit).length > 0) {
       let sectionErrors = validateAudits(audit, values.audits);
       if (sectionErrors) {
         auditErrors[index] = sectionErrors;
@@ -178,7 +166,7 @@ const validate = (values) => {
   if (auditErrors.length > 0) {
     errors['audits'] = auditErrors;
   }
-
+  console.log('%o', errors);
   return errors;
 };
 export default validate;

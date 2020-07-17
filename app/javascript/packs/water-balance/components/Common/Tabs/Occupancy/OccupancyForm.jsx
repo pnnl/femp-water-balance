@@ -12,11 +12,11 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
+import {requireFieldSubmitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import {DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, expansionDetails, mediaQuery} from '../shared/sharedStyles';
 import formValidation from './OccupancyForm.validation';
 
-import {Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
+import {Grid, Button, InputAdornment, MenuItem, Link} from '@material-ui/core';
 
 let expansionPanel = mediaQuery();
 
@@ -55,7 +55,7 @@ class OccupancyForm extends React.Component {
     }
   };
 
-  onSubmit = (values) => {};
+  onSubmit = (e) => {};
 
   onsiteLodging = (basePath, values) => {
     return (
@@ -138,7 +138,7 @@ class OccupancyForm extends React.Component {
             endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
           />
         </Grid>
-        {selectn(`${basePath}.weekday_occupancy`)(values) > 0 && (
+        {selectn(`${basePath}.weekend_occupancy`)(values) > 0 && (
           <Fragment>
             <Grid item xs={12}>
               <Field
@@ -171,6 +171,10 @@ class OccupancyForm extends React.Component {
   };
 
   renderAuditArray = (values) => {
+    const auditedBuildings = values.audits.map((audit) => audit.name);
+    if(values.buildings && values.buildings.length == 0) {
+      return;
+    } 
     return (
       <FieldArray name='audits'>
         {({fields}) =>
@@ -185,9 +189,14 @@ class OccupancyForm extends React.Component {
                     component={Select}
                     label='Please select the building that you would like to audit.'
                   >
-                    {values.buildings.map((building) => (
-                      <MenuItem value={building.name}>{building.name}</MenuItem>
-                    ))}
+                    {values.buildings.map((building) => {
+                      let disabled = auditedBuildings.indexOf(building.name) > -1;
+                      return (
+                        <MenuItem disabled={disabled} value={building.name}>
+                          {building.name}
+                        </MenuItem>
+                      );
+                    })}
                   </Field>
                   <IconButton
                     style={{
@@ -421,11 +430,7 @@ class OccupancyForm extends React.Component {
         <Grid item xs={12}>
           {this.facility('plumbing.facility', values, push)}
         </Grid>
-        {selectn('plumbing.facility.individual_audit')(values) === 'yes' && (
-          <Grid item xs={12}>
-            {this.renderAuditArray(values)}
-          </Grid>
-        )}
+        {selectn('plumbing.facility.individual_audit')(values) === 'yes' && this.renderAuditArray(values)}
       </Fragment>
     );
   };
@@ -434,6 +439,18 @@ class OccupancyForm extends React.Component {
     if (dirty && this.state.isDirty != true) {
       this.setState({isDirty: true});
       updateParent();
+    }
+  };
+
+  addAnotherAuditButton = (values, push) => {
+    const moreBuildings = values.buildings && values.audits && values.buildings.length > values.audits.length;
+    const showAddAuditButton = selectn('plumbing.facility.individual_audit')(values) === 'yes' && moreBuildings;
+    if (showAddAuditButton) {
+      return (
+        <Button variant='contained' color='primary' onClick={() => push('audits', {})}>
+          Add Another building to audit
+        </Button>
+      );
     }
   };
 
@@ -472,10 +489,11 @@ class OccupancyForm extends React.Component {
               <Grid container alignItems='flex-start' spacing={16}>
                 {this.renderFacilityTypes(values, valid, push)}
                 <Grid item xs={12}>
+                  {this.addAnotherAuditButton(values, push)}
                   <Button
                     variant='contained'
-                    type='button'
-                    onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
+                    type='submit'
+                    onClick={() => requireFieldSubmitAlert(valid, createOrUpdateCampusModule, values)}
                     style={{marginLeft: '10px'}}
                   >
                     Save

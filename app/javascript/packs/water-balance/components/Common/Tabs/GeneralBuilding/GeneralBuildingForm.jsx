@@ -166,9 +166,7 @@ class GeneralBuildingForm extends React.Component {
     );
   };
 
-  onSubmit = (e) => {
-    e.preventDefault();
-  };
+  onSubmit = (e) => {};
 
   updateIsDirty = (dirty, updateParent) => {
     if (dirty && this.state.isDirty != true) {
