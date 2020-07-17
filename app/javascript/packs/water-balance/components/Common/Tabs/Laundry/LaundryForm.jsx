@@ -23,6 +23,7 @@ const singleLoadFields = [
   'people',
   'loads_per_person',
   'single_load_weeks',
+  'loads_per_person_weekend',
   'energy_star',
   'energy_star_capacity',
   'energy_star_factor',
@@ -116,9 +117,14 @@ class LaundryForm extends React.Component {
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
 
-  clearValues = (clearValues, values) => {
+  clearValues = (clearValues, basePath, values) => {
+    let field = basePath.split('[');
+    let path = field[0];
+    let index = field[1].replace(']', '');
     for (let i = 0; i < clearValues.length; i++) {
-      values.laundry[clearValues[i]] = null;
+      if (values[path] != undefined) {
+        values[path][index][clearValues[i]] = null;
+      }
     }
   };
 
@@ -135,7 +141,7 @@ class LaundryForm extends React.Component {
     });
     let total = singleLoad + industrialLoad;
     let formatTotal = numberFormat.format(total);
-    values.laundry.water_usage = formatTotal;
+    values.water_usage = formatTotal;
     this.setState({
       waterUse: ' Water Use: ' + formatTotal + ' kgal',
     });
@@ -272,8 +278,8 @@ class LaundryForm extends React.Component {
           </Grid>
         )}
         {selectn(`${basePath}.energy_star`)(values) == 100 &&
-          this.clearValues(['machine_type', 'nonenergy_star_factor', 'nonenergy_star_capacity'], values)}
-        {selectn(`${basePath}.energy_star`)(values) == 0 && this.clearValues(['energy_star_factor', 'energy_star_capacity'], values)}
+          this.clearValues(['machine_type', 'nonenergy_star_factor', 'nonenergy_star_capacity'], basePath, values)}
+        {selectn(`${basePath}.energy_star`)(values) == 0 && this.clearValues(['energy_star_factor', 'energy_star_capacity'], basePath, values)}
       </Fragment>
     );
   };
@@ -362,7 +368,7 @@ class LaundryForm extends React.Component {
             </ExpansionPanelDetails>
           </ExpansionPanel>
         </Grid>
-        {selectn(`${basePath}.has_single_load`)(values) == false && this.clearValues(singleLoadFields, values)}
+        {selectn(`${basePath}.has_single_load`)(values) == false && this.clearValues(singleLoadFields, basePath, values)}
         <Grid item xs={12} style={noPadding}>
           <ExpansionPanel expanded={selectn(`${basePath}.has_industrial_machines`)(values) === true} style={noShadow}>
             <ExpansionPanelSummary>
@@ -380,7 +386,7 @@ class LaundryForm extends React.Component {
             </ExpansionPanelDetails>
           </ExpansionPanel>
         </Grid>
-        {selectn(`${basePath}.has_industrial_machines`)(values) == false && this.clearValues(industrialLoadFields, values)}
+        {selectn(`${basePath}.has_industrial_machines`)(values) == false && this.clearValues(industrialLoadFields, basePath, values)}
       </Fragment>
     );
   };
@@ -423,13 +429,13 @@ class LaundryForm extends React.Component {
           <Field
             fullWidth
             disabled
-            name='laundry.water_usage'
+            name='water_usage'
             label='Water use'
             component={MaterialInput}
             type='text'
             meta={{
               visited: true,
-              error: valid || selectn('laundry.water_usage')(values) == null ? null : "Fix errors and click 'Calculate Water Use' button to update value.",
+              error: valid || selectn('water_usage')(values) == null ? null : "Fix errors and click 'Calculate Water Use' button to update value.",
             }}
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
           />
