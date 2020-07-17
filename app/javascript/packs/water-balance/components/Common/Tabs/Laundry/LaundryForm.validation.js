@@ -75,11 +75,11 @@ const validateLaundryFacility = (values, allValues) => {
     }
   }
 
-  const names = allValues.map((facility) => facility.name);
-  if (names.indexOf(values.name) > 1) {
+  const allNames = allValues.filter((facility) => facility.name === values.name);
+  if (allNames.length > 1) {
     errors['name'] = 'Identifiers must be unique.';
   }
-
+  
   return Object.keys(errors).length === 0 ? undefined : errors;
 };
 

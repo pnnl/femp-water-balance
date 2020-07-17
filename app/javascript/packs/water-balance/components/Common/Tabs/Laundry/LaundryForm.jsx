@@ -9,7 +9,16 @@ import {FieldArray} from 'react-final-form-arrays';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import arrayMutators from 'final-form-arrays';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, noShadow, noPadding, mediaQuery} from '../shared/sharedStyles';
+import {
+  fabStyle,
+  DEFAULT_NUMBER_MASK,
+  DEFAULT_DECIMAL_MASK,
+  ONE_DECIMAL_MASK,
+  numberFormat,
+  noShadow,
+  noPadding,
+  mediaQuery,
+} from '../shared/sharedStyles';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
@@ -110,7 +119,7 @@ const calculateIndustrialLoad = (values) => {
 class LaundryForm extends React.Component {
   constructor(props) {
     super(props);
-    let waterUse = selectn(`campus.modules.laundry.laundry.water_usage`)(props);
+    let waterUse = selectn(`campus.modules.laundry.water_usage`)(props);
     this.state = {
       waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : '',
     };
