@@ -102,7 +102,7 @@ const validate = (values) => {
 
   const {auto_wash, conveyor, wash_pad_pressure_washer, wash_pad_open_hose, large_vehicles} = values;
 
-  allValues = auto_wash.concat(conveyor, wash_pad_pressure_washer, wash_pad_open_hose, large_vehicles);
+  allValues = [].concat(auto_wash, conveyor, wash_pad_pressure_washer, wash_pad_open_hose, large_vehicles);
 
   errors['vehicle_wash'] = {};
   if (values.vehicle_wash.auto_wash_facilities === true) {

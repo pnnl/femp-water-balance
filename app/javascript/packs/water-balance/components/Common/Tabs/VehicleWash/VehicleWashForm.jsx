@@ -110,16 +110,20 @@ class VehicleWashForm extends React.Component {
   }
 
   clearValues = (clearValues, basePath, values) => {
-    let field = basePath.replace('vehicle_wash.', '');
+    let field = basePath.split('[');
+    let path = field[0];
+    let index = field[1].replace(']', '');
     for (let i = 0; i < clearValues.length; i++) {
-      values['vehicle_wash'][field] && (values['vehicle_wash'][field][clearValues[i]] = null);
+      if (values[path] != undefined) {
+        values[path][index][clearValues[i]] = null;
+      }
     }
   };
 
   clearSection = (values, name) => {
-    if (values['vehicle_wash'][name] != undefined) {
-      if (!(Object.keys(values['vehicle_wash'][name]).length === 0)) {
-        values['vehicle_wash'][name] = null;
+    if (values[name] != undefined) {
+      if (!(Object.keys(values[name]).length === 0)) {
+        values[name] = [{}];
       }
     }
   };
