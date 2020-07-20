@@ -14,7 +14,7 @@ import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_DECIMAL_MASK, mediaQuery, expansionDetails} from '../shared/sharedStyles';
-// import formValidation from './PlumbingForm.validation';
+import formValidation from './PlumbingBuildingForm.validation';
 
 import {Fab, Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
@@ -33,9 +33,13 @@ class PlumbingForm extends React.Component {
   }
 
   clearValues = (clearValues, basePath, values) => {
-    let field = basePath.replace('plumbing.', '');
+    let field = basePath.split('[');
+    let path = field[0];
+    let index = field[1].replace(']', '');
     for (let i = 0; i < clearValues.length; i++) {
-      values['plumbing'][field][clearValues[i]] = null;
+      if (values[path] != undefined) {
+        values[path][index][clearValues[i]] = null;
+      }
     }
   };
 
@@ -151,6 +155,7 @@ class PlumbingForm extends React.Component {
   };
 
   renderFacilityTypes = (values) => {
+    const facilities = values.fixtures.map((facility) => facility.name);
     return (
       <FieldArray name='fixtures'>
         {({fields}) =>
@@ -165,9 +170,14 @@ class PlumbingForm extends React.Component {
                     component={Select}
                     label='Select a unique name identifier for this building from the dropdown list.'
                   >
-                    {values.buildings.map((building) => (
-                      <MenuItem value={building.name}>{building.name}</MenuItem>
-                    ))}
+                    {values.buildings.map((building) => {
+                      const disabled = facilities.indexOf(building.name) > -1;
+                      return (
+                        <MenuItem disabled={disabled} value={building.name}>
+                          {building.name}
+                        </MenuItem>
+                      );
+                    })}
                   </Field>
                   <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
                     <DeleteIcon />
@@ -193,6 +203,17 @@ class PlumbingForm extends React.Component {
     }
   };
 
+  addAnotherBuildingButton = (values, push) => {
+    const moreBuildings = values.fixtures && values.buildings && values.buildings.length > values.fixtures.length;
+    if (moreBuildings) {
+      return (
+        <Button style={{marginRight: '10px'}} variant='contained' color='primary' onClick={() => push('fixtures', {})}>
+          Add Another Building
+        </Button>
+      );
+    }
+  };
+
   render() {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
     const module = campus ? campus.modules.plumbing : {};
@@ -212,14 +233,23 @@ class PlumbingForm extends React.Component {
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}
-          // validate={formValidation}
+          validate={formValidation}
           mutators={{...arrayMutators}}
           decorators={[focusOnError]}
-          render={({handleSubmit, dirty, values, valid}) => (
+          render={({
+            handleSubmit,
+            dirty,
+            values,
+            valid,
+            form: {
+              mutators: {push, pop},
+            },
+          }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Grid container alignItems='flex-start' spacing={16}>
                 {this.renderFacilityTypes(values, valid)}
                 <Grid item xs={12}>
+                  {this.addAnotherBuildingButton(values, push)}
                   <Button variant='contained' type='submit' onClick={() => this.calculateWaterUse(values, valid)}>
                     Calculate Water Use
                   </Button>

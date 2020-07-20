@@ -190,7 +190,7 @@ class OccupancyForm extends React.Component {
                     label='Please select the building that you would like to audit.'
                   >
                     {values.buildings.map((building) => {
-                      let disabled = auditedBuildings.indexOf(building.name) > -1;
+                      const disabled = auditedBuildings.indexOf(building.name) > -1;
                       return (
                         <MenuItem disabled={disabled} value={building.name}>
                           {building.name}
