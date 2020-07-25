@@ -41,7 +41,7 @@ class GeneralBuildingForm extends React.Component {
             <MenuItem value='hotel'>Hotel/Motel</MenuItem>
             <MenuItem value='barracks'>Barracks/Dormitory</MenuItem>
             <MenuItem value='family'>Family Housing</MenuItem>
-            <MenuItem value='Hospital'>Hospital</MenuItem>
+            <MenuItem value='hospital'>Hospital</MenuItem>
             <MenuItem value='clinic'>Medical Clinic</MenuItem>
             <MenuItem value='other'>Other Building Type</MenuItem>
           </Field>

@@ -22,6 +22,20 @@ let expansionPanel = mediaQuery();
 
 const focusOnError = createDecorator();
 
+const assumedTypes = ['hotel', 'barracks', 'family'];
+const assumedUrinalFlushesPerPersonPerHour = 0.25;
+const assumedDaysPerYear = 350;
+const assumedUrinalFlushRate = 0.125;
+const assumedFlushRate = 0.375;
+const restroomSinkUseMap = {
+  hotel: 0.25,
+  barracks: 0.25,
+  family: 0.25,
+  hospital: 1.25,
+  clinic: 1.05,
+  other: 0.125,
+};
+
 class PlumbingForm extends React.Component {
   constructor(props) {
     super(props);
@@ -29,8 +43,101 @@ class PlumbingForm extends React.Component {
     this.state = {
       waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : '',
     };
-    // this.calculateWaterUse = this.calculateWaterUse.bind(this);
+    this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
+
+  toNumber = (number) => {
+    return Number(number) || 0;
+  };
+
+  getOccupancy = (audit, buildingType) => {
+    // Occupants per day
+    const week_day_occupancy = toNumber(audit.week_day_occupancy);
+    const weekend_occupancy = toNumber(audit.weekend_occupancy);
+    let weekdays = week_day_occupancy ? 5 : 0;
+    let weekendDays = weekend_occupancy ? 2 : 0;
+    let totalDays = weekdays + weekendDays;
+    let occupantsPerDay = (week_day_occupancy * 5 + weekend_occupancy * 2) / totalDays;
+
+    // Hours per day
+    const week_days_year = toNumber(audit.week_days_year);
+    const week_days_hours = toNumber(audit.week_days_hours);
+    const weekend_days_year = toNumber(audit.weekend_days_year);
+    const weekend_days_hours = toNumber(audit.weekend_days_hours);
+    let hoursPerDay;
+    if (assumedTypes[buildingType]) {
+      hoursPerDay = 8;
+    } else {
+      hoursPerDay = (week_days_hours * week_days_year + weekend_days_hours * weekend_days_year) / (week_days_year + weekend_days_year);
+    }
+
+    // Days per year
+    let daysPerYear;
+    if (assumedTypes[buildingType]) {
+      daysPerYear = assumedDaysPerYear;
+    } else {
+      daysPerYear = week_days_year + weekend_days_year;
+    }
+    return occupantsPerDay * hoursPerDay * daysPerYear;
+  };
+
+  calculateUrinals = (fixture, buildingType, audit, totalHoursOccupiedPerYear) => {
+    if (buildingType === 'family') {
+      return 0;
+    }
+    if (fixture.urinals === 'no') {
+      return 0;
+    }
+    const percentMale = toNumber(audit.percent_male);
+    const flushRate = toNumber(fixture.urinal_flush_rate);
+    const totalFlushes = percentMale * assumedUrinalFlushesPerPersonPerHour * totalHoursOccupiedPerYear;
+    return (totalFlushes * flushRate) / 1000;
+  };
+
+  calculateToilets = (fixture, audit, totalHoursOccupiedPerYear) => {
+    const averageFlushRate = toNumber(fixture.typical_flush_rate);
+    const percentMale = toNumber(audit.percent_male);
+    const femaleFlushes = assumedFlushRate;
+    let maleFlushes = assumedFlushRate;
+    if (fixture.urinals === 'no') {
+      maleFlushes = assumedUrinalFlushRate;
+    }
+    const maleFlushesPerYear = percentMale * maleFlushes * totalHoursOccupiedPerYear;
+    const femaleFlushesPerYear = (1 - percentMale) * femaleFlushes * totalHoursOccupiedPerYear;
+
+    return ((maleFlushesPerYear + femaleFlushesPerYear) * averageFlushRate) / 1000;
+  };
+
+  calculateRestroomSink = (fixture, buildingType) => {
+    const aeratorFlowRate = toNumber(fixture.aerator_flow_rate);
+    const minutesUsedPerHour = restroomSinkUseMap[buildingType];
+    const totalMinutesPerYear = minutesUsedPerHour * totalHoursOccupiedPerYear;
+
+    return (aeratorFlowRate * totalMinutesPerYear) / 1000;
+  };
+
+  calculateWaterUse = (values, valid) => {
+    if (!valid) {
+      window.alert('Missing or incorrect values.');
+      return;
+    }
+
+    let totalWater = 0;
+    totalWater += values.audits.forEach((audit) => {
+      const building = values.buildings.find((building) => building.name == audit.name);
+      const primaryBuildingType = building.primary_building_type;
+      const fixture = values.fixtures.find((fixture) => fixture.name == building.name);
+      const totalHoursOccupiedPerYear = this.getOccupancy(audit, primaryBuildingType);
+      const urinals = this.calculateUrinals(fixture, primaryBuildingType, audit, totalHoursOccupiedPerYear);
+      const toilets = this.calculateToilets(fixture, audit, totalHoursOccupiedPerYear);
+      const restroomSink = this.calculateRestroomSink(fixture, primaryBuildingType, totalHoursOccupiedPerYear);
+    });
+
+    values.plumbing.water_usage = formatTotal;
+    this.setState({
+      waterUse: ' Water Use:' + formatTotal + ' kgal',
+    });
+  };
 
   clearValues = (clearValues, basePath, values) => {
     let field = basePath.split('[');
@@ -79,8 +186,8 @@ class PlumbingForm extends React.Component {
               component={Select}
               label={'Are urinals typically present in ' + source + '?'}
             >
-              <MenuItem value='Yes'>Yes</MenuItem>
-              <MenuItem value='No'>No</MenuItem>
+              <MenuItem value='yes'>Yes</MenuItem>
+              <MenuItem value='no'>No</MenuItem>
             </Field>
           </Grid>
         )}
