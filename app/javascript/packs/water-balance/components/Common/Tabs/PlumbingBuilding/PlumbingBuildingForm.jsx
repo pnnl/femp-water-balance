@@ -13,7 +13,7 @@ import arrayMutators from 'final-form-arrays';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
-import {fabStyle, DEFAULT_DECIMAL_MASK, mediaQuery, expansionDetails} from '../shared/sharedStyles';
+import {fabStyle, DEFAULT_DECIMAL_MASK, mediaQuery, expansionDetails, numberFormat} from '../shared/sharedStyles';
 import formValidation from './PlumbingBuildingForm.validation';
 
 import {Fab, Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
@@ -27,13 +27,23 @@ const assumedUrinalFlushesPerPersonPerHour = 0.25;
 const assumedDaysPerYear = 350;
 const assumedUrinalFlushRate = 0.125;
 const assumedFlushRate = 0.375;
+const assumedShowerPercent = 0.69;
 const restroomSinkUseMap = {
   hotel: 0.25,
   barracks: 0.25,
   family: 0.25,
-  hospital: 1.25,
+  hospital: .125,
   clinic: 1.05,
-  other: 0.125,
+  other: 0.125
+};
+
+const kitchenSinkUseMap = {
+  hotel: 0.5,
+  barracks: 0.5,
+  family: 2.5,
+  hospital: 0.5,
+  clinic: 0.5,
+  other: 0.5
 };
 
 class PlumbingForm extends React.Component {
@@ -41,43 +51,56 @@ class PlumbingForm extends React.Component {
     super(props);
     let waterUse = selectn(`campus.modules.plumbing.plumbing.water_usage`)(props);
     this.state = {
-      waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : '',
+      waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : ''
     };
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
 
-  toNumber = (number) => {
+  toNumber = number => {
     return Number(number) || 0;
+  };
+
+  occupantsPerDay = audit => {
+    const week_day_occupancy = this.toNumber(audit.weekday_occupancy);
+    const weekend_occupancy = this.toNumber(audit.weekend_occupancy);
+    let weekdays = week_day_occupancy ? 5 : 0;
+    let weekendDays = weekend_occupancy ? 2 : 0;
+    let totalDays = weekdays + weekendDays;
+    return (week_day_occupancy * 5 + weekend_occupancy * 2) / totalDays;
+  };
+
+  daysPerYear = (audit, buildingType) => {
+    const week_days_year = this.toNumber(audit.week_days_year);
+    const weekend_days_year = this.toNumber(audit.weekend_days_year);
+
+    let daysPerYear;
+    if (assumedTypes.indexOf(buildingType) > -1) {
+      daysPerYear = assumedDaysPerYear;
+    } else {
+      daysPerYear = week_days_year + weekend_days_year;
+    }
+    return daysPerYear;
   };
 
   getOccupancy = (audit, buildingType) => {
     // Occupants per day
-    const week_day_occupancy = toNumber(audit.week_day_occupancy);
-    const weekend_occupancy = toNumber(audit.weekend_occupancy);
-    let weekdays = week_day_occupancy ? 5 : 0;
-    let weekendDays = weekend_occupancy ? 2 : 0;
-    let totalDays = weekdays + weekendDays;
-    let occupantsPerDay = (week_day_occupancy * 5 + weekend_occupancy * 2) / totalDays;
+    let occupantsPerDay = this.occupantsPerDay(audit);
 
     // Hours per day
-    const week_days_year = toNumber(audit.week_days_year);
-    const week_days_hours = toNumber(audit.week_days_hours);
-    const weekend_days_year = toNumber(audit.weekend_days_year);
-    const weekend_days_hours = toNumber(audit.weekend_days_hours);
+    const week_days_year = this.toNumber(audit.week_days_year);
+    const week_days_hours = this.toNumber(audit.week_days_hours);
+    const weekend_days_year = this.toNumber(audit.weekend_days_year);
+    const weekend_days_hours = this.toNumber(audit.weekend_days_hours);
     let hoursPerDay;
-    if (assumedTypes[buildingType]) {
+    if (assumedTypes.indexOf(buildingType) > -1) {
       hoursPerDay = 8;
     } else {
       hoursPerDay = (week_days_hours * week_days_year + weekend_days_hours * weekend_days_year) / (week_days_year + weekend_days_year);
     }
 
     // Days per year
-    let daysPerYear;
-    if (assumedTypes[buildingType]) {
-      daysPerYear = assumedDaysPerYear;
-    } else {
-      daysPerYear = week_days_year + weekend_days_year;
-    }
+    let daysPerYear = this.daysPerYear(audit, buildingType);
+
     return occupantsPerDay * hoursPerDay * daysPerYear;
   };
 
@@ -88,18 +111,18 @@ class PlumbingForm extends React.Component {
     if (fixture.urinals === 'no') {
       return 0;
     }
-    const percentMale = toNumber(audit.percent_male);
-    const flushRate = toNumber(fixture.urinal_flush_rate);
+    const percentMale = this.toNumber(audit.percent_male) / 100;
+    const flushRate = this.toNumber(fixture.urinal_flush_rate);
     const totalFlushes = percentMale * assumedUrinalFlushesPerPersonPerHour * totalHoursOccupiedPerYear;
     return (totalFlushes * flushRate) / 1000;
   };
 
   calculateToilets = (fixture, audit, totalHoursOccupiedPerYear) => {
-    const averageFlushRate = toNumber(fixture.typical_flush_rate);
-    const percentMale = toNumber(audit.percent_male);
+    const averageFlushRate = this.toNumber(fixture.typical_flush_rate);
+    const percentMale = this.toNumber(audit.percent_male) / 100;
     const femaleFlushes = assumedFlushRate;
     let maleFlushes = assumedFlushRate;
-    if (fixture.urinals === 'no') {
+    if (fixture.urinals === 'yes') {
       maleFlushes = assumedUrinalFlushRate;
     }
     const maleFlushesPerYear = percentMale * maleFlushes * totalHoursOccupiedPerYear;
@@ -108,12 +131,36 @@ class PlumbingForm extends React.Component {
     return ((maleFlushesPerYear + femaleFlushesPerYear) * averageFlushRate) / 1000;
   };
 
-  calculateRestroomSink = (fixture, buildingType) => {
-    const aeratorFlowRate = toNumber(fixture.aerator_flow_rate);
+  calculateRestroomSink = (fixture, buildingType, totalHoursOccupiedPerYear) => {
+    const aeratorFlowRate = this.toNumber(fixture.aerator_flow_rate);
     const minutesUsedPerHour = restroomSinkUseMap[buildingType];
     const totalMinutesPerYear = minutesUsedPerHour * totalHoursOccupiedPerYear;
 
     return (aeratorFlowRate * totalMinutesPerYear) / 1000;
+  };
+
+  calculateKitchenSink = (fixture, primaryBuildingType, audit) => {
+    const minutesUsedPerOccupant = kitchenSinkUseMap[primaryBuildingType];
+    const averageFlowRate = this.toNumber(fixture.kitchenette_flow_rate);
+    const minutesUsedPerYear = this.occupantsPerDay(audit) * this.daysPerYear(audit, primaryBuildingType) * minutesUsedPerOccupant;
+
+    return (averageFlowRate * minutesUsedPerYear) / 1000;
+  };
+
+  calculateShowers = (fixture, primaryBuildingType, audit) => {
+    const averageShowerFlowRate = this.toNumber(fixture.shower_flow_rate);
+    let occupantShowerPercent;
+    let minutesPerShower;
+    if (assumedTypes.indexOf(primaryBuildingType) > -1) {
+      occupantShowerPercent = assumedShowerPercent;
+      minutesPerShower = 7.8;
+    } else {
+      occupantShowerPercent = this.toNumber(fixture.shower_usage) / 100;
+      minutesPerShower = 5.3;
+    }
+    const showersPerYear = this.occupantsPerDay(audit) * this.daysPerYear(audit, primaryBuildingType) * occupantShowerPercent;
+
+    return (showersPerYear * minutesPerShower * averageShowerFlowRate) / 1000;
   };
 
   calculateWaterUse = (values, valid) => {
@@ -122,20 +169,38 @@ class PlumbingForm extends React.Component {
       return;
     }
 
+    let waterCategoryTotal = {};
     let totalWater = 0;
-    totalWater += values.audits.forEach((audit) => {
-      const building = values.buildings.find((building) => building.name == audit.name);
+
+    values.audits.forEach(audit => {
+      const building = values.buildings.find(building => building.name == audit.name);
       const primaryBuildingType = building.primary_building_type;
-      const fixture = values.fixtures.find((fixture) => fixture.name == building.name);
+      const fixture = values.fixtures.find(fixture => fixture.name == building.name);
       const totalHoursOccupiedPerYear = this.getOccupancy(audit, primaryBuildingType);
       const urinals = this.calculateUrinals(fixture, primaryBuildingType, audit, totalHoursOccupiedPerYear);
       const toilets = this.calculateToilets(fixture, audit, totalHoursOccupiedPerYear);
       const restroomSink = this.calculateRestroomSink(fixture, primaryBuildingType, totalHoursOccupiedPerYear);
+      const kitchenSinks = this.calculateKitchenSink(fixture, primaryBuildingType, audit);
+      const showers = this.calculateShowers(fixture, primaryBuildingType, audit);
+      if (!waterCategoryTotal[primaryBuildingType]) {
+        waterCategoryTotal[primaryBuildingType] = 0;
+      }
+      const auditTotal = urinals + toilets + restroomSink + kitchenSinks + showers;
+      waterCategoryTotal[primaryBuildingType] += auditTotal;
+      totalWater += auditTotal;
     });
+    console.log('%o', waterCategoryTotal);
+
+    values.plumbing.lodging_water_usage = numberFormat.format(
+      (waterCategoryTotal['family'] || 0) + (waterCategoryTotal['hotel'] || 0) + (waterCategoryTotal['barracks'] || 0)
+    );
+    values.plumbing.hospital_water_usage = numberFormat.format((waterCategoryTotal['hospital'] || 0) + (waterCategoryTotal['clinic'] || 0));
+    values.plumbing.overall_water_usage = numberFormat.format(waterCategoryTotal['other'] || 0);
+    let formatTotal = numberFormat.format(totalWater);
 
     values.plumbing.water_usage = formatTotal;
     this.setState({
-      waterUse: ' Water Use:' + formatTotal + ' kgal',
+      waterUse: ' Water Use:' + formatTotal + ' kgal'
     });
   };
 
@@ -158,13 +223,13 @@ class PlumbingForm extends React.Component {
     }
   };
 
-  onSubmit = (values) => {};
+  onSubmit = values => {};
 
   flushRate = (basePath, values) => {
     const source = selectn(`${basePath}.name`)(values);
     const flowRate = selectn(`${basePath}.shower_flow_rate`)(values);
-    const buildingType = source && values.buildings.find((building) => building.name === source).primary_building_type;
-
+    const building = source && values.buildings.find(building => building.name === source);
+    const buildingType = building ? building.primary_building_type : null;
     return (
       <Grid container alignItems='flex-start' spacing={16}>
         <Field
@@ -191,7 +256,7 @@ class PlumbingForm extends React.Component {
             </Field>
           </Grid>
         )}
-        {selectn(`${basePath}.urinals`)(values) === 'Yes' && (
+        {selectn(`${basePath}.urinals`)(values) === 'yes' && (
           <Grid item xs={12}>
             <Field
               formControlProps={{fullWidth: true}}
@@ -261,45 +326,96 @@ class PlumbingForm extends React.Component {
     );
   };
 
-  renderFacilityTypes = (values) => {
-    const facilities = values.fixtures.map((facility) => facility.name);
+  renderFacilityTypes = (values, valid) => {
+    const facilities = values.fixtures.map(facility => facility.name);
     return (
-      <FieldArray name='fixtures'>
-        {({fields}) =>
-          fields.map((name, index) => (
-            <Grid item xs={12} key={index}>
-              <ExpansionPanel style={expansionPanel} expanded={selectn(`${name}.name`)(values) !== undefined}>
-                <ExpansionPanelSummary>
-                  <Field
-                    formControlProps={{fullWidth: true}}
-                    required
-                    name={`${name}.name`}
-                    component={Select}
-                    label='Select a unique name identifier for this building from the dropdown list.'
-                  >
-                    {values.buildings.map((building) => {
-                      const disabled = facilities.indexOf(building.name) > -1;
-                      return (
-                        <MenuItem disabled={disabled} value={building.name}>
-                          {building.name}
-                        </MenuItem>
-                      );
-                    })}
-                  </Field>
-                  <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
-                    <DeleteIcon />
-                  </IconButton>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails style={{paddingLeft: '40px', ...expansionDetails}}>
-                  <Grid container alignItems='flex-start' spacing={16}>
-                    {this.flushRate(`${name}`, values)}
-                  </Grid>
-                </ExpansionPanelDetails>
-              </ExpansionPanel>
-            </Grid>
-          ))
-        }
-      </FieldArray>
+      <Fragment>
+        <FieldArray name='fixtures'>
+          {({fields}) =>
+            fields.map((name, index) => (
+              <Grid item xs={12} key={index}>
+                <ExpansionPanel style={expansionPanel} expanded={selectn(`${name}.name`)(values) !== undefined}>
+                  <ExpansionPanelSummary>
+                    <Field
+                      formControlProps={{fullWidth: true}}
+                      required
+                      name={`${name}.name`}
+                      component={Select}
+                      label='Select a unique name identifier for this building from the dropdown list.'
+                    >
+                      {values.buildings.map(building => {
+                        const disabled = facilities.indexOf(building.name) > -1;
+                        return (
+                          <MenuItem disabled={disabled} value={building.name}>
+                            {building.name}
+                          </MenuItem>
+                        );
+                      })}
+                    </Field>
+                    <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
+                      <DeleteIcon />
+                    </IconButton>
+                  </ExpansionPanelSummary>
+                  <ExpansionPanelDetails style={{paddingLeft: '40px', ...expansionDetails}}>
+                    <Grid container alignItems='flex-start' spacing={16}>
+                      {this.flushRate(`${name}`, values)}
+                    </Grid>
+                  </ExpansionPanelDetails>
+                </ExpansionPanel>
+              </Grid>
+            ))
+          }
+        </FieldArray>
+        <Grid item xs={12} sm={3}>
+          <Field
+            fullWidth
+            disabled
+            name='plumbing.lodging_water_usage'
+            label='On-Site Lodging Water Use'
+            component={MaterialInput}
+            type='text'
+            endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
+          />
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <Field
+            fullWidth
+            disabled
+            name='plumbing.hospital_water_usage'
+            label='Hospital/Medical Clinic Water Use'
+            component={MaterialInput}
+            type='text'
+            endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
+          />
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <Field
+            fullWidth
+            disabled
+            name='plumbing.overall_water_usage'
+            label='General Campus'
+            component={MaterialInput}
+            type='text'
+            endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
+          />
+        </Grid>
+        <Grid item xs={12} sm={3}>
+          <Field
+            fullWidth
+            disabled
+            name='plumbing.water_usage'
+            label='Total Water Use'
+            component={MaterialInput}
+            type='text'
+            meta={{
+              visited: true,
+              error:
+                valid || selectn('plumbing.water_usage')(values) == null ? null : "Fix errors and click 'Calculate Water Use' button to update value."
+            }}
+            endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
+          />
+        </Grid>
+      </Fragment>
     );
   };
 
@@ -349,8 +465,8 @@ class PlumbingForm extends React.Component {
             values,
             valid,
             form: {
-              mutators: {push, pop},
-            },
+              mutators: {push, pop}
+            }
           }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Grid container alignItems='flex-start' spacing={16}>
