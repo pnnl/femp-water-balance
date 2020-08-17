@@ -420,9 +420,11 @@ class LaundryForm extends React.Component {
                       type='text'
                       label='Enter a unique name identifier for this laundry system (such as the building name/number it is associated).'
                     />
-                    <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
-                      <DeleteIcon />
-                    </IconButton>
+                    {values.laundry_facilities && values.laundry_facilities.length > 1 && (
+                      <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
                   </ExpansionPanelSummary>
                   <ExpansionPanelDetails>
                     <Grid container alignItems='flex-start' spacing={16}>
@@ -442,9 +444,9 @@ class LaundryForm extends React.Component {
             label='Water use'
             component={MaterialInput}
             type='text'
+            helperText={ valid || selectn('water_usage')(values) == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
             meta={{
               visited: true,
-              error: valid || selectn('water_usage')(values) == null ? null : "Fix errors and click 'Calculate Water Use' button to update value.",
             }}
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
           />

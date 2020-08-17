@@ -855,12 +855,9 @@ class PlumbingForm extends React.Component {
             label='Total Water Use'
             component={MaterialInput}
             type='text'
+            helperText={ valid || selectn('plumbing.water_usage')(values) == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
             meta={{
-              visited: true,
-              error:
-                valid || selectn('plumbing.water_usage')(values) == null
-                  ? null
-                  : "Fix errors and click 'Calculate Water Use' button to update value.",
+              visited: true
             }}
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
           />
@@ -882,11 +879,11 @@ class PlumbingForm extends React.Component {
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
-          Plumbing
+          Plumbing Fixtures
         </Typography>
         <Typography variant='body2' gutterBottom>
-          Enter the following information on campus occupancy groups and installed fixtures. Note that fixture information will only be entered for
-          occupancy groups present on the campus.
+          Enter the following information on campus occupancy groups and installed plumbing fixtures (toilets, urinals, restroom and kitchen faucets, and showerheads). <br/> 
+          Note that plumbing fixture information will only be entered for occupancy groups present on the campus.
         </Typography>
         <Form
           onSubmit={this.onSubmit}

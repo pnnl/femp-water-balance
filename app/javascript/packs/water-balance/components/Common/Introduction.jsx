@@ -31,8 +31,7 @@ class Introduction extends React.Component {
                     <br />
                     <ul>
                         <li>
-                            Plumbing (restroom, locker rooms and/or
-                            kitchenettes)
+                            Plumbing fixtures (restroom, locker rooms and/or kitchenettes)
                         </li>
                         <li>Commercial kitchen</li>
                         <li>Cooling towers</li>

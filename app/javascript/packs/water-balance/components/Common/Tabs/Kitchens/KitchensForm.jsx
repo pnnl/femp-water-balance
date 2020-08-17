@@ -381,9 +381,11 @@ class KitchensForm extends React.Component {
                       <MenuItem value='stand_alone'>Stand Alone</MenuItem>
                       <MenuItem value='incorporated'>Incorporated in Another Building</MenuItem>
                     </Field>
-                    <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
-                      <DeleteIcon />
-                    </IconButton>
+                    {values.kitchen_facilities && values.kitchen_facilities.length > 1 && (
+                      <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
                   </ExpansionPanelSummary>
                   <ExpansionPanelDetails>
                     <Grid container alignItems='flex-start' spacing={16}>
@@ -413,9 +415,9 @@ class KitchensForm extends React.Component {
             label='Water use'
             component={MaterialInput}
             type='text'
+            helperText={ valid || values.water_use == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
             meta={{
               visited: true,
-              error: valid || values.water_use == null ? null : "Fix errors and click 'Calculate Water Use' button to update value.",
             }}
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
           />

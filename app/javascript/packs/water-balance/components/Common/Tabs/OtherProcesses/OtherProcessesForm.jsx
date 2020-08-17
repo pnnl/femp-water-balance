@@ -227,7 +227,7 @@ class OtherProcessesForm extends React.Component {
         {({fields}) =>
           fields.map((name, index) => (
             <Grid item xs={12} key={index}>
-              <ExpansionPanel style={{...noShadow, ...noPadding}} expanded={selectn(`${name}.name`)(values) !== undefined}>
+              <ExpansionPanel expanded={selectn(`${name}.name`)(values) !== undefined}>
                 <ExpansionPanelSummary>
                   <Field
                     fullWidth
@@ -237,9 +237,11 @@ class OtherProcessesForm extends React.Component {
                     type='text'
                     label='Enter a unique name identifier for this continuous process (such as the name of the process).'
                   />
-                  <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
-                    <DeleteIcon />
-                  </IconButton>
+                  {values.continuous_processes && values.continuous_processes.length > 1 && (
+                    <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
                   <Grid container alignItems='flex-start' spacing={16}>
@@ -261,7 +263,7 @@ class OtherProcessesForm extends React.Component {
         {({fields}) =>
           fields.map((name, index) => (
             <Grid item xs={12} key={index}>
-              <ExpansionPanel style={{...noShadow, ...noPadding}} expanded={selectn(`${name}.name`)(values) !== undefined}>
+              <ExpansionPanel expanded={selectn(`${name}.name`)(values) !== undefined}>
                 <ExpansionPanelSummary>
                   <Field
                     fullWidth
@@ -271,9 +273,11 @@ class OtherProcessesForm extends React.Component {
                     type='text'
                     label='Enter a unique name identifier for this batch process (such as the name of the process).'
                   />
-                  <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
-                    <DeleteIcon />
-                  </IconButton>
+                  {values.batch_processes && values.batch_processes.length > 1 && (
+                    <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
                   <Grid container alignItems='flex-start' spacing={16}>
@@ -371,12 +375,9 @@ class OtherProcessesForm extends React.Component {
             label='Water use'
             component={MaterialInput}
             type='text'
+            helperText={ valid || selectn('other_processes.water_use')(values) == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
             meta={{
-              visited: true,
-              error:
-                valid || selectn('other_processes.water_use')(values) == null
-                  ? null
-                  : "Fix errors and click 'Calculate Water Use' button to update value.",
+              visited: true
             }}
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
           />
