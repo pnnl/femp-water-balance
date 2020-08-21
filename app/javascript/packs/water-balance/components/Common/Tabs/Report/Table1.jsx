@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -8,7 +8,9 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import BarChart from './BarChart';
 import PieChart from './PieChart';
-import { numberFormat } from '../shared/sharedStyles';
+import { numberFormat, reportsMediaQuery } from '../shared/sharedStyles';
+
+const panelSize = reportsMediaQuery();
 
 export default function UseTable(props) {
 	let waterUse = props.values;
@@ -53,8 +55,8 @@ export default function UseTable(props) {
 	));
 
 	return (
-		<Grid container spacing={3} justify='space-between'>
-			<Grid item xs={4}>
+		<Grid container spacing={24} justify='space-between'>
+			<Grid item xs={panelSize}>
 				<Paper>
 					<Table>
 						<TableHead>
@@ -70,23 +72,19 @@ export default function UseTable(props) {
 					</Table>
 				</Paper>
 			</Grid>
-			<Grid item xs={4}>
+			<Grid item xs={panelSize}>
 				<Paper
 					style={{
 						height: '100%',
-						width: 'calc(100% - 15px)',
-						float: 'right',
 					}}
 				>
 					<BarChart data={waterUseArray} />
 				</Paper>
 			</Grid>
-			<Grid item xs={4}>
+			<Grid item xs={panelSize}>
 				<Paper
 					style={{
 						height: '100%',
-						width: 'calc(100% - 15px)',
-						float: 'right',
 					}}
 				>
 					<PieChart data={waterUseArray} />
