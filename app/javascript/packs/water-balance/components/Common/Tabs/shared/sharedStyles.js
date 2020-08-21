@@ -23,6 +23,10 @@ export function mediaQuery() {
   return window.matchMedia('(max-width: 1265px)').matches ? {width: '100%', marginLeft: '0px'}: expansionPanel;
 }
 
+export function reportsMediaQuery() {
+  return window.matchMedia('(max-width: 1265px)').matches ? 12 : 4;
+}
+
 export const expansionDetails = {
   marginTop: '0px',
   paddingTop: '0px',
