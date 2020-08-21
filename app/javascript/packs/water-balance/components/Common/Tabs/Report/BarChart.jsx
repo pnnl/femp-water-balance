@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import Typography from '@material-ui/core/Typography';
-import { XYPlot, VerticalBarSeries, XAxis, YAxis } from 'react-vis';
+import { XYPlot, VerticalBarSeries, XAxis, YAxis,  makeVisFlexible} from 'react-vis';
 
 const title = {
 	textAlign: 'center',
@@ -12,7 +12,7 @@ const barChart = {
 	height: '100%',
 	fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
 };
-
+const FlexibleXYPlot = makeVisFlexible(XYPlot);
 class BarChart extends React.Component {
 	render(props) {
 		let waterUse = this.props.data;
@@ -28,17 +28,16 @@ class BarChart extends React.Component {
 					Water Balance Results Bar Chart
 				</Typography>
 				<div style={barChart}>
-					<XYPlot
+					<FlexibleXYPlot
 						height={390}
-						width={550}
 						xType='ordinal'
 						color='#0097be'
-						margin={{ left: 70, right: 10, top: 95, bottom: 120 }}
+						margin={{ left: 70, right: 20, top: 95, bottom: 120 }}
 					>
 						<XAxis tickLabelAngle={-45} />
 						<YAxis />
 						<VerticalBarSeries data={data} style={{}} />
-					</XYPlot>
+					</FlexibleXYPlot>
 				</div>
 			</Fragment>
 		);

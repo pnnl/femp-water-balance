@@ -1,7 +1,11 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { DiscreteColorLegend, RadialChart, Hint } from 'react-vis';
+import { DiscreteColorLegend, RadialChart, makeVisFlexible } from 'react-vis';
 import Tooltip from '@material-ui/core/Tooltip';
+import '../../../../../../../../node_modules/react-vis/dist/style.css';
+
+
+const FlexibleRadialChart = makeVisFlexible(RadialChart);
 
 const title = {
     textAlign: 'center',
@@ -9,17 +13,35 @@ const title = {
 };
 
 const legend = {
-    width: '35%',
+    width: '92%',
     float: 'right',
-    marginTop: '145px',
+    columnCount: '3',
+    margin: '5% 0  0 8%',
 };
 
 const pieChart = {
-    float: 'left',
-    width: '65%',
-    paddingLeft: '49px',
-    margin: '48px 0px',
+    margin: '32px 0 11px 0',
 };
+
+const fontStyle = {
+    fontFamily: 'Roboto, Helvetica, Arial, sans-serif'
+}
+
+const legendTitle = {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    fontSize: '12px',
+    padding: '5px 1px',
+}
+
+const square ={
+    height: '12px',
+    width: '12px',
+    marginRight: '7px',
+    float: 'left',
+    borderRadius: '8px'
+}
 
 class BarChart extends React.Component {
     state = {
@@ -64,7 +86,7 @@ class BarChart extends React.Component {
             }
         });
         return (
-            <Fragment>
+            <div style={fontStyle}>
                 <div className="pie-chart-container">
                     <Typography style={title} variant="body2" gutterBottom>
                         Water Balance Pie Chart
@@ -75,30 +97,25 @@ class BarChart extends React.Component {
                         interactive={active}
                     >
                         <div style={pieChart}>
-                            <RadialChart
+                            <FlexibleRadialChart
                                 data={data}
                                 height={300}
-                                width={300}
-                                margin={{
-                                    left: 70,
-                                    right: 10,
-                                    top: 30,
-                                    bottom: 90,
-                                }}
                                 colorType="literal"
                                 onValueMouseOver={this.onValueMouseOver}
                                 onSeriesMouseOut={this.onSeriesMouseOut}
-                            ></RadialChart>
+                            ></FlexibleRadialChart>
                         </div>
                     </Tooltip>
-                    <div style={legend}>
-                        <DiscreteColorLegend
-                            items={data.map(d => d.label)}
-                            colors={data.map(d => d.color)}
-                        />
-                    </div>
                 </div>
-            </Fragment>
+                <div style={legend}>
+                    {data.map(d => 
+                        <div style={legendTitle}>
+                            <div style={{...square, backgroundColor: d.color}} />
+                            {d.label}
+                        </div>
+                    )}
+                </div>
+            </div>
         );
     }
 }
