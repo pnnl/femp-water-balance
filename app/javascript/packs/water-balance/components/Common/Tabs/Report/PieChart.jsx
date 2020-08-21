@@ -1,6 +1,6 @@
 import React from 'react';
 import Typography from '@material-ui/core/Typography';
-import { DiscreteColorLegend, RadialChart, makeVisFlexible } from 'react-vis';
+import { RadialChart, makeVisFlexible } from 'react-vis';
 import Tooltip from '@material-ui/core/Tooltip';
 import '../../../../../../../../node_modules/react-vis/dist/style.css';
 
@@ -9,7 +9,7 @@ const FlexibleRadialChart = makeVisFlexible(RadialChart);
 
 const title = {
     textAlign: 'center',
-    marginTop: '14px',
+    paddingTop: '14px',
 };
 
 const legend = {

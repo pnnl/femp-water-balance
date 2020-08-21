@@ -4,7 +4,7 @@ import { XYPlot, VerticalBarSeries, XAxis, YAxis,  makeVisFlexible} from 'react-
 
 const title = {
 	textAlign: 'center',
-	marginTop: '14px',
+	paddingTop: '14px',
 };
 
 const barChart = {
