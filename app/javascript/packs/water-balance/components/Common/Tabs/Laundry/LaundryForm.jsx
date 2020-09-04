@@ -9,7 +9,16 @@ import {FieldArray} from 'react-final-form-arrays';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import arrayMutators from 'final-form-arrays';
-import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, noShadow, noPadding, mediaQuery} from '../shared/sharedStyles';
+import {
+  fabStyle,
+  DEFAULT_NUMBER_MASK,
+  DEFAULT_DECIMAL_MASK,
+  ONE_DECIMAL_MASK,
+  numberFormat,
+  noShadow,
+  noPadding,
+  mediaQuery,
+} from '../shared/sharedStyles';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
@@ -24,6 +33,7 @@ const singleLoadFields = [
   'loads_per_person',
   'loads_per_person_weekend',
   'single_load_weeks',
+  'loads_per_person_weekend',
   'energy_star',
   'energy_star_capacity',
   'energy_star_factor',
@@ -77,18 +87,12 @@ const calculateIndustrialLoad = (values) => {
 class LaundryForm extends React.Component {
   constructor(props) {
     super(props);
-    let waterUse = selectn(`campus.modules.laundry.laundry.water_usage`)(props);
+    let waterUse = selectn(`campus.modules.laundry.water_usage`)(props);
     this.state = {
       waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : '',
     };
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
-
-  // clearValues = (clearValues, values) => {
-  //   for (let i = 0; i < clearValues.length; i++) {
-  //     values.laundry[clearValues[i]] = null;
-  //   }
-  // };
 
   clearValues = (clearValues, basePath, values) => {
     let field = basePath.split('[');
@@ -114,7 +118,7 @@ class LaundryForm extends React.Component {
     });
     let total = singleLoad + industrialLoad;
     let formatTotal = numberFormat.format(total);
-    values.laundry.water_usage = formatTotal;
+    values.water_usage = formatTotal;
     this.setState({
       waterUse: ' Water Use: ' + formatTotal + ' kgal',
     });
@@ -384,9 +388,11 @@ class LaundryForm extends React.Component {
                       type='text'
                       label='Enter a unique name identifier for this laundry system (such as the building name/number it is associated).'
                     />
-                    <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
-                      <DeleteIcon />
-                    </IconButton>
+                    {values.laundry_facilities && values.laundry_facilities.length > 1 && (
+                      <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
                   </ExpansionPanelSummary>
                   <ExpansionPanelDetails>
                     <Grid container alignItems='flex-start' spacing={16}>
@@ -402,13 +408,13 @@ class LaundryForm extends React.Component {
           <Field
             fullWidth
             disabled
-            name='laundry.water_usage'
+            name='water_usage'
             label='Water use'
             component={MaterialInput}
             type='text'
+            helperText={ valid || selectn('water_usage')(values) == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
             meta={{
               visited: true,
-              error: valid || selectn('laundry.water_usage')(values) == null ? null : "Fix errors and click 'Calculate Water Use' button to update value.",
             }}
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
           />

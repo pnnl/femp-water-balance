@@ -82,7 +82,7 @@ class PlumbingForm extends React.Component {
     return daysPerYear;
   };
 
-  getOccupancy = (audit, buildingType) => {
+  getOccupancy = (audit, buildingType, isTransient) => {
     // Occupants per day
     let occupantsPerDay = this.occupantsPerDay(audit);
 
@@ -101,7 +101,11 @@ class PlumbingForm extends React.Component {
     // Days per year
     let daysPerYear = this.daysPerYear(audit, buildingType);
 
-    return occupantsPerDay * hoursPerDay * daysPerYear;
+    if(isTransient) {
+      daysPerYear = daysPerYear/ hoursPerDay
+    }
+    
+    return {daysPerYear, totalHoursOccupiedPerYear: occupantsPerDay * hoursPerDay * daysPerYear};
   };
 
   calculateUrinals = (fixture, buildingType, audit, totalHoursOccupiedPerYear) => {
@@ -139,15 +143,15 @@ class PlumbingForm extends React.Component {
     return (aeratorFlowRate * totalMinutesPerYear) / 1000;
   };
 
-  calculateKitchenSink = (fixture, primaryBuildingType, audit) => {
+  calculateKitchenSink = (fixture, audit, primaryBuildingType, daysPerYear) => {
     const minutesUsedPerOccupant = kitchenSinkUseMap[primaryBuildingType];
     const averageFlowRate = this.toNumber(fixture.kitchenette_flow_rate);
-    const minutesUsedPerYear = this.occupantsPerDay(audit) * this.daysPerYear(audit, primaryBuildingType) * minutesUsedPerOccupant;
+    const minutesUsedPerYear = this.occupantsPerDay(audit) * daysPerYear * minutesUsedPerOccupant;
 
     return (averageFlowRate * minutesUsedPerYear) / 1000;
   };
 
-  calculateShowers = (fixture, primaryBuildingType, audit) => {
+  calculateShowers = (fixture, audit, primaryBuildingType, daysPerYear) => {
     const averageShowerFlowRate = this.toNumber(fixture.shower_flow_rate);
     let occupantShowerPercent;
     let minutesPerShower;
@@ -158,7 +162,7 @@ class PlumbingForm extends React.Component {
       occupantShowerPercent = this.toNumber(fixture.shower_usage) / 100;
       minutesPerShower = 5.3;
     }
-    const showersPerYear = this.occupantsPerDay(audit) * this.daysPerYear(audit, primaryBuildingType) * occupantShowerPercent;
+    const showersPerYear = this.occupantsPerDay(audit) * daysPerYear * occupantShowerPercent;
 
     return (showersPerYear * minutesPerShower * averageShowerFlowRate) / 1000;
   };
@@ -175,16 +179,24 @@ class PlumbingForm extends React.Component {
     values.audits.forEach(audit => {
       const building = values.buildings.find(building => building.name == audit.name);
       const primaryBuildingType = building.primary_building_type;
+      const isTransient = (building.building_occupants && building.building_occupants === 'transient');
       const fixture = values.fixtures.find(fixture => fixture.name == building.name);
-      const totalHoursOccupiedPerYear = this.getOccupancy(audit, primaryBuildingType);
+      const {totalHoursOccupiedPerYear, daysPerYear} = this.getOccupancy(audit, primaryBuildingType, isTransient);
+
       const urinals = this.calculateUrinals(fixture, primaryBuildingType, audit, totalHoursOccupiedPerYear);
       const toilets = this.calculateToilets(fixture, audit, totalHoursOccupiedPerYear);
       const restroomSink = this.calculateRestroomSink(fixture, primaryBuildingType, totalHoursOccupiedPerYear);
-      const kitchenSinks = this.calculateKitchenSink(fixture, primaryBuildingType, audit);
-      const showers = this.calculateShowers(fixture, primaryBuildingType, audit);
+      const kitchenSinks = this.calculateKitchenSink(fixture, audit, primaryBuildingType, daysPerYear);
+      const showers = this.calculateShowers(fixture, audit, primaryBuildingType, daysPerYear);
       if (!waterCategoryTotal[primaryBuildingType]) {
         waterCategoryTotal[primaryBuildingType] = 0;
       }
+      console.log(building.name);
+      console.log('urinals', urinals);
+      console.log('toilets', toilets);
+      console.log('restroomSink', restroomSink);
+      console.log('kitchenSinks', kitchenSinks);
+      console.log('showers', showers);
       const auditTotal = urinals + toilets + restroomSink + kitchenSinks + showers;
       waterCategoryTotal[primaryBuildingType] += auditTotal;
       totalWater += auditTotal;

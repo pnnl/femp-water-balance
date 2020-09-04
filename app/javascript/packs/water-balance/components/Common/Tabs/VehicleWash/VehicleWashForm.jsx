@@ -20,17 +20,15 @@ import {
   DEFAULT_DECIMAL_MASK,
   ONE_DECIMAL_MASK,
   numberFormat,
-  noShadow,
-  noPadding,
   expansionDetails,
-  mediaQuery,
+  mediaQuery
 } from '../shared/sharedStyles';
 
 let expansionPanel = mediaQuery();
 
 import formValidation from './VehicleWashForm.validation';
 
-const toNumber = (value) => {
+const toNumber = value => {
   if (value === undefined || value === null) {
     return 0;
   }
@@ -52,7 +50,7 @@ const recycledCalculation = (values) => {
   return (vpw * wpy * gpv * (1 - recycled / 100)) / 1000;
 };
 
-const nonRecycledCalculation = (values) => {
+const nonRecycledCalculation = values => {
   let waterUsage = toNumber(values.water_usage);
   if (values.metered == 'yes') {
     return waterUsage;
@@ -71,22 +69,26 @@ class VehicleWashForm extends React.Component {
     let waterUse = selectn(`campus.modules.vehicle_wash.vehicle_wash.water_use`)(props);
 
     this.state = {
-      waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : '',
+      waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : ''
     };
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
 
   clearValues = (clearValues, basePath, values) => {
-    let field = basePath.replace('vehicle_wash.', '');
+    let field = basePath.split('[');
+    let path = field[0];
+    let index = field[1].replace(']', '');
     for (let i = 0; i < clearValues.length; i++) {
-      values['vehicle_wash'][field] && (values['vehicle_wash'][field][clearValues[i]] = null);
+      if (values[path] != undefined) {
+        values[path][index][clearValues[i]] = null;
+      }
     }
   };
 
   clearSection = (values, name) => {
-    if (values['vehicle_wash'][name] != undefined) {
-      if (!(Object.keys(values['vehicle_wash'][name]).length === 0)) {
-        values['vehicle_wash'][name] = null;
+    if (values[name] != undefined) {
+      if (!(Object.keys(values[name]).length === 0)) {
+        values[name] = [{}];
       }
     }
   };
@@ -102,23 +104,23 @@ class VehicleWashForm extends React.Component {
     let washPadOpenHose = 0;
     let washPadPressureWash = 0;
     let largeVehicle = 0;
-    values.auto_wash.map((facility) => {
+    values.auto_wash.map(facility => {
       autoWash += recycledCalculation(facility);
     });
 
-    values.conveyor.map((facility) => {
+    values.conveyor.map(facility => {
       conveyor += recycledCalculation(facility);
     });
 
-    values.wash_pad_open_hose.map((facility) => {
+    values.wash_pad_open_hose.map(facility => {
       washPadOpenHose += nonRecycledCalculation(facility);
     });
 
-    values.wash_pad_pressure_washer.map((facility) => {
+    values.wash_pad_pressure_washer.map(facility => {
       washPadPressureWash += nonRecycledCalculation(facility);
     });
 
-    values.large_vehicles.map((facility) => {
+    values.large_vehicles.map(facility => {
       largeVehicle += recycledCalculation(facility);
     });
 
@@ -126,11 +128,11 @@ class VehicleWashForm extends React.Component {
     let formatTotal = numberFormat.format(total);
     values.vehicle_wash.water_use = formatTotal;
     this.setState({
-      waterUse: ' Water Use: ' + formatTotal + ' kgal',
+      waterUse: ' Water Use: ' + formatTotal + ' kgal'
     });
   };
 
-  onSubmit = (values) => {};
+  onSubmit = values => {};
 
   renderWashpadForm = (values, name, basePath) => {
     return (
@@ -210,7 +212,7 @@ class VehicleWashForm extends React.Component {
           {({fields}) =>
             fields.map((name, index) => (
               <Grid item xs={12} key={index}>
-                <ExpansionPanel expanded={selectn(`${name}.name`)(values) !== undefined} style={{...noShadow, ...noPadding}}>
+                <ExpansionPanel expanded={selectn(`${name}.name`)(values) !== undefined}>
                   <ExpansionPanelSummary>
                     <Field
                       style={expansionDetails}
@@ -221,9 +223,11 @@ class VehicleWashForm extends React.Component {
                       type='text'
                       label='Enter a unique name identifier for this vehicle wash process'
                     />
-                    <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
-                      <DeleteIcon />
-                    </IconButton>
+                    {values[basePath] && values[basePath].length > 1 && (
+                      <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
                   </ExpansionPanelSummary>
                   <ExpansionPanelDetails style={expansionDetails}>{fieldsToRender(values, name, basePath)}</ExpansionPanelDetails>
                 </ExpansionPanel>
@@ -416,7 +420,7 @@ class VehicleWashForm extends React.Component {
               </ExpansionPanelDetails>
             </ExpansionPanel>
           </Grid>
-          {selectn(`vehicle_wash.large_facilities`)(values) == false && this.clearSection(values, 'large_facilities')}
+          {selectn(`vehicle_wash.large_facilities`)(values) == false && this.clearSection(values, 'large_vehicles')}
           <Grid item xs={12} sm={4}>
             <Field
               fullWidth
@@ -426,12 +430,13 @@ class VehicleWashForm extends React.Component {
               mask={DEFAULT_DECIMAL_MASK}
               component={MaterialInput}
               type='text'
+              helperText={
+                valid || selectn('vehicle_wash.water_use')(values) == null
+                  ? null
+                  : "Enter required fields and click 'Calculate Water Use' button to update value."
+              }
               meta={{
-                visited: true,
-                error:
-                  valid || selectn('vehicle_wash.water_use')(values) == null
-                    ? null
-                    : "Fix errors and click 'Calculate Water Use' button to update value.",
+                visited: true
               }}
               endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
             />
@@ -450,7 +455,7 @@ class VehicleWashForm extends React.Component {
   };
 
   parseModule = (fields, module) => {
-    fields.forEach((field) => {
+    fields.forEach(field => {
       const {name} = field;
       if (!(name in module) && module.vehicle_wash) {
         let startingValues;
@@ -464,7 +469,7 @@ class VehicleWashForm extends React.Component {
           startingValues = module.vehicle_wash[name] ? {...module.vehicle_wash[name]} : {};
         }
         module[name] = [startingValues];
-      } else if(module.vehicle_wash === undefined) {
+      } else if (module.vehicle_wash === undefined) {
         module[name] = [{}];
       }
     });
@@ -478,9 +483,8 @@ class VehicleWashForm extends React.Component {
       {name: 'conveyor', display_name: 'Friction or Frictionless', check: 'conveyor_facilities'},
       {name: 'wash_pad_open_hose', display_name: 'Open Hose', check: 'wash_pad_open_hose_facilities'},
       {name: 'wash_pad_pressure_washer', display_name: 'Pressure Washer', check: 'wash_pad_pressure_washer_facilities'},
-      {name: 'large_vehicles', display_name: 'Large Vehicle', check: 'large_facilities'},
+      {name: 'large_vehicles', display_name: 'Large Vehicle', check: 'large_facilities'}
     ];
-    const buttons = [];
     this.parseModule(fields, module);
     module.year = campus.year;
     return (
@@ -504,8 +508,8 @@ class VehicleWashForm extends React.Component {
             dirty,
             valid,
             form: {
-              mutators: {push},
-            },
+              mutators: {push}
+            }
           }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Grid container alignItems='flex-start' spacing={16}>
@@ -524,17 +528,16 @@ class VehicleWashForm extends React.Component {
                 </Grid>
                 {this.renderFormInputs(values, valid)}
                 <Grid item xs={12}>
-                  {fields.forEach((field) => {
+                  {fields.map(field => {
                     const {check, name, display_name} = field;
                     if (values.vehicle_wash && values.vehicle_wash[check]) {
-                      buttons.push(
-                        <Button variant='contained' color='primary' onClick={() => push(name, {})} style={{margin: '5px'}}>
+                      return (
+                        <Button key={check} variant='contained' color='primary' onClick={() => push(name, {})} style={{margin: '5px'}}>
                           {`Add ${display_name} process`}
                         </Button>
                       );
                     }
                   })}
-                  {buttons}
                   {selectn(`vehicle_wash.vw_facilities`)(values) === false || selectn(`vehicle_wash.vw_facilities`)(values) === undefined ? null : (
                     <Fragment>
                       <Button variant='contained' type='submit' style={{margin: '5px'}} onClick={() => this.calculateWaterUse(values, valid)}>

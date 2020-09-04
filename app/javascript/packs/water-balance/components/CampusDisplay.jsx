@@ -303,7 +303,7 @@ class CampusDisplay extends React.Component {
                 ),
             },
             {
-                tabName: 'Plumbing Campus',
+                tabName: 'Plumbing Fixtures',
                 tabContent: (
                     <TabContainer>
                         <PlumbingForm

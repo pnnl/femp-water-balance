@@ -75,32 +75,16 @@ const validateLaundryFacility = (values, allValues) => {
     }
   }
 
-  let isUsed = false;
-  let resolvedValue = undefined;
-
-  allValues &&
-    allValues.map((facility) => {
-      if (facility != undefined) {
-        resolvedValue = facility.name;
-        if (resolvedValue == values.name && isUsed == true && values.name != undefined) {
-          errors['name'] = 'Identifiers must be unique.';
-          isUsed = false;
-        }
-        if (resolvedValue == values.name) {
-          isUsed = true;
-        }
-      }
-    });
-
+  const allNames = allValues.filter((facility) => facility.name === values.name);
+  if (allNames.length > 1) {
+    errors['name'] = 'Identifiers must be unique.';
+  }
+  
   return Object.keys(errors).length === 0 ? undefined : errors;
 };
 
 const validate = (values) => {
   const errors = {};
-  if (!values.laundry) {
-    errors.laundry = 'An answer about laundry facilities is required.';
-  }
-
   const laundryErrors = [];
   const allLaundryFacilities = values.laundry_facilities;
   values.laundry_facilities.map((facility, index) => {
