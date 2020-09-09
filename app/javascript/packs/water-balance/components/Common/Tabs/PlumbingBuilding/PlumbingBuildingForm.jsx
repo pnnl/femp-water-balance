@@ -12,7 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import arrayMutators from 'final-form-arrays';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener, toNumber} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_DECIMAL_MASK, mediaQuery, expansionDetails, numberFormat} from '../shared/sharedStyles';
 import formValidation from './PlumbingBuildingForm.validation';
 
@@ -23,6 +23,7 @@ let expansionPanel = mediaQuery();
 const focusOnError = createDecorator();
 
 const assumedTypes = ['hotel', 'barracks', 'family'];
+const hospitalTypes = ['admin', 'healthWorker', 'outpatient', 'inpatient'];
 const assumedUrinalFlushesPerPersonPerHour = 0.25;
 const assumedDaysPerYear = 350;
 const assumedUrinalFlushRate = 0.125;
@@ -32,7 +33,7 @@ const restroomSinkUseMap = {
   hotel: 0.25,
   barracks: 0.25,
   family: 0.25,
-  hospital: .125,
+  hospital: 0.125,
   clinic: 1.05,
   other: 0.125
 };
@@ -56,13 +57,9 @@ class PlumbingForm extends React.Component {
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
 
-  toNumber = number => {
-    return Number(number) || 0;
-  };
-
   occupantsPerDay = audit => {
-    const week_day_occupancy = this.toNumber(audit.weekday_occupancy);
-    const weekend_occupancy = this.toNumber(audit.weekend_occupancy);
+    const week_day_occupancy = toNumber(audit.weekday_occupancy);
+    const weekend_occupancy = toNumber(audit.weekend_occupancy);
     let weekdays = week_day_occupancy ? 5 : 0;
     let weekendDays = weekend_occupancy ? 2 : 0;
     let totalDays = weekdays + weekendDays;
@@ -70,8 +67,8 @@ class PlumbingForm extends React.Component {
   };
 
   daysPerYear = (audit, buildingType) => {
-    const week_days_year = this.toNumber(audit.week_days_year);
-    const weekend_days_year = this.toNumber(audit.weekend_days_year);
+    const week_days_year = toNumber(audit.week_days_year);
+    const weekend_days_year = toNumber(audit.weekend_days_year);
 
     let daysPerYear;
     if (assumedTypes.indexOf(buildingType) > -1) {
@@ -87,10 +84,10 @@ class PlumbingForm extends React.Component {
     let occupantsPerDay = this.occupantsPerDay(audit);
 
     // Hours per day
-    const week_days_year = this.toNumber(audit.week_days_year);
-    const week_days_hours = this.toNumber(audit.week_days_hours);
-    const weekend_days_year = this.toNumber(audit.weekend_days_year);
-    const weekend_days_hours = this.toNumber(audit.weekend_days_hours);
+    const week_days_year = toNumber(audit.week_days_year);
+    const week_days_hours = toNumber(audit.week_days_hours);
+    const weekend_days_year = toNumber(audit.weekend_days_year);
+    const weekend_days_hours = toNumber(audit.weekend_days_hours);
     let hoursPerDay;
     if (assumedTypes.indexOf(buildingType) > -1) {
       hoursPerDay = 8;
@@ -101,10 +98,10 @@ class PlumbingForm extends React.Component {
     // Days per year
     let daysPerYear = this.daysPerYear(audit, buildingType);
 
-    if(isTransient) {
-      daysPerYear = daysPerYear/ hoursPerDay
+    if (isTransient) {
+      daysPerYear = daysPerYear / hoursPerDay;
     }
-    
+
     return {daysPerYear, totalHoursOccupiedPerYear: occupantsPerDay * hoursPerDay * daysPerYear};
   };
 
@@ -115,15 +112,15 @@ class PlumbingForm extends React.Component {
     if (fixture.urinals === 'no') {
       return 0;
     }
-    const percentMale = this.toNumber(audit.percent_male) / 100;
-    const flushRate = this.toNumber(fixture.urinal_flush_rate);
+    const percentMale = toNumber(audit.percent_male) / 100;
+    const flushRate = toNumber(fixture.urinal_flush_rate);
     const totalFlushes = percentMale * assumedUrinalFlushesPerPersonPerHour * totalHoursOccupiedPerYear;
     return (totalFlushes * flushRate) / 1000;
   };
 
   calculateToilets = (fixture, audit, totalHoursOccupiedPerYear) => {
-    const averageFlushRate = this.toNumber(fixture.typical_flush_rate);
-    const percentMale = this.toNumber(audit.percent_male) / 100;
+    const averageFlushRate = toNumber(fixture.typical_flush_rate);
+    const percentMale = toNumber(audit.percent_male) / 100;
     const femaleFlushes = assumedFlushRate;
     let maleFlushes = assumedFlushRate;
     if (fixture.urinals === 'yes') {
@@ -136,7 +133,7 @@ class PlumbingForm extends React.Component {
   };
 
   calculateRestroomSink = (fixture, buildingType, totalHoursOccupiedPerYear) => {
-    const aeratorFlowRate = this.toNumber(fixture.aerator_flow_rate);
+    const aeratorFlowRate = toNumber(fixture.aerator_flow_rate);
     const minutesUsedPerHour = restroomSinkUseMap[buildingType];
     const totalMinutesPerYear = minutesUsedPerHour * totalHoursOccupiedPerYear;
 
@@ -145,27 +142,241 @@ class PlumbingForm extends React.Component {
 
   calculateKitchenSink = (fixture, audit, primaryBuildingType, daysPerYear) => {
     const minutesUsedPerOccupant = kitchenSinkUseMap[primaryBuildingType];
-    const averageFlowRate = this.toNumber(fixture.kitchenette_flow_rate);
+    const averageFlowRate = toNumber(fixture.kitchenette_flow_rate);
     const minutesUsedPerYear = this.occupantsPerDay(audit) * daysPerYear * minutesUsedPerOccupant;
 
     return (averageFlowRate * minutesUsedPerYear) / 1000;
   };
 
   calculateShowers = (fixture, audit, primaryBuildingType, daysPerYear) => {
-    const averageShowerFlowRate = this.toNumber(fixture.shower_flow_rate);
+    const averageShowerFlowRate = toNumber(fixture.shower_flow_rate);
     let occupantShowerPercent;
     let minutesPerShower;
     if (assumedTypes.indexOf(primaryBuildingType) > -1) {
       occupantShowerPercent = assumedShowerPercent;
       minutesPerShower = 7.8;
     } else {
-      occupantShowerPercent = this.toNumber(fixture.shower_usage) / 100;
+      occupantShowerPercent = toNumber(fixture.shower_usage) / 100;
       minutesPerShower = 5.3;
     }
     const showersPerYear = this.occupantsPerDay(audit) * daysPerYear * occupantShowerPercent;
 
     return (showersPerYear * minutesPerShower * averageShowerFlowRate) / 1000;
   };
+
+  occupantsInDay = (values, occupancy, totalBuildingGroupOccupancy) => {
+    if (occupancy == 'lodging') {
+      const totalLodging = toNumber(values.plumbing.lodging.total_population);
+      const totalAverageLodging = (totalLodging * 12) / 365;
+      let auditTotalLodging = 0;
+      values.audits.forEach(audit => {
+        const building = values.buildings.find(building => building.name == audit.name);
+        const primaryBuildingType = building.primary_building_type;
+        if (assumedTypes.indexOf(primaryBuildingType) > -1) {
+          auditTotalLodging += this.occupantsPerDay(audit);
+        }
+      });
+      return totalAverageLodging - auditTotalLodging;
+    }
+    if (occupancy === 'admin' || occupancy === 'healthWorker') {
+      const dailyStaff = toNumber(values.plumbing.hospital.daily_staff);
+      const adminStaffPercentage = toNumber(values.plumbing.hospital.administrative) / 100;
+      const adminStaff = dailyStaff * adminStaffPercentage;
+      if (occupancy == 'admin') {
+        return adminStaff;
+      }
+      if (occupancy === 'healthWorker') {
+        return dailyStaff - adminStaff;
+      }
+    }
+    if (occupancy === 'outpatient') {
+      return toNumber(values.plumbing.hospital.outpatient_visits);
+    }
+    if (occupancy === 'inpatient') {
+      return toNumber(values.plumbing.hospital.inpatient_per_day);
+    }
+    if (occupancy === 'generalWeekDay') {
+      const totalPopulation = toNumber(values.plumbing.facility.total_population);
+      return totalPopulation - totalBuildingGroupOccupancy;
+    }
+    if (occupancy === 'generalWeekend') {
+      const totalPopulation = toNumber(values.plumbing.facility.total_population_weekends);
+      return totalPopulation - totalBuildingGroupOccupancy;
+    }
+  };
+
+  getTotalBuildingGroupOccupancy(values, occupancy) {
+    if (occupancy == 'lodging') {
+      let totalOccupancy = 0;
+      values.audits.forEach(audit => {
+        const building = values.buildings.find(building => building.name == audit.name);
+        const primaryBuildingType = building.primary_building_type;
+        if (assumedTypes.indexOf(primaryBuildingType) > -1) {
+          totalOccupancy += toNumber(audit.weekday_occupancy);
+        }
+      });
+      return totalOccupancy;
+    }
+    if (hospitalTypes.indexOf(occupancy) > -1) {
+      let totalAdmin = 0;
+      values.audits.forEach(audit => {
+        const building = values.buildings.find(building => building.name == audit.name);
+        const primaryBuildingType = building.primary_building_type;
+        if (primaryBuildingType === 'hospital' || primaryBuildingType === 'clinic') {
+          totalAdmin += toNumber(audit.weekday_occupancy);
+        }
+      });
+      return totalAdmin;
+    }
+    if (occupancy === 'generalWeekDay' || occupancy === 'generalWeekend') {
+      let totalBuilding = 0;
+      const field = occupancy === 'generalWeekDay' ? 'weekday_occupancy' : 'weekend_occupancy';
+      values.audits.forEach(audit => {
+        const building = values.buildings.find(building => building.name == audit.name);
+        const primaryBuildingType = building.primary_building_type;
+        if (primaryBuildingType === 'other') {
+          if (building.building_occupants && building.building_occupants !== 'transient') {
+            totalBuilding += toNumber(audit[field]);
+          }
+        }
+      });
+      return totalBuilding;
+    }
+    return 0;
+  }
+
+  hoursOccupiedPerDay(values, occupancy, totalBuildingGroupOccupancy) {
+    if (occupancy == 'lodging') {
+      return 8;
+    }
+    if (occupancy === 'admin' || occupancy === 'healthWorker') {
+      return toNumber(values.plumbing.hospital.staff_shift);
+    }
+    if (occupancy === 'outpatient') {
+      return toNumber(values.plumbing.hospital.outpatient_duration);
+    }
+    if (occupancy === 'inpatient') {
+      return 24;
+    }
+    if (occupancy === 'generalWeekDay' || occupancy === 'generalWeekend') {
+      const occupancyField = occupancy === 'generalWeekDay' ? 'weekday_occupancy' : 'weekend_occupancy';
+      const hoursOccupiedField = occupancy === 'generalWeekDay' ? 'week_days_hours' : 'weekend_days_hours';
+      let totalBuilding = 0;
+      values.audits.forEach(audit => {
+        const building = values.buildings.find(building => building.name == audit.name);
+        const primaryBuildingType = building.primary_building_type;
+        if (primaryBuildingType == 'other') {
+          totalBuilding += (toNumber(audit[occupancyField]) / totalBuildingGroupOccupancy) * toNumber(audit[hoursOccupiedField]);
+        }
+      });
+      return totalBuilding;
+    }
+  }
+
+  daysOccupiedPerYear(values, occupancy) {
+    if (occupancy == 'lodging') {
+      return 350;
+    }
+    if (hospitalTypes.indexOf(occupancy) > -1) {
+      return values.plumbing.hospital.days_per_year;
+    }
+    if (occupancy === 'generalWeekDay' || occupancy === 'generalWeekend') {
+      let totalBuilding = 0;
+      let buildingCount = 0;
+      const occupancyField = occupancy === 'generalWeekDay' ? 'week_days_year' : 'weekend_days_year';
+      values.audits.forEach(audit => {
+        const building = values.buildings.find(building => building.name == audit.name);
+        const primaryBuildingType = building.primary_building_type;
+        if (primaryBuildingType == 'other') {
+          totalBuilding += toNumber(audit[occupancyField]);
+          buildingCount++;
+        }
+      });
+      return totalBuilding / buildingCount;
+    }
+  }
+
+  calculateAverage(values, totalBuildingGroupOccupancy, occupancy, field) {
+    let totalBuilding = 0;
+
+    values.fixtures.forEach(fixture => {
+      const building = values.buildings.find(building => building.name == fixture.name);
+      const audit = values.audits.find(building => building.name == fixture.name);
+      const primaryBuildingType = building.primary_building_type;
+      const isLodging = occupancy === 'lodging' && assumedTypes.indexOf(primaryBuildingType) > -1;
+      const isHospital = hospitalTypes.indexOf(occupancy) > -1 && (primaryBuildingType == 'clinic' || primaryBuildingType == 'hospital');
+      const isGeneralWeekDay = occupancy === 'generalWeekDay' && primaryBuildingType === 'other' && building.building_occupants === 'stationary';
+      const isGeneralWeekEnd = occupancy === 'generalWeekend' && building.building_occupants === 'stationary';
+      if (isLodging || isHospital || isGeneralWeekDay || isGeneralWeekEnd) {
+        const auditField = isGeneralWeekEnd ? 'weekend_occupancy' : 'weekday_occupancy';
+        totalBuilding += (toNumber(audit[auditField]) / totalBuildingGroupOccupancy) * toNumber(fixture[field]);
+      }
+    });
+    return totalBuilding;
+  }
+
+  getFixtureOccupancy(values, occupancy, field) {
+    let fixtureOccupancy = 0;
+    values.fixtures.forEach(fixture => {
+      const building = values.buildings.find(building => building.name == fixture.name);
+      const primaryBuildingType = building.primary_building_type;
+      const isLodging = occupancy === 'lodging' && assumedTypes.indexOf(primaryBuildingType) > -1;
+      const isHospital = hospitalTypes.indexOf(occupancy) > -1 && (primaryBuildingType == 'clinic' || primaryBuildingType == 'hospital');
+      const isGeneralWeekDay = occupancy === 'generalWeekDay' && primaryBuildingType === 'other' && building.building_occupants === 'stationary';
+      const isGeneralWeekEnd = occupancy === 'generalWeekend' && building.building_occupants === 'stationary';
+      if (isLodging || isHospital || isGeneralWeekDay || isGeneralWeekEnd) {
+        const auditField = isGeneralWeekEnd ? 'weekend_occupancy' : 'weekday_occupancy';
+        const audit = values.audits.find(building => building.name == fixture.name);
+        const hasFixture =
+          (field == 'urinals' && fixture[field] == 'yes') ||
+          (field == 'kitchenette_flow_rate' && fixture[field] !== 0) ||
+          (field == 'aerator_flow_rate' && fixture[field] !== 0);
+        if (hasFixture) {
+          fixtureOccupancy += toNumber(audit[auditField]);
+        }
+      }
+    });
+    return fixtureOccupancy;
+  }
+
+  calculateWeightedAverageUrinals(values, totalHoursOccupied, totalBuildingGroupOccupancy, percentMale, occupancy) {
+    let totalFlushesPerYear = 0;
+    const urinalOccupancy = this.getFixtureOccupancy(values, occupancy, 'urinals');
+    const averageFlushRate = this.calculateAverage(values, urinalOccupancy, occupancy, 'urinal_flush_rate');
+    const urinalFlushesPerPersonPerHour = occupancy === 'inpatient' ? 4 : 0.25;
+
+    if (occupancy === 'lodging') {
+      totalFlushesPerYear =
+        totalHoursOccupied * (urinalOccupancy / totalBuildingGroupOccupancy) * urinalFlushesPerPersonPerHour * (toNumber(percentMale) / 100);
+    } else {
+      totalFlushesPerYear = totalHoursOccupied * urinalFlushesPerPersonPerHour * (toNumber(percentMale) / 100);
+    }
+    return (totalFlushesPerYear * averageFlushRate) / 1000;
+  }
+
+  calculateWeightedAverageToilets(values, totalHoursOccupied, totalBuildingGroupOccupancy, percentMale, occupancy) {
+    const averageFlushRate = this.calculateAverage(values, totalBuildingGroupOccupancy, occupancy, 'typical_flush_rate');
+    const maleFlushesPerPerson = occupancy === 'inpatient' ? 3 : 0.125;
+    const femaleFlushesPerPerson = occupancy === 'inpatient' ? 7 : 0.375;
+    const maleFlushesPerYear = (totalHoursOccupied * maleFlushesPerPerson * percentMale) / 100;
+    const femaleFlushes = totalHoursOccupied * femaleFlushesPerPerson * (1 - percentMale / 100);
+    return ((maleFlushesPerYear + femaleFlushes) * averageFlushRate) / 1000;
+  }
+
+  calculateWeightedAverageRestroomSink(values, totalHoursOccupied, occupancy) {
+    let minutesUsedPerHour = 0;
+    const kitchenSinkOccupancy = this.getFixtureOccupancy(values, occupancy, 'aerator_flow_rate');
+    const averageFlowRate = this.calculateAverage(values, kitchenSinkOccupancy, occupancy, 'aerator_flow_rate');
+    if (occupancy == 'lodging') {
+      minutesUsedPerHour = 0.25;
+    } else if (occupancy == 'healthWorker') {
+      minutesUsedPerHour = 1.05;
+    } else {
+      minutesUsedPerHour = 0.125;
+    }
+    const totalMinutesPerYear = minutesUsedPerHour * totalHoursOccupied;
+    return (averageFlowRate * totalMinutesPerYear) / 1000;
+  }
 
   calculateWaterUse = (values, valid) => {
     if (!valid) {
@@ -179,7 +390,7 @@ class PlumbingForm extends React.Component {
     values.audits.forEach(audit => {
       const building = values.buildings.find(building => building.name == audit.name);
       const primaryBuildingType = building.primary_building_type;
-      const isTransient = (building.building_occupants && building.building_occupants === 'transient');
+      const isTransient = building.building_occupants && building.building_occupants === 'transient';
       const fixture = values.fixtures.find(fixture => fixture.name == building.name);
       const {totalHoursOccupiedPerYear, daysPerYear} = this.getOccupancy(audit, primaryBuildingType, isTransient);
 
@@ -191,16 +402,38 @@ class PlumbingForm extends React.Component {
       if (!waterCategoryTotal[primaryBuildingType]) {
         waterCategoryTotal[primaryBuildingType] = 0;
       }
-      console.log(building.name);
-      console.log('urinals', urinals);
-      console.log('toilets', toilets);
-      console.log('restroomSink', restroomSink);
-      console.log('kitchenSinks', kitchenSinks);
-      console.log('showers', showers);
       const auditTotal = urinals + toilets + restroomSink + kitchenSinks + showers;
       waterCategoryTotal[primaryBuildingType] += auditTotal;
       totalWater += auditTotal;
     });
+    // Add check
+    let auditTotalOccupancy = 0;
+    const totalOccupancy =
+      values.plumbing.facility.total_population + values.plumbing.facility.total_population_weekends + values.plumbing.hospital.daily_staff;
+    values.audits.forEach(audit => (auditTotalOccupancy += audit.week_day_occupancy + audit.weekend_occupancy));
+
+    if (auditTotalOccupancy < totalOccupancy) {
+      const occupancyGroups = ['lodging', 'admin', 'healthWorker', 'outpatient', 'inpatient', 'generalWeekDay', 'generalWeekend'];
+      occupancyGroups.forEach(occupancy => {
+        const totalBuildingGroupOccupancy = this.getTotalBuildingGroupOccupancy(values, occupancy);
+        const occupantsInDay = this.occupantsInDay(values, occupancy, totalBuildingGroupOccupancy);
+        const hoursOccupiedPerDay = this.hoursOccupiedPerDay(values, occupancy, totalBuildingGroupOccupancy);
+        const daysOccupiedPerYear = this.daysOccupiedPerYear(values, occupancy);
+        let totalHoursOccupied = 0;
+        if (occupancy === 'inpatient') {
+          totalHoursOccupied = occupantsInDay * daysOccupiedPerYear;
+        } else {
+          totalHoursOccupied = occupantsInDay * hoursOccupiedPerDay * daysOccupiedPerYear;
+        }
+        const percentMale =
+          occupancy === 'admin' || occupancy === 'healthWorker' ? values.plumbing.hospital.hospital_male : values.plumbing.facility.male_population;
+        const urinal = this.calculateWeightedAverageUrinals(values, totalHoursOccupied, totalBuildingGroupOccupancy, percentMale, occupancy);
+        const toilets = this.calculateWeightedAverageToilets(values, totalHoursOccupied, totalBuildingGroupOccupancy, percentMale, occupancy);
+        const restroomSink = this.calculateWeightedAverageRestroomSink(values, totalHoursOccupied, occupancy);
+        console.log(occupancy, restroomSink);
+      });
+    }
+
     console.log('%o', waterCategoryTotal);
 
     values.plumbing.lodging_water_usage = numberFormat.format(

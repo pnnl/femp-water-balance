@@ -19,7 +19,7 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import createCalculatorDecorator from 'final-form-calculate';
-import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener, toNumber} from '../shared/sharedFunctions';
 import MaterialDatePicker from '../../MaterialDatePicker';
 import moment from 'moment';
 import InfoIcon from '@material-ui/icons/Info';
@@ -29,13 +29,6 @@ import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@ma
 import FullLoadReferenceGuide from './FullLoadReferenceGuide';
 
 let expansionPanel = mediaQuery();
-
-const toNumber = (value) => {
-  if (value === undefined || value === null) {
-    return 0;
-  }
-  return parseFloat(value.replace(/,/g, ''));
-};
 
 const calculator = createCalculatorDecorator({
   field: /\.*_date/,

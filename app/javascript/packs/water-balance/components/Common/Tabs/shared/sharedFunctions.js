@@ -48,3 +48,10 @@ export const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
     label={label}
   />
 );
+
+export const toNumber = (value) => {
+  if (value === undefined || value === null) {
+    return 0;
+  }
+  return parseFloat(value.replace(/,/g, ''));
+};
