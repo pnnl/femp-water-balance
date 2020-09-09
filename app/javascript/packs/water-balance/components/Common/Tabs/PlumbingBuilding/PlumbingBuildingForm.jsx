@@ -329,8 +329,9 @@ class PlumbingForm extends React.Component {
         const audit = values.audits.find(building => building.name == fixture.name);
         const hasFixture =
           (field == 'urinals' && fixture[field] == 'yes') ||
-          (field == 'kitchenette_flow_rate' && fixture[field] !== 0) ||
-          (field == 'aerator_flow_rate' && fixture[field] !== 0);
+          (field == 'kitchenette_flow_rate' && toNumber(fixture[field]) !== 0) ||
+          (field == 'aerator_flow_rate' && toNumber(fixture[field]) !== 0) ||
+          (field == 'shower_flow_rate' && toNumber(fixture[field]) !== 0);
         if (hasFixture) {
           fixtureOccupancy += toNumber(audit[auditField]);
         }
@@ -365,8 +366,8 @@ class PlumbingForm extends React.Component {
 
   calculateWeightedAverageRestroomSink(values, totalHoursOccupied, occupancy) {
     let minutesUsedPerHour = 0;
-    const kitchenSinkOccupancy = this.getFixtureOccupancy(values, occupancy, 'aerator_flow_rate');
-    const averageFlowRate = this.calculateAverage(values, kitchenSinkOccupancy, occupancy, 'aerator_flow_rate');
+    const restroomSinkOccupancy = this.getFixtureOccupancy(values, occupancy, 'aerator_flow_rate');
+    const averageFlowRate = this.calculateAverage(values, restroomSinkOccupancy, occupancy, 'aerator_flow_rate');
     if (occupancy == 'lodging') {
       minutesUsedPerHour = 0.25;
     } else if (occupancy == 'healthWorker') {
@@ -378,6 +379,47 @@ class PlumbingForm extends React.Component {
     return (averageFlowRate * totalMinutesPerYear) / 1000;
   }
 
+  calculateWeightedAverageKitchenettes(values, occupantsInDay, daysOccupiedPerYear, occupancy) {
+    let minutesUsedPerDay = 0;
+    if (occupancy == 'lodging') {
+      minutesUsedPerDay = 0.25;
+    } else if (occupancy == 'outpatient' || occupancy == 'inpatient') {
+      minutesUsedPerDay = 0;
+    } else {
+      minutesUsedPerDay = 0.5;
+    }
+    const kitchenSinkOccupancy = this.getFixtureOccupancy(values, occupancy, 'kitchenette_flow_rate');
+    const averageFlowRate = this.calculateAverage(values, kitchenSinkOccupancy, occupancy, 'kitchenette_flow_rate');
+    const totalMinutesUsedPerYear = minutesUsedPerDay * occupantsInDay * daysOccupiedPerYear;
+
+    return (totalMinutesUsedPerYear * averageFlowRate) / 1000;
+  }
+
+  calculateWeightedAverageShowers(values, totalBuildingGroupOccupancy, occupantsInDay, daysOccupiedPerYear, occupancy) {
+    let occupantShowerPercent = 0;
+    let timePerUse = 0;
+    if (occupancy === 'lodging') {
+      occupantShowerPercent = 0.69;
+    } else if (occupancy === 'outpatient') {
+      occupantShowerPercent = 0;
+    } else {
+      occupantShowerPercent = this.calculateAverage(values, totalBuildingGroupOccupancy, occupancy, 'shower_usage') / 100;
+    }
+
+    if (occupancy === 'lodging' || occupancy === 'inpatient') {
+      timePerUse = 7.8;
+    } else if (occupancy === 'outpatient') {
+      timePerUse = 0;
+    } else {
+      timePerUse = 5.3;
+    }
+
+    const showersPerYear = occupantShowerPercent * daysOccupiedPerYear * occupantsInDay;
+    const showerOccupancy = this.getFixtureOccupancy(values, occupancy, 'shower_flow_rate');
+    const averageFlowRate = this.calculateAverage(values, showerOccupancy, occupancy, 'shower_flow_rate');
+    return (showersPerYear * averageFlowRate * timePerUse) / 1000;
+  }
+
   calculateWaterUse = (values, valid) => {
     if (!valid) {
       window.alert('Missing or incorrect values.');
@@ -385,6 +427,7 @@ class PlumbingForm extends React.Component {
     }
 
     let waterCategoryTotal = {};
+    let weightedCategoriesTotal = {};
     let totalWater = 0;
 
     values.audits.forEach(audit => {
@@ -406,7 +449,7 @@ class PlumbingForm extends React.Component {
       waterCategoryTotal[primaryBuildingType] += auditTotal;
       totalWater += auditTotal;
     });
-    // Add check
+
     let auditTotalOccupancy = 0;
     const totalOccupancy =
       values.plumbing.facility.total_population + values.plumbing.facility.total_population_weekends + values.plumbing.hospital.daily_staff;
@@ -430,17 +473,32 @@ class PlumbingForm extends React.Component {
         const urinal = this.calculateWeightedAverageUrinals(values, totalHoursOccupied, totalBuildingGroupOccupancy, percentMale, occupancy);
         const toilets = this.calculateWeightedAverageToilets(values, totalHoursOccupied, totalBuildingGroupOccupancy, percentMale, occupancy);
         const restroomSink = this.calculateWeightedAverageRestroomSink(values, totalHoursOccupied, occupancy);
-        console.log(occupancy, restroomSink);
+        const kitchenettes = this.calculateWeightedAverageKitchenettes(values, occupantsInDay, daysOccupiedPerYear, occupancy);
+        const showers = this.calculateWeightedAverageShowers(values, totalBuildingGroupOccupancy, occupantsInDay, daysOccupiedPerYear, occupancy);
+        const total = urinal + toilets + restroomSink + kitchenettes + showers;
+        totalWater += total;
+        weightedCategoriesTotal[occupancy] = total;
       });
     }
 
-    console.log('%o', waterCategoryTotal);
-
     values.plumbing.lodging_water_usage = numberFormat.format(
-      (waterCategoryTotal['family'] || 0) + (waterCategoryTotal['hotel'] || 0) + (waterCategoryTotal['barracks'] || 0)
+      (waterCategoryTotal['family'] || 0) +
+        (waterCategoryTotal['hotel'] || 0) +
+        (waterCategoryTotal['barracks'] || 0) +
+        (weightedCategoriesTotal['lodging'] || 0)
     );
-    values.plumbing.hospital_water_usage = numberFormat.format((waterCategoryTotal['hospital'] || 0) + (waterCategoryTotal['clinic'] || 0));
-    values.plumbing.overall_water_usage = numberFormat.format(waterCategoryTotal['other'] || 0);
+    values.plumbing.hospital_water_usage = numberFormat.format(
+      (waterCategoryTotal['hospital'] || 0) +
+        (waterCategoryTotal['clinic'] || 0) +
+        (weightedCategoriesTotal['admin'] || 0) +
+        (weightedCategoriesTotal['healthWorker'] || 0) +
+        (weightedCategoriesTotal['outpatient'] || 0) +
+        (weightedCategoriesTotal['inpatient'] || 0)
+    );
+    values.plumbing.overall_water_usage = numberFormat.format(
+      (waterCategoryTotal['other'] || 0) + (weightedCategoriesTotal['generalWeekDay'] || 0) + (weightedCategoriesTotal['generalWeekend'] || 0)
+    );
+
     let formatTotal = numberFormat.format(totalWater);
 
     values.plumbing.water_usage = formatTotal;
