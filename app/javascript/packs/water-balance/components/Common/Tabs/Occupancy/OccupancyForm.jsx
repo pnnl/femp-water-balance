@@ -20,7 +20,7 @@ import {Grid, Button, InputAdornment, MenuItem, Link} from '@material-ui/core';
 
 let expansionPanel = mediaQuery();
 
-const toNumber = (value) => {
+const toNumber = value => {
   if (value === undefined || value === null) {
     return 0;
   }
@@ -55,7 +55,7 @@ class OccupancyForm extends React.Component {
     }
   };
 
-  onSubmit = (e) => {};
+  onSubmit = e => {};
 
   onsiteLodging = (basePath, values) => {
     return (
@@ -172,7 +172,7 @@ class OccupancyForm extends React.Component {
 
   renderAuditArray = (values) => {
     const auditedBuildings = values.audits.map((audit) => audit.name);
-    if(values.buildings && values.buildings.length == 0) {
+    if(values.buildings && values.buildings.some(building => building.name == undefined)) {
       return;
     } 
     return (
@@ -189,7 +189,7 @@ class OccupancyForm extends React.Component {
                     component={Select}
                     label='Please select the building that you would like to audit.'
                   >
-                    {values.buildings.map((building) => {
+                    {values.buildings.map(building => {
                       const disabled = auditedBuildings.indexOf(building.name) > -1;
                       return (
                         <MenuItem disabled={disabled} value={building.name}>
@@ -202,7 +202,7 @@ class OccupancyForm extends React.Component {
                     style={{
                       padding: 'initial',
                       height: '40px',
-                      width: '40px',
+                      width: '40px'
                     }}
                     onClick={() => fields.remove(index)}
                     aria-label='Delete'
@@ -461,6 +461,25 @@ class OccupancyForm extends React.Component {
       module.audits = [];
       module.audits.push({});
     }
+    if (!('fixtures' in module)) {
+      module.fixtures = [];
+      module.fixtures.push({});
+    }
+    if (!('buildings' in module)) {
+      module.buildings = [];
+      module.buildings.push({});
+    }
+    if (campus && module.buildings) {
+      if (
+        module.buildings.some(
+          building =>
+            building.primary_building_type == 'hotel' || building.primary_building_type == 'family' || building.primary_building_type == 'barracks'
+        )
+      ) {
+        module.plumbing = module.plumbing ? module.plumbing : {};
+        module.plumbing.has_onsite_lodging = true;
+      }
+    }
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
@@ -482,8 +501,8 @@ class OccupancyForm extends React.Component {
             values,
             valid,
             form: {
-              mutators: {push},
-            },
+              mutators: {push}
+            }
           }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Grid container alignItems='flex-start' spacing={16}>

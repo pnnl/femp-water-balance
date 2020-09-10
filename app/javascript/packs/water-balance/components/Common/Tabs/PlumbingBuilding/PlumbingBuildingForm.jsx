@@ -15,6 +15,7 @@ import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener, toNumber} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_DECIMAL_MASK, mediaQuery, expansionDetails, numberFormat} from '../shared/sharedStyles';
 import formValidation from './PlumbingBuildingForm.validation';
+import {validate} from '../Occupancy/OccupancyForm.validation';
 
 import {Fab, Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
@@ -646,7 +647,7 @@ class PlumbingForm extends React.Component {
                       component={Select}
                       label='Select a unique name identifier for this building from the dropdown list.'
                     >
-                      {values.buildings.map(building => {
+                      {values.audits.map(building => {
                         const disabled = facilities.indexOf(building.name) > -1;
                         return (
                           <MenuItem disabled={disabled} value={building.name}>
@@ -743,10 +744,27 @@ class PlumbingForm extends React.Component {
   render() {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
     const module = campus ? campus.modules.plumbing : {};
+    let error;
     if (!('fixtures' in module)) {
       module.fixtures = [];
       module.fixtures.push({});
     }
+    if (!('buildings' in module)) {
+      module.buildings = [];
+      module.buildings.push({});
+    }
+    if (!('audits' in module)) {
+      module.audits = [];
+      module.audits.push({});
+    }
+    const needsBuildings = module.buildings.some(building => building.name === undefined);
+    const needsAudit = module.audits.some(audit => audit.name === undefined);
+    if(needsBuildings) {
+      error = "Add buildings in the 'General Buildings' before adding fixture information" 
+    } else if(needsAudit) {
+      error = "Add occupancy information for buildings in the 'Occupancy' tab before adding fixture information." 
+    }
+     
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
@@ -772,31 +790,37 @@ class PlumbingForm extends React.Component {
             }
           }) => (
             <form onSubmit={handleSubmit} noValidate>
-              <Grid container alignItems='flex-start' spacing={16}>
-                {this.renderFacilityTypes(values, valid)}
-                <Grid item xs={12}>
-                  {this.addAnotherBuildingButton(values, push)}
-                  <Button variant='contained' type='submit' onClick={() => this.calculateWaterUse(values, valid)}>
-                    Calculate Water Use
-                  </Button>
-                  <Button
-                    variant='contained'
-                    type='button'
-                    onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
-                    style={{marginLeft: '10px'}}
-                  >
-                    Save
-                  </Button>
-                  {this.state.waterUse != '' && (
-                    <Fab color='primary' aria-label='Water Use' title='Water Use' style={fabStyle}>
-                      {this.state.waterUse}
-                    </Fab>
-                  )}
+              {needsBuildings || needsAudit ? (
+                <Typography variant='body2' gutterBottom>
+                  {error}
+                </Typography>
+              ) : (
+                <Grid container alignItems='flex-start' spacing={16}>
+                  {this.renderFacilityTypes(values, valid)}
+                  <Grid item xs={12}>
+                    {this.addAnotherBuildingButton(values, push)}
+                    <Button variant='contained' type='submit' onClick={() => this.calculateWaterUse(values, valid)}>
+                      Calculate Water Use
+                    </Button>
+                    <Button
+                      variant='contained'
+                      type='button'
+                      onClick={() => submitAlert(valid, createOrUpdateCampusModule, values)}
+                      style={{marginLeft: '10px'}}
+                    >
+                      Save
+                    </Button>
+                    {this.state.waterUse != '' && (
+                      <Fab color='primary' aria-label='Water Use' title='Water Use' style={fabStyle}>
+                        {this.state.waterUse}
+                      </Fab>
+                    )}
+                  </Grid>
+                  {this.updateIsDirty(dirty, updateParent)}
+                  <FormRulesListener handleFormChange={applyRules} />
+                  <pre>{JSON.stringify(values, 0, 2)}</pre>
                 </Grid>
-                {this.updateIsDirty(dirty, updateParent)}
-                <FormRulesListener handleFormChange={applyRules} />
-                <pre>{JSON.stringify(values, 0, 2)}</pre>
-              </Grid>
+              )}
             </form>
           )}
         />

@@ -38,7 +38,7 @@ const validateFacility = (values, basePath) => {
   if (!(selectn(`${basePath}.individual_audit`)(values))) {
     errors['individual_audit'] = 'Indicate if data will be entered for audited buildings.';
   }
-  if(values.buildings && values.buildings.length == 0 && (selectn(`${basePath}.individual_audit`)(values) === 'yes')) {
+  if(values.buildings && values.buildings.some(building => building.name == undefined) && (selectn(`${basePath}.individual_audit`)(values) === 'yes')) {
     errors['individual_audit'] = 'Add buildings to audit in the buildings tab.';
   }
   return Object.keys(errors).length === 0 ? undefined : errors;
