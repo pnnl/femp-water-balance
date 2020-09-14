@@ -86,7 +86,7 @@ class LandingPage extends React.Component {
     handleClickOpen = (e) => {
         let campus = undefined;
         if (e.currentTarget.id) {
-          campus = this.state.campuses.find((campus) => (campus.id = e.currentTarget.id));
+          campus = this.state.campuses.find((campus) => (campus.id == e.currentTarget.id));
         }
         this.setState({addOpen: true, campus});
     };

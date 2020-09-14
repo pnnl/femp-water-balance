@@ -15,7 +15,7 @@ import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener, toNumber} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_DECIMAL_MASK, mediaQuery, expansionDetails, numberFormat} from '../shared/sharedStyles';
 import formValidation from './PlumbingBuildingForm.validation';
-import {validate} from '../Occupancy/OccupancyForm.validation';
+import validate from '../Occupancy/OccupancyForm.validation';
 
 import {Fab, Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
@@ -313,7 +313,7 @@ class PlumbingForm extends React.Component {
         totalBuilding += (toNumber(audit[auditField]) / totalBuildingGroupOccupancy) * toNumber(fixture[field]);
       }
     });
-    return totalBuilding;
+    return totalBuilding ? totalBuilding : 0;
   }
 
   getFixtureOccupancy(values, occupancy, field) {
@@ -421,9 +421,19 @@ class PlumbingForm extends React.Component {
     return (showersPerYear * averageFlowRate * timePerUse) / 1000;
   }
 
+  checkFixtures(values) {
+    const fixtures = values.fixtures.map(fixture => fixture.name);
+    return (values.audits.some(audit => !fixtures.includes(audit.name)));
+  }
+
   calculateWaterUse = (values, valid) => {
+    const needsFixtureInformation = this.checkFixtures(values);
     if (!valid) {
       window.alert('Missing or incorrect values.');
+      return;
+    }
+    if(needsFixtureInformation) {
+      window.alert('Enter fixture information for each audited building.');
       return;
     }
 
@@ -476,7 +486,7 @@ class PlumbingForm extends React.Component {
         const restroomSink = this.calculateWeightedAverageRestroomSink(values, totalHoursOccupied, occupancy);
         const kitchenettes = this.calculateWeightedAverageKitchenettes(values, occupantsInDay, daysOccupiedPerYear, occupancy);
         const showers = this.calculateWeightedAverageShowers(values, totalBuildingGroupOccupancy, occupantsInDay, daysOccupiedPerYear, occupancy);
-        const total = urinal + toilets + restroomSink + kitchenettes + showers;
+        const total = (urinal || 0) + (toilets || 0) + (restroomSink || 0) + (kitchenettes || 0) + (showers || 0);
         totalWater += total;
         weightedCategoriesTotal[occupancy] = total;
       });
@@ -741,6 +751,14 @@ class PlumbingForm extends React.Component {
     }
   };
 
+  check(values, occupancyTypes) {
+    const occupancyTypeBuildings = values.buildings.filter(building => occupancyTypes.includes(building.primary_building_type));
+    if (occupancyTypeBuildings.length) {
+      const names = occupancyTypeBuildings.map(building => building.name);
+      return !values.audits.some(audit => names.includes(audit.name));
+    }
+  }
+
   render() {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
     const module = campus ? campus.modules.plumbing : {};
@@ -759,12 +777,27 @@ class PlumbingForm extends React.Component {
     }
     const needsBuildings = module.buildings.some(building => building.name === undefined);
     const needsAudit = module.audits.some(audit => audit.name === undefined);
-    if(needsBuildings) {
-      error = "Add buildings in the 'General Buildings' before adding fixture information" 
-    } else if(needsAudit) {
-      error = "Add occupancy information for buildings in the 'Occupancy' tab before adding fixture information." 
+    const occupancyErrors = validate(module);
+    const hasOccupancyErrors = Object.keys(occupancyErrors.plumbing).length > 0;
+    const needsLodgingAudit = this.check(module, ['barracks', 'hotel', 'family']);
+    const needsHospitalAudit = this.check(module, ['clinic', 'hospital']);
+    const needsOtherAudit = this.check(module, ['other']);
+    if (needsBuildings) {
+      error = "Add buildings in the 'General Buildings' before adding fixture information";
+    } else if (needsAudit) {
+      error = "Add occupancy information for buildings in the 'Occupancy' tab before adding fixture information.";
+    } else if (hasOccupancyErrors) {
+      error = "Fill out all required fields in the 'Occupancy' module before adding fixture information";
+    } else if (needsLodgingAudit) {
+      error =
+        "Enter occupancy information for at least one building that has a primary building type of 'Barracks/Dormitory', 'Hotel/Motel', or 'Family Housing' in the 'Occupancy' tab";
+    } else if (needsHospitalAudit) {
+      error =
+        "Enter occupancy information for at least one building that has a primary building type of 'Hospital' or 'Medical Clinic' in the 'Occupancy' tab";
+    } else if (needsOtherAudit) {
+      error = "Enter occupancy information for at least one building that has a primary building type of 'Other' in the 'Occupancy' tab";
     }
-     
+    const hasErrors = needsBuildings || needsAudit || hasOccupancyErrors || needsLodgingAudit || needsHospitalAudit || needsOtherAudit;
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
@@ -790,7 +823,7 @@ class PlumbingForm extends React.Component {
             }
           }) => (
             <form onSubmit={handleSubmit} noValidate>
-              {needsBuildings || needsAudit ? (
+              {hasErrors ? (
                 <Typography variant='body2' gutterBottom>
                   {error}
                 </Typography>
@@ -818,7 +851,6 @@ class PlumbingForm extends React.Component {
                   </Grid>
                   {this.updateIsDirty(dirty, updateParent)}
                   <FormRulesListener handleFormChange={applyRules} />
-                  <pre>{JSON.stringify(values, 0, 2)}</pre>
                 </Grid>
               )}
             </form>

@@ -33,7 +33,7 @@ export default function campusesTable(props) {
         {campus.region || 'N/A'}
       </TableCell>
       <TableCell component='th' scope='row' style={textAlign}>
-        <EditIcon id={campus.id} color='primary' onClick={handleClickOpen} />
+        <EditIcon id={campus.id} color='primary' onClick={handleClickOpen} style={{cursor: 'pointer'}}/>
       </TableCell>
     </TableRow>
   ));

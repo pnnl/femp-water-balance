@@ -479,6 +479,15 @@ class OccupancyForm extends React.Component {
         module.plumbing = module.plumbing ? module.plumbing : {};
         module.plumbing.has_onsite_lodging = true;
       }
+      if (
+        module.buildings.some(
+          building =>
+            building.primary_building_type == 'clinic' || building.primary_building_type == 'hospital'
+        )
+      ) {
+        module.plumbing = module.plumbing ? module.plumbing : {};
+        module.plumbing.has_hospital = true;
+      }
     }
     return (
       <Fragment>
@@ -521,7 +530,6 @@ class OccupancyForm extends React.Component {
               </Grid>
               {this.updateIsDirty(dirty, updateParent)}
               <FormRulesListener handleFormChange={applyRules} />
-              <pre>{JSON.stringify(values, 0, 2)}</pre>
             </form>
           )}
         />

@@ -217,7 +217,7 @@ class CampusDisplay extends React.Component {
 
     getCampusTabs = () => {
         const { campus, events } = this.state;
-
+    
         const tabs = [
             {
                 tabName: 'Introduction',
@@ -286,27 +286,10 @@ class CampusDisplay extends React.Component {
                 ),
             },
             {
-                tabName: 'Plumbing Building',
-                tabContent: (
-                    <TabContainer>
-                        <PlumbingBuildingForm
-                            createOrUpdateCampusModule={
-                                this.createOrUpdateCampusModule
-                            }
-                            campus={campus}
-                            events={events}
-                            applyRules={this.executeRules}
-                            updateParent={this.isDirty}
-                            {...this.props}
-                        />
-                    </TabContainer>
-                ),
-            },
-            {
                 tabName: 'Plumbing Fixtures',
                 tabContent: (
                     <TabContainer>
-                        <PlumbingForm
+                        <PlumbingBuildingForm
                             createOrUpdateCampusModule={
                                 this.createOrUpdateCampusModule
                             }
@@ -447,7 +430,24 @@ class CampusDisplay extends React.Component {
                 ),
             },
         ];
-        
+        if (campus.plumbing_level === 'campus' || campus.plumbing_level === null) {
+            const campusPlumbing = {
+                tabName: 'Plumbing Fixtures',
+                tabContent: (
+                    <TabContainer>
+                        <PlumbingForm
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                )
+            };
+            tabs.splice(2, 3, campusPlumbing);
+        }    
         return tabs;
     };
 
