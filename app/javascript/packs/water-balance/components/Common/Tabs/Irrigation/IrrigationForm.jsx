@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
+import {Form, Field} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import {FieldArray} from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
@@ -13,7 +13,7 @@ import {fabStyle, ONE_DECIMAL_MASK, numberFormat, DEFAULT_DECIMAL_MASK, mediaQue
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
 
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import formValidation from './Irrigation.validation';
@@ -79,17 +79,6 @@ const toNumber = (value) => {
   }
   return parseFloat(value.replace(/,/g, ''));
 };
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
-  />
-);
 
 const getCoefficient = (values) => {
   let coefficient = '';
@@ -629,6 +618,7 @@ class IrrigationForm extends React.Component {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
     const module = campus ? campus.modules.irrigation : {};
+    module.year = campus.year;
 
     if (!('irrigation' in module)) {
       module.irrigation = [];

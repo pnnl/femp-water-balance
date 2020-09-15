@@ -1,8 +1,8 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
+import {Form, Field} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
-import {Fab, Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
+import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import selectn from 'selectn';
 import {FieldArray} from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
@@ -13,7 +13,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createDecorator from 'final-form-focus';
-import {submitAlert} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import {
   fabStyle,
   DEFAULT_NUMBER_MASK,
@@ -37,40 +37,7 @@ const toNumber = value => {
 
 const focusOnError = createDecorator();
 
-const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
-  <FormControlLabel
-    control={
-      <Switch
-        checked={value}
-        onChange={(event, isInputChecked) => {
-          let proceed = true;
-          if (value == true) {
-            proceed = window.confirm('Deactivating this toggle will clear values. Do you want to proceed?');
-          }
-          if (proceed == true) {
-            onChange(isInputChecked);
-          }
-        }}
-        value={value}
-        {...rest}
-      />
-    }
-    label={label}
-  />
-);
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
-  />
-);
-
-const recycledCalculation = values => {
+const recycledCalculation = (values) => {
   let waterUsage = toNumber(values.water_usage);
   if (values.metered == 'yes') {
     return waterUsage;
@@ -519,6 +486,7 @@ class VehicleWashForm extends React.Component {
       {name: 'large_vehicles', display_name: 'Large Vehicle', check: 'large_facilities'}
     ];
     this.parseModule(fields, module);
+    module.year = campus.year;
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
@@ -594,7 +562,6 @@ class VehicleWashForm extends React.Component {
               </Grid>
               {this.updateIsDirty(dirty, updateParent)}
               <FormRulesListener handleFormChange={applyRules} />
-              {/* <pre>{JSON.stringify(values, 0, 2)}</pre> */}
             </form>
           )}
         />

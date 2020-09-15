@@ -1,6 +1,6 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
+import {Form, Field} from 'react-final-form';
 import {Checkbox, Select} from 'final-form-material-ui';
 import {FieldArray} from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
@@ -19,7 +19,7 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import createCalculatorDecorator from 'final-form-calculate';
-import {submitAlert} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener, toNumber} from '../shared/sharedFunctions';
 import MaterialDatePicker from '../../MaterialDatePicker';
 import moment from 'moment';
 import InfoIcon from '@material-ui/icons/Info';
@@ -29,24 +29,6 @@ import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@ma
 import FullLoadReferenceGuide from './FullLoadReferenceGuide';
 
 let expansionPanel = mediaQuery();
-
-const toNumber = (value) => {
-  if (value === undefined || value === null) {
-    return 0;
-  }
-  return parseFloat(value.replace(/,/g, ''));
-};
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
-  />
-);
 
 const calculator = createCalculatorDecorator({
   field: /\.*_date/,
@@ -387,7 +369,7 @@ class CoolingTowersForm extends React.Component {
     const {createOrUpdateCampusModule, campus, applyRules, updateParent} = this.props;
 
     const module = campus ? campus.modules.cooling_towers : {};
-
+    module.year = campus.year;
     if (!('cooling_towers' in module)) {
       module.cooling_towers = [];
       module.cooling_towers.push({});
@@ -457,7 +439,6 @@ class CoolingTowersForm extends React.Component {
               </Grid>
               {this.updateIsDirty(dirty, updateParent)}
               <FormRulesListener handleFormChange={applyRules} />
-              {/* <pre>{JSON.stringify(values, 0, 2)}</pre> */}
             </form>
           )}
         />

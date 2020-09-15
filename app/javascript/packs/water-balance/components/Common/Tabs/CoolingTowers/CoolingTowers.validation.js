@@ -51,22 +51,10 @@ const validateProcesses = (values, allTowers) => {
 		}
   }
 
-  valuePath = values.name;
-  let isUsed = false;
-  let resolvedValue = undefined;
-
-  allTowers.map((tower, index) => {
-    if (tower != undefined) {
-      let resolvedValue = tower.name;
-      if (resolvedValue == valuePath && isUsed == true && valuePath != undefined) {
-        errors['name'] = 'Identifiers must be unique.';
-        isUsed = false;
-      }
-      if (resolvedValue == valuePath) {
-        isUsed = true;
-      }
-    }
-  });
+  const allNames = allTowers.filter(tower => tower.name === values.name);
+  if(allNames.length > 1) {
+    errors['name'] = 'Identifiers must be unique.';
+  }
 
   return Object.keys(errors).length === 0 ? undefined : errors;
 };

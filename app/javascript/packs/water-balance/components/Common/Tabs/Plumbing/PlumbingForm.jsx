@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react';
 import Typography from '@material-ui/core/Typography';
-import {Form, Field, FormSpy} from 'react-final-form';
-import {Checkbox, Select} from 'final-form-material-ui';
+import {Form, Field} from 'react-final-form';
+import {Select} from 'final-form-material-ui';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -9,11 +9,11 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import Divider from '@material-ui/core/Divider';
-import {submitAlert, updateIsDirty} from '../shared/sharedFunctions';
+import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import formValidation from './PlumbingForm.validation';
 
-import {Fab, Grid, Button, FormControlLabel, InputAdornment, Switch, MenuItem} from '@material-ui/core';
+import {Fab, Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
 let expansionPanel = mediaQuery();
 
@@ -28,39 +28,6 @@ const toNumber = (value) => {
   }
   return parseFloat(value.replace(/,/g, ''));
 };
-
-const ToggleAdapter = ({input: {onChange, value}, label, ...rest}) => (
-  <FormControlLabel
-    control={
-      <Switch
-        checked={value}
-        onChange={(event, isInputChecked) => {
-          let proceed = true;
-          if (value == true) {
-            proceed = window.confirm('Deactivating this toggle will clear values. Do you want to proceed?');
-          }
-          if (proceed == true) {
-            onChange(isInputChecked);
-          }
-        }}
-        value={value}
-        {...rest}
-      />
-    }
-    label={label}
-  />
-);
-
-const FormRulesListener = ({handleFormChange}) => (
-  <FormSpy
-    subscription={{values: true, valid: true}}
-    onChange={async ({values, valid}) => {
-      if (valid) {
-        handleFormChange(values);
-      }
-    }}
-  />
-);
 
 const focusOnError = createDecorator();
 
@@ -761,7 +728,7 @@ class PlumbingForm extends React.Component {
           <Grid item xs={12}>
             {this.flushRate('plumbing.hospital', values, 'hospital/medical clinic', 'Hospital/Medical Clinic', [
               'hospital staff',
-              'hospital inpatents',
+              'hospital inpatients',
             ])}
           </Grid>
         )}

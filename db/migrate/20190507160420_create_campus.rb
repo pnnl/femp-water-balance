@@ -4,6 +4,7 @@ class CreateCampus < ActiveRecord::Migration[5.2]
       t.column(:name, :string, null: false)
       t.column(:evaluator, :string, null: true)
       t.column(:survey, :datetime, null: true)
+      t.column(:plumbing_level, :string, null: true)
       t.column(:year, :integer, null: true)
       t.column(:city, :string, null: true, limit: 50)
       t.column(:region, :string, null: true, limit: 50)

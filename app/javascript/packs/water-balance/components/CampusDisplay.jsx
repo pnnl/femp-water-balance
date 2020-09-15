@@ -11,15 +11,18 @@ import WaterSupplyForm from './Common/Tabs/WaterSupply/WaterSupplyForm';
 import KitchensForm from './Common/Tabs/Kitchens/KitchensForm';
 import LaundryForm from './Common/Tabs/Laundry/LaundryForm';
 import PlumbingForm from './Common/Tabs/Plumbing/PlumbingForm';
+import PlumbingBuildingForm from './Common/Tabs/PlumbingBuilding/PlumbingBuildingForm';
 import OtherProcessesForm from './Common/Tabs/OtherProcesses/OtherProcessesForm';
 import SteamBoilersForm from './Common/Tabs/SteamBoilers/SteamBoilersForm';
 import CoolingTowersForm from './Common/Tabs/CoolingTowers/CoolingTowersForm';
 import IrrigationForm from './Common/Tabs/Irrigation/IrrigationForm';
+import GeneralBuildingForm from './Common/Tabs/GeneralBuilding/GeneralBuildingForm'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Report from './Common/Tabs/Report/Report';
-import CampusIntroduction from './Common/CampusIntroduction';
+import CampusIntroduction from './Common/Tabs/LandingPage/CampusIntroduction';
 
 import { Engine } from 'json-rules-engine';
+import OccupancyForm from './Common/Tabs/Occupancy/OccupancyForm';
 
 const moduleKeys = [
     'water_supply',
@@ -214,8 +217,8 @@ class CampusDisplay extends React.Component {
 
     getCampusTabs = () => {
         const { campus, events } = this.state;
-
-        return [
+    
+        const tabs = [
             {
                 tabName: 'Introduction',
                 tabContent: (
@@ -249,10 +252,44 @@ class CampusDisplay extends React.Component {
                 ),
             },
             {
+                tabName: 'General Building',
+                tabContent: (
+                    <TabContainer>
+                        <GeneralBuildingForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
+                tabName: 'Occupancy',
+                tabContent: (
+                    <TabContainer>
+                        <OccupancyForm
+                            createOrUpdateCampusModule={
+                                this.createOrUpdateCampusModule
+                            }
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                ),
+            },
+            {
                 tabName: 'Plumbing Fixtures',
                 tabContent: (
                     <TabContainer>
-                        <PlumbingForm
+                        <PlumbingBuildingForm
                             createOrUpdateCampusModule={
                                 this.createOrUpdateCampusModule
                             }
@@ -393,6 +430,25 @@ class CampusDisplay extends React.Component {
                 ),
             },
         ];
+        if (campus.plumbing_level === 'campus' || campus.plumbing_level === null) {
+            const campusPlumbing = {
+                tabName: 'Plumbing Fixtures',
+                tabContent: (
+                    <TabContainer>
+                        <PlumbingForm
+                            createOrUpdateCampusModule={this.createOrUpdateCampusModule}
+                            campus={campus}
+                            events={events}
+                            applyRules={this.executeRules}
+                            updateParent={this.isDirty}
+                            {...this.props}
+                        />
+                    </TabContainer>
+                )
+            };
+            tabs.splice(2, 3, campusPlumbing);
+        }    
+        return tabs;
     };
 
     getModules(campus) {
