@@ -35,12 +35,6 @@ const validateFacility = (values, basePath) => {
   if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
     errors['male_population'] = 'Percentage of population that is male be between 0 and 100.';
   }
-  if (!(selectn(`${basePath}.individual_audit`)(values))) {
-    errors['individual_audit'] = 'Indicate if data will be entered for audited buildings.';
-  }
-  if(values.buildings && values.buildings.some(building => building.name == undefined) && (selectn(`${basePath}.individual_audit`)(values) === 'yes')) {
-    errors['individual_audit'] = 'Add buildings to audit in the buildings tab.';
-  }
   return Object.keys(errors).length === 0 ? undefined : errors;
 };
 
@@ -99,7 +93,7 @@ const validateHospital = (values, basePath) => {
 const validateAudits = (values) => {
   let errors = {};
   if (!values.name) {
-    errors['name'] = 'The building that will be audited.';
+    errors['name'] = 'The building that you would like to enter occupancy information for.';
   }
   if (!isPositiveNumericArray(values.weekday_occupancy, true, true)) {
     errors['weekday_occupancy'] = 'The typical weekday occupancy for this building.';

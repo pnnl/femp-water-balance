@@ -2,7 +2,7 @@ const validateGeneralBuilding = (values, allValues) => {
   const errors = {};
   if (!values.name) {
     errors['name'] =
-      'Enter a unique name identifier for this cooling tower system (such as the building name/number the cooling tower is associated with)';
+      'Enter a unique name identifier for this building (such as the building name/number it is associated).';
   }
   if (!values.primary_building_type) {
     errors['primary_building_type'] = 'Primary building type is required.';

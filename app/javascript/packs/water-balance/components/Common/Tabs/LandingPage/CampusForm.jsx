@@ -100,7 +100,7 @@ class CampusForm extends React.Component {
                                     required
                                     name="plumbing_level"
                                     component={Select}
-                                    label="Will this campus be using campus-wide or building level data?"
+                                    label="Will this campus be using campus-wide or building level data for plumbing?"
                                 > 
                                     <MenuItem value='campus'>Campus</MenuItem>
                                     <MenuItem value='building'>Building</MenuItem>
