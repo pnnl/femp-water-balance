@@ -522,7 +522,7 @@ class PlumbingForm extends React.Component {
 
     values.plumbing.water_usage = formatTotal;
     this.setState({
-      waterUse: ' Water Use:' + formatTotal + ' kgal'
+      waterUse: ' Water Use: ' + formatTotal + ' kgal'
     });
   };
 
@@ -626,11 +626,11 @@ class PlumbingForm extends React.Component {
             component={MaterialInput}
             type='text'
             mask={DEFAULT_DECIMAL_MASK}
-            label={'What is the typical flow rate of showers in ' + source + '? Please put 0 in no showers are present.'}
+            label={'What is the typical flow rate of showers in ' + source + '? Please put 0 in if no showers are present.'}
             endAdornment={<InputAdornment position='end'>gpm</InputAdornment>}
           />
         </Grid>
-        {flowRate != 0 && flowRate != undefined && (
+        {flowRate != 0 && flowRate != undefined && assumedTypes.indexOf(buildingType) === -1 && (
           <Grid item xs={12}>
             <Field
               formControlProps={{fullWidth: true}}
@@ -644,6 +644,7 @@ class PlumbingForm extends React.Component {
             />
           </Grid>
         )}
+        {assumedTypes.indexOf(buildingType) !== -1 && this.clearValues(['shower_usage'], basePath, values)}
       </Grid>
     );
   };

@@ -199,24 +199,24 @@ const validateFlushRates = (values, basePath, source) => {
         errors['aerator_flow_rate'] =
             'The flow rate of restroom faucet aerators in ' +
             source +
-            ' must be between 0.5 and 2.5 gpf.';
+            ' must be between 0.5 and 2.5 gpm.';
     }
     valuePath = `${basePath}.kitchenette_flow_rate`;
     if (!isWithinNumericRange(valuePath, values, 0.5, 2.5, true)) {
         if (resolve(valuePath, values) != 0) {
             errors['kitchenette_flow_rate'] =
-                'The flow rate of kitchenette faucet aerators in ' +
+                'If present the flow rate of kitchenette faucet aerators in ' +
                 source +
-                ' must be between 0.5 and 2.5 gpf. Please put 0 if no kitchenettes are present.';
+                ' must be between 0.5 and 2.5 gpm.';
         }
     }
     valuePath = `${basePath}.shower_flow_rate`;
     if (!isWithinNumericRange(valuePath, values, 1.0, 2.5, true)) {
         if (resolve(valuePath, values) != 0) {
             errors['shower_flow_rate'] =
-                'The flow rate of showers in ' +
+                'If present the flow rate of showers in ' +
                 source +
-                ' must be between 1.0 and 2.5 gpf. Please put 0 in no showers are present.';
+                ' must be between 1.0 and 2.5 gpm.';
         }
     }
 
