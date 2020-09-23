@@ -14,7 +14,7 @@ import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {requireFieldSubmitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import {DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, expansionDetails, mediaQuery} from '../shared/sharedStyles';
-import {buildingTypeMap} from '../shared/sharedConstants';
+import {buildingTypeMap, lodgingTypes} from '../shared/sharedConstants';
 import formValidation from './OccupancyForm.validation';
 import WarningIcon from '@material-ui/icons/Warning';
 
@@ -57,6 +57,17 @@ class OccupancyForm extends React.Component {
     }
   };
 
+  clearValuesArray = (clearValues, basePath, values) => {
+    let field = basePath.split('[');
+    let path = field[0];
+    let index = field[1].replace(']', '');
+    for (let i = 0; i < clearValues.length; i++) {
+      if (values[path] != undefined) {
+        values[path][index][clearValues[i]] = null;
+      }
+    }
+  };
+
   onSubmit = e => {};
 
   onsiteLodging = (basePath, values) => {
@@ -78,6 +89,8 @@ class OccupancyForm extends React.Component {
 
   renderAudit = (values, basePath) => {
     const name = selectn(`${basePath}.name`)(values);
+    const building = values.buildings.find(building => building.name === name);
+    const primary_building_type = selectn('primary_building_type')(building);
     return (
       <Grid container alignItems='flex-start' spacing={16}>
         <Grid item xs={12}>
@@ -104,70 +117,79 @@ class OccupancyForm extends React.Component {
             endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
           />
         </Grid>
-        <Grid item xs={12}>
-          <Field
-            formControlProps={{fullWidth: true}}
-            required
-            name={`${basePath}.percent_male`}
-            component={MaterialInput}
-            type='text'
-            mask={DEFAULT_DECIMAL_MASK}
-            label={`What percentage of occupants in ${name} are male?`}
-            endAdornment={<InputAdornment position='end'>%</InputAdornment>}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Field
-            formControlProps={{fullWidth: true}}
-            required
-            name={`${basePath}.week_days_year`}
-            component={MaterialInput}
-            type='text'
-            mask={DEFAULT_DECIMAL_MASK}
-            label={`How many weekdays per year is ${name} open?`}
-            endAdornment={<InputAdornment position='end'>days</InputAdornment>}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Field
-            formControlProps={{fullWidth: true}}
-            required
-            name={`${basePath}.week_days_hours`}
-            component={MaterialInput}
-            type='text'
-            mask={DEFAULT_DECIMAL_MASK}
-            label={`How many hours is ${name} typically open on a weekday?`}
-            endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
-          />
-        </Grid>
-        {selectn(`${basePath}.weekend_occupancy`)(values) > 0 && (
+        {primary_building_type !== 'family' && (
+          <Grid item xs={12}>
+            <Field
+              formControlProps={{fullWidth: true}}
+              required
+              name={`${basePath}.percent_male`}
+              component={MaterialInput}
+              type='text'
+              mask={DEFAULT_DECIMAL_MASK}
+              label={`What percentage of occupants in ${name} are male?`}
+              endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+            />
+          </Grid>
+        )}
+        {lodgingTypes.indexOf(primary_building_type) === -1 && (
           <Fragment>
             <Grid item xs={12}>
               <Field
                 formControlProps={{fullWidth: true}}
                 required
-                name={`${basePath}.weekend_days_year`}
+                name={`${basePath}.week_days_year`}
                 component={MaterialInput}
                 type='text'
                 mask={DEFAULT_DECIMAL_MASK}
-                label={`How many weekend days per year is ${name} open?`}
-                endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
+                label={`How many weekdays per year is ${name} open?`}
+                endAdornment={<InputAdornment position='end'>days</InputAdornment>}
               />
             </Grid>
             <Grid item xs={12}>
               <Field
                 formControlProps={{fullWidth: true}}
                 required
-                name={`${basePath}.weekend_days_hours`}
+                name={`${basePath}.week_days_hours`}
                 component={MaterialInput}
                 type='text'
                 mask={DEFAULT_DECIMAL_MASK}
-                label={`How many hours is ${name} open on a weekend day?`}
+                label={`How many hours is ${name} typically open on a weekday?`}
                 endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
               />
             </Grid>
+            {selectn(`${basePath}.weekend_occupancy`)(values) > 0 && (
+              <Fragment>
+                <Grid item xs={12}>
+                  <Field
+                    formControlProps={{fullWidth: true}}
+                    required
+                    name={`${basePath}.weekend_days_year`}
+                    component={MaterialInput}
+                    type='text'
+                    mask={DEFAULT_DECIMAL_MASK}
+                    label={`How many weekend days per year is ${name} open?`}
+                    endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    formControlProps={{fullWidth: true}}
+                    required
+                    name={`${basePath}.weekend_days_hours`}
+                    component={MaterialInput}
+                    type='text'
+                    mask={DEFAULT_DECIMAL_MASK}
+                    label={`How many hours is ${name} open on a weekend day?`}
+                    endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
+                  />
+                </Grid>
+              </Fragment>
+            )}
           </Fragment>
         )}
+        {primary_building_type == 'family' && this.clearValuesArray(['percent_male'], basePath, values)}
+        {lodgingTypes.indexOf(primary_building_type) > -1  &&
+          this.clearValuesArray(['week_days_year', 'week_days_hours', 'weekend_days_year', 'weekend_days_hours'], basePath, values)}
       </Grid>
     );
   };
