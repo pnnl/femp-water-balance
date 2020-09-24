@@ -16,6 +16,8 @@ import {submitAlert, FormRulesListener, toNumber} from '../shared/sharedFunction
 import {fabStyle, DEFAULT_DECIMAL_MASK, mediaQuery, expansionDetails, numberFormat} from '../shared/sharedStyles';
 import formValidation from './PlumbingBuildingForm.validation';
 import validate from '../Occupancy/OccupancyForm.validation';
+import {buildingTypeMap} from '../shared/sharedConstants';
+import WarningIcon from '@material-ui/icons/Warning';
 
 import {Fab, Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
@@ -167,7 +169,7 @@ class PlumbingForm extends React.Component {
 
   occupantsInDay = (values, occupancy, totalBuildingGroupOccupancy) => {
     if (occupancy == 'lodging') {
-      const totalLodging = toNumber(values.plumbing.lodging.total_population);
+      const totalLodging = toNumber(selectn('plumbing.lodging.total_population')(values));
       const totalAverageLodging = (totalLodging * 12) / 365;
       let auditTotalLodging = 0;
       values.audits.forEach(audit => {
@@ -180,8 +182,8 @@ class PlumbingForm extends React.Component {
       return totalAverageLodging - auditTotalLodging;
     }
     if (occupancy === 'admin' || occupancy === 'healthWorker') {
-      const dailyStaff = toNumber(values.plumbing.hospital.daily_staff);
-      const adminStaffPercentage = toNumber(values.plumbing.hospital.administrative) / 100;
+      const dailyStaff = toNumber(selectn('plumbing.hospital.daily_staff')(values));
+      const adminStaffPercentage = toNumber(selectn('plumbing.hospital.administrative')(values)) / 100;
       const adminStaff = dailyStaff * adminStaffPercentage;
       if (occupancy == 'admin') {
         return adminStaff;
@@ -191,17 +193,17 @@ class PlumbingForm extends React.Component {
       }
     }
     if (occupancy === 'outpatient') {
-      return toNumber(values.plumbing.hospital.outpatient_visits);
+      return toNumber(selectn('plumbing.hospital.outpatient_visits')(values));
     }
     if (occupancy === 'inpatient') {
-      return toNumber(values.plumbing.hospital.inpatient_per_day);
+      return toNumber(selectn('plumbing.hospital.inpatient_per_day')(values));
     }
     if (occupancy === 'generalWeekDay') {
-      const totalPopulation = toNumber(values.plumbing.facility.total_population);
+      const totalPopulation = toNumber(selectn('plumbing.facility.total_population')(values));
       return totalPopulation - totalBuildingGroupOccupancy;
     }
     if (occupancy === 'generalWeekend') {
-      const totalPopulation = toNumber(values.plumbing.facility.total_population_weekends);
+      const totalPopulation = toNumber(selectn('plumbing.facility.total_population_weekends')(values));
       return totalPopulation - totalBuildingGroupOccupancy;
     }
   };
@@ -251,10 +253,10 @@ class PlumbingForm extends React.Component {
       return 8;
     }
     if (occupancy === 'admin' || occupancy === 'healthWorker') {
-      return toNumber(values.plumbing.hospital.staff_shift);
+      return toNumber(selectn('plumbing.hospital.staff_shift')(values));
     }
     if (occupancy === 'outpatient') {
-      return toNumber(values.plumbing.hospital.outpatient_duration);
+      return toNumber(selectn('plumbing.hospital.outpatient_duration')(values));
     }
     if (occupancy === 'inpatient') {
       return 24;
@@ -279,7 +281,7 @@ class PlumbingForm extends React.Component {
       return 350;
     }
     if (hospitalTypes.indexOf(occupancy) > -1) {
-      return values.plumbing.hospital.days_per_year;
+      return selectn('plumbing.hospital.days_per_year')(values);
     }
     if (occupancy === 'generalWeekDay' || occupancy === 'generalWeekend') {
       let totalBuilding = 0;
@@ -423,7 +425,7 @@ class PlumbingForm extends React.Component {
 
   checkFixtures(values) {
     const fixtures = values.fixtures.map(fixture => fixture.name);
-    return (values.audits.some(audit => !fixtures.includes(audit.name)));
+    return values.audits.some(audit => !fixtures.includes(audit.name));
   }
 
   calculateWaterUse = (values, valid) => {
@@ -432,7 +434,7 @@ class PlumbingForm extends React.Component {
       window.alert('Missing or incorrect values.');
       return;
     }
-    if(needsFixtureInformation) {
+    if (needsFixtureInformation) {
       window.alert('Enter fixture information for each audited building.');
       return;
     }
@@ -463,8 +465,12 @@ class PlumbingForm extends React.Component {
 
     let auditTotalOccupancy = 0;
     const totalOccupancy =
-      values.plumbing.facility.total_population + values.plumbing.facility.total_population_weekends + values.plumbing.hospital.daily_staff;
-    values.audits.forEach(audit => (auditTotalOccupancy += audit.week_day_occupancy + audit.weekend_occupancy));
+      toNumber(selectn(`plumbing.facility.total_population`)(values)) +
+      toNumber(selectn(`plumbing.facility.total_population_weekends`)(values)) +
+      toNumber(selectn(`plumbing.hospital.daily_staff`)(values)) +
+      toNumber(selectn(`plumbing.lodging.total_population`)(values));
+
+    values.audits.forEach(audit => (auditTotalOccupancy += toNumber(audit.week_day_occupancy) + toNumber(audit.weekend_occupancy)));
 
     if (auditTotalOccupancy < totalOccupancy) {
       const occupancyGroups = ['lodging', 'admin', 'healthWorker', 'outpatient', 'inpatient', 'generalWeekDay', 'generalWeekend'];
@@ -480,7 +486,9 @@ class PlumbingForm extends React.Component {
           totalHoursOccupied = occupantsInDay * hoursOccupiedPerDay * daysOccupiedPerYear;
         }
         const percentMale =
-          occupancy === 'admin' || occupancy === 'healthWorker' ? values.plumbing.hospital.hospital_male : values.plumbing.facility.male_population;
+          occupancy === 'admin' || occupancy === 'healthWorker'
+            ? selectn('plumbing.hospital.hospital_male')(values)
+            : selectn('plumbing.facility.male_population')(values);
         const urinal = this.calculateWeightedAverageUrinals(values, totalHoursOccupied, totalBuildingGroupOccupancy, percentMale, occupancy);
         const toilets = this.calculateWeightedAverageToilets(values, totalHoursOccupied, totalBuildingGroupOccupancy, percentMale, occupancy);
         const restroomSink = this.calculateWeightedAverageRestroomSink(values, totalHoursOccupied, occupancy);
@@ -514,7 +522,7 @@ class PlumbingForm extends React.Component {
 
     values.plumbing.water_usage = formatTotal;
     this.setState({
-      waterUse: ' Water Use:' + formatTotal + ' kgal'
+      waterUse: ' Water Use: ' + formatTotal + ' kgal'
     });
   };
 
@@ -618,11 +626,11 @@ class PlumbingForm extends React.Component {
             component={MaterialInput}
             type='text'
             mask={DEFAULT_DECIMAL_MASK}
-            label={'What is the typical flow rate of showers in ' + source + '? Please put 0 in no showers are present.'}
+            label={'What is the typical flow rate of showers in ' + source + '? Please put 0 in if no showers are present.'}
             endAdornment={<InputAdornment position='end'>gpm</InputAdornment>}
           />
         </Grid>
-        {flowRate != 0 && flowRate != undefined && (
+        {flowRate != 0 && flowRate != undefined && assumedTypes.indexOf(buildingType) === -1 && (
           <Grid item xs={12}>
             <Field
               formControlProps={{fullWidth: true}}
@@ -636,6 +644,7 @@ class PlumbingForm extends React.Component {
             />
           </Grid>
         )}
+        {assumedTypes.indexOf(buildingType) !== -1 && this.clearValues(['shower_usage'], basePath, values)}
       </Grid>
     );
   };
@@ -659,16 +668,23 @@ class PlumbingForm extends React.Component {
                     >
                       {values.audits.map(building => {
                         const disabled = facilities.indexOf(building.name) > -1;
+                        const primary_building_type = values.buildings.find(item => item.name === building.name).primary_building_type;
                         return (
                           <MenuItem disabled={disabled} value={building.name}>
-                            {building.name}
+                            {`${building.name} (${buildingTypeMap[primary_building_type]})`}
                           </MenuItem>
                         );
                       })}
                     </Field>
-                    <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
-                      <DeleteIcon />
-                    </IconButton>
+                    {values.fixtures && values.fixtures.length > 1 && (
+                      <IconButton
+                        style={{padding: 'initial', height: '40px', width: '40px'}}
+                        onClick={() => fields.remove(index)}
+                        aria-label='Delete'
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
                   </ExpansionPanelSummary>
                   <ExpansionPanelDetails style={{paddingLeft: '40px', ...expansionDetails}}>
                     <Grid container alignItems='flex-start' spacing={16}>
@@ -783,11 +799,11 @@ class PlumbingForm extends React.Component {
     const needsHospitalAudit = this.check(module, ['clinic', 'hospital']);
     const needsOtherAudit = this.check(module, ['other']);
     if (needsBuildings) {
-      error = "Add buildings in the 'General Buildings' before adding fixture information";
+      error = "Add buildings in the 'General Buildings' tab before adding fixture information";
     } else if (needsAudit) {
       error = "Add occupancy information for buildings in the 'Occupancy' tab before adding fixture information.";
     } else if (hasOccupancyErrors) {
-      error = "Fill out all required fields in the 'Occupancy' module before adding fixture information";
+      error = "Fill out all required fields in the 'Occupancy' tab before adding fixture information";
     } else if (needsLodgingAudit) {
       error =
         "Enter occupancy information for at least one building that has a primary building type of 'Barracks/Dormitory', 'Hotel/Motel', or 'Family Housing' in the 'Occupancy' tab";
@@ -825,6 +841,7 @@ class PlumbingForm extends React.Component {
             <form onSubmit={handleSubmit} noValidate>
               {hasErrors ? (
                 <Typography variant='body2' gutterBottom>
+                  <WarningIcon style={{color: '#F8A000', margin: '15px 7px -5px 11px'}} />
                   {error}
                 </Typography>
               ) : (

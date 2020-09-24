@@ -1,5 +1,6 @@
 import {isPositiveNumeric, isWithinNumericRange, resolve} from '../shared/validationFunctions';
 import {isPositiveNumeric as isPositiveNumericArray, isWithinNumericRange as isWithinNumericRangeArray} from '../shared/arrayValidationFunctions';
+import {lodgingTypes} from '../shared/sharedConstants';
 import selectn from 'selectn';
 
 const validateLodging = (values, basePath) => {
@@ -34,12 +35,6 @@ const validateFacility = (values, basePath) => {
   valuePath = `${basePath}.male_population`;
   if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
     errors['male_population'] = 'Percentage of population that is male be between 0 and 100.';
-  }
-  if (!(selectn(`${basePath}.individual_audit`)(values))) {
-    errors['individual_audit'] = 'Indicate if data will be entered for audited buildings.';
-  }
-  if(values.buildings && values.buildings.some(building => building.name == undefined) && (selectn(`${basePath}.individual_audit`)(values) === 'yes')) {
-    errors['individual_audit'] = 'Add buildings to audit in the buildings tab.';
   }
   return Object.keys(errors).length === 0 ? undefined : errors;
 };
@@ -96,10 +91,11 @@ const validateHospital = (values, basePath) => {
   return Object.keys(errors).length === 0 ? undefined : errors;
 };
 
-const validateAudits = (values) => {
+const validateAudits = (values, primary_building_type) => {
   let errors = {};
+
   if (!values.name) {
-    errors['name'] = 'The building that will be audited.';
+    errors['name'] = 'The building that you would like to enter occupancy information for.';
   }
   if (!isPositiveNumericArray(values.weekday_occupancy, true, true)) {
     errors['weekday_occupancy'] = 'The typical weekday occupancy for this building.';
@@ -107,27 +103,30 @@ const validateAudits = (values) => {
   if (!isPositiveNumericArray(values.weekend_occupancy)) {
     errors['weekend_occupancy'] = 'The typical weekend occupancy for this building.';
   }
-  if (!isWithinNumericRangeArray(values.percent_male, 0, 100)) {
+  if (primary_building_type !== 'family' && !isWithinNumericRangeArray(values.percent_male, 0, 100)) {
     errors['percent_male'] = 'Percentage of occupants that are male must be between 0 and 100.';
   }
-  if (!isWithinNumericRangeArray(values.week_days_year, 1, 260)) {
-    errors['week_days_year'] = 'Number of week days per year must be between 1 and 260.';
-  }
-  if (!isWithinNumericRangeArray(values.week_days_hours, 1, 24)) {
-    errors['week_days_hours'] = 'Number of week day hours must be between 1 and 24.';
-  }
-  if (values.weekend_occupancy > 0) {
-    if (!isWithinNumericRangeArray(values.weekend_days_year, 1, 104)) {
-      errors['weekend_days_year'] = 'Number of weekend days per year must be between 1 and 104.';
+  if (lodgingTypes.indexOf(primary_building_type) === -1) {
+    if (!isWithinNumericRangeArray(values.week_days_year, 1, 260)) {
+      errors['week_days_year'] = 'Number of week days per year must be between 1 and 260.';
     }
-    if (!isWithinNumericRangeArray(values.weekend_days_hours, 1, 24)) {
-      errors['weekend_days_hours'] = 'Number of weekend day hours must be between 1 and 24.';
+    if (!isWithinNumericRangeArray(values.week_days_hours, 1, 24)) {
+      errors['week_days_hours'] = 'Number of week day hours must be between 1 and 24.';
+    }
+    if (values.weekend_occupancy > 0) {
+      if (!isWithinNumericRangeArray(values.weekend_days_year, 1, 104)) {
+        errors['weekend_days_year'] = 'Number of weekend days per year must be between 1 and 104.';
+      }
+      if (!isWithinNumericRangeArray(values.weekend_days_hours, 1, 24)) {
+        errors['weekend_days_hours'] = 'Number of weekend day hours must be between 1 and 24.';
+      }
     }
   }
+
   return Object.keys(errors).length === 0 ? undefined : errors;
 };
 
-const validate = (values) => {
+const validate = values => {
   const errors = {};
   const plumbing = {};
   const basePath = 'plumbing';
@@ -156,7 +155,8 @@ const validate = (values) => {
 
   values.audits.map((audit, index) => {
     if (audit && Object.keys(audit).length > 0) {
-      let sectionErrors = validateAudits(audit, values.audits);
+      const primary_building_type = values.buildings.find(building => building.name === audit.name).primary_building_type;
+      let sectionErrors = validateAudits(audit, primary_building_type);
       if (sectionErrors) {
         auditErrors[index] = sectionErrors;
       }

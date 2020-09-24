@@ -14,9 +14,11 @@ import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {requireFieldSubmitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import {DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, expansionDetails, mediaQuery} from '../shared/sharedStyles';
+import {buildingTypeMap, lodgingTypes} from '../shared/sharedConstants';
 import formValidation from './OccupancyForm.validation';
+import WarningIcon from '@material-ui/icons/Warning';
 
-import {Grid, Button, InputAdornment, MenuItem, Link} from '@material-ui/core';
+import {Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
 let expansionPanel = mediaQuery();
 
@@ -55,6 +57,17 @@ class OccupancyForm extends React.Component {
     }
   };
 
+  clearValuesArray = (clearValues, basePath, values) => {
+    let field = basePath.split('[');
+    let path = field[0];
+    let index = field[1].replace(']', '');
+    for (let i = 0; i < clearValues.length; i++) {
+      if (values[path] != undefined) {
+        values[path][index][clearValues[i]] = null;
+      }
+    }
+  };
+
   onSubmit = e => {};
 
   onsiteLodging = (basePath, values) => {
@@ -76,6 +89,8 @@ class OccupancyForm extends React.Component {
 
   renderAudit = (values, basePath) => {
     const name = selectn(`${basePath}.name`)(values);
+    const building = values.buildings.find(building => building.name === name);
+    const primary_building_type = selectn('primary_building_type')(building);
     return (
       <Grid container alignItems='flex-start' spacing={16}>
         <Grid item xs={12}>
@@ -102,79 +117,93 @@ class OccupancyForm extends React.Component {
             endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
           />
         </Grid>
-        <Grid item xs={12}>
-          <Field
-            formControlProps={{fullWidth: true}}
-            required
-            name={`${basePath}.percent_male`}
-            component={MaterialInput}
-            type='text'
-            mask={DEFAULT_DECIMAL_MASK}
-            label={`What percentage of occupants in ${name} are male?`}
-            endAdornment={<InputAdornment position='end'>%</InputAdornment>}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Field
-            formControlProps={{fullWidth: true}}
-            required
-            name={`${basePath}.week_days_year`}
-            component={MaterialInput}
-            type='text'
-            mask={DEFAULT_DECIMAL_MASK}
-            label={`How many weekdays per year is ${name} open?`}
-            endAdornment={<InputAdornment position='end'>days</InputAdornment>}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Field
-            formControlProps={{fullWidth: true}}
-            required
-            name={`${basePath}.week_days_hours`}
-            component={MaterialInput}
-            type='text'
-            mask={DEFAULT_DECIMAL_MASK}
-            label={`How many hours is ${name} typically open on a weekday?`}
-            endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
-          />
-        </Grid>
-        {selectn(`${basePath}.weekend_occupancy`)(values) > 0 && (
+        {primary_building_type !== 'family' && (
+          <Grid item xs={12}>
+            <Field
+              formControlProps={{fullWidth: true}}
+              required
+              name={`${basePath}.percent_male`}
+              component={MaterialInput}
+              type='text'
+              mask={DEFAULT_DECIMAL_MASK}
+              label={`What percentage of occupants in ${name} are male?`}
+              endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+            />
+          </Grid>
+        )}
+        {lodgingTypes.indexOf(primary_building_type) === -1 && (
           <Fragment>
             <Grid item xs={12}>
               <Field
                 formControlProps={{fullWidth: true}}
                 required
-                name={`${basePath}.weekend_days_year`}
+                name={`${basePath}.week_days_year`}
                 component={MaterialInput}
                 type='text'
                 mask={DEFAULT_DECIMAL_MASK}
-                label={`How many weekend days per year is ${name} open?`}
-                endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
+                label={`How many weekdays per year is ${name} open?`}
+                endAdornment={<InputAdornment position='end'>days</InputAdornment>}
               />
             </Grid>
             <Grid item xs={12}>
               <Field
                 formControlProps={{fullWidth: true}}
                 required
-                name={`${basePath}.weekend_days_hours`}
+                name={`${basePath}.week_days_hours`}
                 component={MaterialInput}
                 type='text'
                 mask={DEFAULT_DECIMAL_MASK}
-                label={`How many hours is ${name} open on a weekend day?`}
+                label={`How many hours is ${name} typically open on a weekday?`}
                 endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
               />
             </Grid>
+            {selectn(`${basePath}.weekend_occupancy`)(values) > 0 && (
+              <Fragment>
+                <Grid item xs={12}>
+                  <Field
+                    formControlProps={{fullWidth: true}}
+                    required
+                    name={`${basePath}.weekend_days_year`}
+                    component={MaterialInput}
+                    type='text'
+                    mask={DEFAULT_DECIMAL_MASK}
+                    label={`How many weekend days per year is ${name} open?`}
+                    endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    formControlProps={{fullWidth: true}}
+                    required
+                    name={`${basePath}.weekend_days_hours`}
+                    component={MaterialInput}
+                    type='text'
+                    mask={DEFAULT_DECIMAL_MASK}
+                    label={`How many hours is ${name} open on a weekend day?`}
+                    endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
+                  />
+                </Grid>
+              </Fragment>
+            )}
           </Fragment>
         )}
+        {primary_building_type == 'family' && this.clearValuesArray(['percent_male'], basePath, values)}
+        {lodgingTypes.indexOf(primary_building_type) > -1  &&
+          this.clearValuesArray(['week_days_year', 'week_days_hours', 'weekend_days_year', 'weekend_days_hours'], basePath, values)}
       </Grid>
     );
   };
 
-  renderAuditArray = (values) => {
-    const auditedBuildings = values.audits.map((audit) => audit.name);
-    if(values.buildings && values.buildings.some(building => building.name == undefined)) {
-      return;
-    } 
+  renderAuditArray = values => {
+    const auditedBuildings = values.audits.map(audit => audit.name);
+    if (values.buildings && values.buildings.some(building => building.name == undefined)) {
+      return (
+        <Typography variant='body2' gutterBottom style={{...expansionPanel}}>
+          <WarningIcon style={{color: '#F8A000', margin: '15px 7px -5px 11px'}} />
+          Add buildings in the 'General Buildings' before adding building level occupancy information
+        </Typography>
+      );
+    }
     return (
       <FieldArray name='audits'>
         {({fields}) =>
@@ -187,28 +216,30 @@ class OccupancyForm extends React.Component {
                     required
                     name={`${name}.name`}
                     component={Select}
-                    label='Please select the building that you would like to audit.'
+                    label='Please select the building you would like to enter occupancy information for.'
                   >
                     {values.buildings.map(building => {
                       const disabled = auditedBuildings.indexOf(building.name) > -1;
                       return (
                         <MenuItem disabled={disabled} value={building.name}>
-                          {building.name}
+                          {`${building.name} (${buildingTypeMap[building.primary_building_type]})`}
                         </MenuItem>
                       );
                     })}
                   </Field>
-                  <IconButton
-                    style={{
-                      padding: 'initial',
-                      height: '40px',
-                      width: '40px'
-                    }}
-                    onClick={() => fields.remove(index)}
-                    aria-label='Delete'
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  {values.audits && values.audits.length > 1 && (
+                    <IconButton
+                      style={{
+                        padding: 'initial',
+                        height: '40px',
+                        width: '40px'
+                      }}
+                      onClick={() => fields.remove(index)}
+                      aria-label='Delete'
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  )}
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>{this.renderAudit(values, `${name}`)}</ExpansionPanelDetails>
               </ExpansionPanel>
@@ -258,18 +289,6 @@ class OccupancyForm extends React.Component {
                 label='Estimate the percentage of overall population that is male'
                 endAdornment={<InputAdornment position='end'>%</InputAdornment>}
               />
-            </Grid>
-            <Grid item xs={12}>
-              <Field
-                formControlProps={{fullWidth: true}}
-                required
-                name={`${basePath}.individual_audit`}
-                component={Select}
-                label='Do you want to enter occupancy data for individual buildings that have been audited?'
-              >
-                <MenuItem value='yes'>Yes</MenuItem>
-                <MenuItem value='no'>No</MenuItem>
-              </Field>
             </Grid>
           </Grid>
         </ExpansionPanelDetails>
@@ -430,7 +449,7 @@ class OccupancyForm extends React.Component {
         <Grid item xs={12}>
           {this.facility('plumbing.facility', values, push)}
         </Grid>
-        {selectn('plumbing.facility.individual_audit')(values) === 'yes' && this.renderAuditArray(values)}
+        {this.renderAuditArray(values)}
       </Fragment>
     );
   };
@@ -444,11 +463,10 @@ class OccupancyForm extends React.Component {
 
   addAnotherAuditButton = (values, push) => {
     const moreBuildings = values.buildings && values.audits && values.buildings.length > values.audits.length;
-    const showAddAuditButton = selectn('plumbing.facility.individual_audit')(values) === 'yes' && moreBuildings;
-    if (showAddAuditButton) {
+    if (moreBuildings) {
       return (
         <Button variant='contained' color='primary' onClick={() => push('audits', {})}>
-          Add Another building to audit
+          Add Another Building
         </Button>
       );
     }
@@ -479,12 +497,7 @@ class OccupancyForm extends React.Component {
         module.plumbing = module.plumbing ? module.plumbing : {};
         module.plumbing.has_onsite_lodging = true;
       }
-      if (
-        module.buildings.some(
-          building =>
-            building.primary_building_type == 'clinic' || building.primary_building_type == 'hospital'
-        )
-      ) {
+      if (module.buildings.some(building => building.primary_building_type == 'clinic' || building.primary_building_type == 'hospital')) {
         module.plumbing = module.plumbing ? module.plumbing : {};
         module.plumbing.has_hospital = true;
       }

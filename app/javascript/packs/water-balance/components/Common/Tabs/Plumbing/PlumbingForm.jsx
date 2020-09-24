@@ -328,7 +328,7 @@ class PlumbingForm extends React.Component {
     values.plumbing.water_usage = formatTotal;
 
     this.setState({
-      waterUse: ' Water Use:' + formatTotal + ' kgal',
+      waterUse: ' Water Use: ' + formatTotal + ' kgal',
     });
   };
 

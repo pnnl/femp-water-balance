@@ -78,7 +78,7 @@ class GeneralBuildingForm extends React.Component {
             label='Date of construction'
             component={MaterialInput}
             type='text'
-            mask={DEFAULT_NUMBER_MASK}
+            mask={[/\d/, /\d/, /\d/, /\d/]}
             endAdornment={<InputAdornment position='end'>year</InputAdornment>}
           />
         </Grid>
@@ -89,7 +89,7 @@ class GeneralBuildingForm extends React.Component {
             label='Year of last major water-related renovations'
             component={MaterialInput}
             type='text'
-            mask={DEFAULT_NUMBER_MASK}
+            mask={[/\d/, /\d/, /\d/, /\d/]}
             endAdornment={<InputAdornment position='end'>year</InputAdornment>}
           />
         </Grid>
@@ -127,7 +127,7 @@ class GeneralBuildingForm extends React.Component {
     );
   };
 
-  renderBuildingArray = (values) => {
+  renderBuildingArray = values => {
     return (
       <Fragment>
         <FieldArray name='buildings'>
@@ -144,17 +144,19 @@ class GeneralBuildingForm extends React.Component {
                       type='text'
                       label='Enter a unique name identifier for this building.'
                     />
-                    <IconButton
-                      style={{
-                        padding: 'initial',
-                        height: '40px',
-                        width: '40px',
-                      }}
-                      onClick={() => fields.remove(index)}
-                      aria-label='Delete'
-                    >
-                      <DeleteIcon />
-                    </IconButton>
+                    {values.buildings && values.buildings.length > 1 && (
+                      <IconButton
+                        style={{
+                          padding: 'initial',
+                          height: '40px',
+                          width: '40px'
+                        }}
+                        onClick={() => fields.remove(index)}
+                        aria-label='Delete'
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
                   </ExpansionPanelSummary>
                   <ExpansionPanelDetails>{this.renderBuildingInfo(values, `${name}`)}</ExpansionPanelDetails>
                 </ExpansionPanel>
@@ -166,7 +168,7 @@ class GeneralBuildingForm extends React.Component {
     );
   };
 
-  onSubmit = (e) => {};
+  onSubmit = e => {};
 
   updateIsDirty = (dirty, updateParent) => {
     if (dirty && this.state.isDirty != true) {
@@ -188,7 +190,8 @@ class GeneralBuildingForm extends React.Component {
           General Building
         </Typography>
         <Typography variant='body2' gutterBottom style={{marginBottom: '23px'}}>
-          Enter the following for general building information.
+          Enter the following general building information. Note: Required fields are unique name, primary building type and occupancy type (if
+          applicable).
         </Typography>
         <Form
           onSubmit={this.onSubmit}
@@ -202,8 +205,8 @@ class GeneralBuildingForm extends React.Component {
             values,
             valid,
             form: {
-              mutators: {push},
-            },
+              mutators: {push}
+            }
           }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Grid container alignItems='flex-start' spacing={16}>
