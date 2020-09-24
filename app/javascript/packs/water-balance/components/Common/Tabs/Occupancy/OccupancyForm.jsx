@@ -93,30 +93,118 @@ class OccupancyForm extends React.Component {
     const primary_building_type = selectn('primary_building_type')(building);
     return (
       <Grid container alignItems='flex-start' spacing={16}>
-        <Grid item xs={12}>
-          <Field
-            formControlProps={{fullWidth: true}}
-            required
-            name={`${basePath}.weekday_occupancy`}
-            component={MaterialInput}
-            type='text'
-            mask={DEFAULT_DECIMAL_MASK}
-            label={`What is the typical weekday occupancy for ${name}`}
-            endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Field
-            formControlProps={{fullWidth: true}}
-            required
-            name={`${basePath}.weekend_occupancy`}
-            component={MaterialInput}
-            type='text'
-            mask={DEFAULT_DECIMAL_MASK}
-            label={`What is the typical weekend occupancy for ${name}`}
-            endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
-          />
-        </Grid>
+        {primary_building_type !== 'hospital' && primary_building_type !== 'clinic' && (
+          <Grid item xs={12}>
+            <Field
+              formControlProps={{fullWidth: true}}
+              required
+              name={`${basePath}.weekday_occupancy`}
+              component={MaterialInput}
+              type='text'
+              mask={DEFAULT_DECIMAL_MASK}
+              label={`What is the typical weekday occupancy for ${name}`}
+              endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
+            />
+          </Grid>
+        )}
+        {(primary_building_type === 'clinic' || primary_building_type === 'hospital') && (
+          <Fragment>
+            <Grid item xs={12}>
+              <Field
+                formControlProps={{fullWidth: true}}
+                required
+                name={`${basePath}.weekday_staff`}
+                component={MaterialInput}
+                type='text'
+                mask={DEFAULT_DECIMAL_MASK}
+                label={`What is the typical number of daily staff on a weekday for  ${name}`}
+                endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                formControlProps={{fullWidth: true}}
+                required
+                name={`${basePath}.outpatient_weekday`}
+                component={MaterialInput}
+                type='text'
+                mask={DEFAULT_DECIMAL_MASK}
+                label={`What is the typical number of daily outpatient visits on a weekday for  ${name}`}
+                endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
+              />
+            </Grid>
+            {primary_building_type === 'hospital' && (
+              <Grid item xs={12}>
+                <Field
+                  formControlProps={{fullWidth: true}}
+                  required
+                  name={`${basePath}.inpatient_weekday`}
+                  component={MaterialInput}
+                  type='text'
+                  mask={DEFAULT_DECIMAL_MASK}
+                  label={`What is the typical number of daily inpatients on a weekday  ${name}`}
+                  endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
+                />
+              </Grid>
+            )}
+          </Fragment>
+        )}
+        {primary_building_type !== 'hospital' && primary_building_type !== 'clinic' && (
+          <Grid item xs={12}>
+            <Field
+              formControlProps={{fullWidth: true}}
+              required
+              name={`${basePath}.weekend_occupancy`}
+              component={MaterialInput}
+              type='text'
+              mask={DEFAULT_DECIMAL_MASK}
+              label={`What is the typical weekend occupancy for ${name}`}
+              endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
+            />
+          </Grid>
+        )}
+        {(primary_building_type === 'clinic' || primary_building_type === 'hospital') && (
+          <Fragment>
+            <Grid item xs={12}>
+              <Field
+                formControlProps={{fullWidth: true}}
+                required
+                name={`${basePath}.weekend_staff`}
+                component={MaterialInput}
+                type='text'
+                mask={DEFAULT_DECIMAL_MASK}
+                label={`What is the typical number of daily staff on a weekend day for ${name}`}
+                endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <Field
+                formControlProps={{fullWidth: true}}
+                required
+                name={`${basePath}.outpatient_weekend`}
+                component={MaterialInput}
+                type='text'
+                mask={DEFAULT_DECIMAL_MASK}
+                label={`What is the typical number of daily outpatient visits on a weekend day for  ${name}`}
+                endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
+              />
+            </Grid>
+            {primary_building_type === 'hospital' && (
+              <Grid item xs={12}>
+                <Field
+                  formControlProps={{fullWidth: true}}
+                  required
+                  name={`${basePath}.inpatient_weekend`}
+                  component={MaterialInput}
+                  type='text'
+                  mask={DEFAULT_DECIMAL_MASK}
+                  label={`What is the typical number of daily inpatients on a weekend day for  ${name}`}
+                  endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
+                />
+              </Grid>
+            )}
+          </Fragment>
+        )}
         {primary_building_type !== 'family' && (
           <Grid item xs={12}>
             <Field
@@ -157,7 +245,7 @@ class OccupancyForm extends React.Component {
                 endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
               />
             </Grid>
-            {selectn(`${basePath}.weekend_occupancy`)(values) > 0 && (
+            {(selectn(`${basePath}.weekend_occupancy`)(values) > 0 || primary_building_type === 'clinic' || primary_building_type === 'hospital') && (
               <Fragment>
                 <Grid item xs={12}>
                   <Field
@@ -188,11 +276,19 @@ class OccupancyForm extends React.Component {
           </Fragment>
         )}
         {primary_building_type == 'family' && this.clearValuesArray(['percent_male'], basePath, values)}
-        {lodgingTypes.indexOf(primary_building_type) > -1  &&
+        {lodgingTypes.indexOf(primary_building_type) > -1 &&
           this.clearValuesArray(['week_days_year', 'week_days_hours', 'weekend_days_year', 'weekend_days_hours'], basePath, values)}
+        {primary_building_type !== 'hospital' &&
+          primary_building_type !== 'clinic' &&
+          this.clearValuesArray(['weekday_staff', 'outpatient_weekday', 'weekend_staff', 'outpatient_weekend'], basePath, values)}
+        {(primary_building_type === 'hospital' || primary_building_type === 'clinic') &&
+          this.clearValuesArray(['weekday_occupancy', 'weekend_occupancy'], basePath, values)}
+        {primary_building_type !== 'hospital' && this.clearValuesArray(['inpatient_weekday', 'inpatient_weekend'], basePath, values)}
       </Grid>
     );
   };
+
+  clearOccupancyValues = (values, basePath) => {};
 
   renderAuditArray = values => {
     const auditedBuildings = values.audits.map(audit => audit.name);

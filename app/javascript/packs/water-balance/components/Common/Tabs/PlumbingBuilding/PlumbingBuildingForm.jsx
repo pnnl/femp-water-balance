@@ -428,6 +428,30 @@ class PlumbingForm extends React.Component {
     return values.audits.some(audit => !fixtures.includes(audit.name));
   }
 
+  calculateWeekdayOccupancy(audit, values, primary_building_type) {
+    const weekdayStaff = toNumber(audit.weekday_staff);
+    const outpatientWeekday = toNumber(audit.outpatient_weekday);
+    const staffShift = toNumber(selectn('plumbing.hospital.staff_shift')(values));
+
+    let weekDayOccupancy = weekdayStaff + outpatientWeekday * (1 / staffShift);
+    if (primary_building_type === 'hospital') {
+      weekDayOccupancy += toNumber(audit.inpatient_weekday);
+    }
+    return weekDayOccupancy;
+  }
+
+  calculateWeekendOccupancy(audit, values, primary_building_type) {
+    const weekendStaff = toNumber(audit.weekend_staff);
+    const outpatientWeekend = toNumber(audit.outpatient_weekend);
+    const staffShift = toNumber(selectn('plumbing.hospital.staff_shift')(values));
+
+    let weekendOccupancy = weekendStaff + outpatientWeekend * (1 / staffShift);
+    if (primary_building_type === 'hospital') {
+      weekendOccupancy += toNumber(audit.inpatient_weekend);
+    }
+    return weekendOccupancy;
+  }
+
   calculateWaterUse = (values, valid) => {
     const needsFixtureInformation = this.checkFixtures(values);
     if (!valid) {
@@ -446,6 +470,10 @@ class PlumbingForm extends React.Component {
     values.audits.forEach(audit => {
       const building = values.buildings.find(building => building.name == audit.name);
       const primaryBuildingType = building.primary_building_type;
+      if (primaryBuildingType === 'clinic' || primaryBuildingType === 'hospital') {
+        audit.weekday_occupancy = this.calculateWeekdayOccupancy(audit, values, primaryBuildingType);
+        audit.weekend_occupancy = this.calculateWeekendOccupancy(audit, values, primaryBuildingType);
+      }
       const isTransient = building.building_occupants && building.building_occupants === 'transient';
       const fixture = values.fixtures.find(fixture => fixture.name == building.name);
       const {totalHoursOccupiedPerYear, daysPerYear} = this.getOccupancy(audit, primaryBuildingType, isTransient);
