@@ -53,5 +53,8 @@ export const toNumber = value => {
   if (value === undefined || value === null || !value) {
     return 0;
   }
+  if (typeof value == 'number') {
+    return value;
+  }
   return parseFloat(value.replace(/,/g, ''));
 };

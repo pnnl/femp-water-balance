@@ -97,11 +97,37 @@ const validateAudits = (values, primary_building_type) => {
   if (!values.name) {
     errors['name'] = 'The building that you would like to enter occupancy information for.';
   }
-  if (!isPositiveNumericArray(values.weekday_occupancy, true, true)) {
-    errors['weekday_occupancy'] = 'The typical weekday occupancy for this building.';
+  if (primary_building_type !== 'hospital' && primary_building_type !== 'clinic') {
+    if (!isPositiveNumericArray(values.weekday_occupancy, true, true)) {
+      errors['weekday_occupancy'] = 'The typical weekday occupancy for this building.';
+    }
   }
-  if (!isPositiveNumericArray(values.weekend_occupancy)) {
-    errors['weekend_occupancy'] = 'The typical weekend occupancy for this building.';
+  if (primary_building_type === 'clinic' || primary_building_type === 'hospital') {
+    if (!isPositiveNumericArray(values.weekday_staff, true, true)) {
+      errors['weekday_staff'] = 'The typical number of daily staff on a weekday.';
+    }
+    if (!isPositiveNumericArray(values.outpatient_weekday)) {
+      errors['outpatient_weekday'] = 'The typical number of daily outpatient visits on a weekday.';
+    }
+    if (!isPositiveNumericArray(values.weekend_staff, true, true)) {
+      errors['weekend_staff'] = 'The typical number of daily staff on a weekend day.';
+    }
+    if (!isPositiveNumericArray(values.outpatient_weekend)) {
+      errors['outpatient_weekend'] = 'The typical number of daily outpatient visits on a weekend day.';
+    }
+    if (primary_building_type == 'hospital') {
+      if (!isPositiveNumericArray(values.inpatient_weekday, true, true)) {
+        errors['inpatient_weekday'] = 'The typical number of daily inpatients on a weekday.';
+      }
+      if (!isPositiveNumericArray(values.inpatient_weekend, true, true)) {
+        errors['inpatient_weekend'] = 'The typical number of daily inpatients on a weekend day.';
+      }
+    }
+  }
+  if (primary_building_type !== 'hospital' && primary_building_type !== 'clinic') {
+    if (!isPositiveNumericArray(values.weekend_occupancy)) {
+      errors['weekend_occupancy'] = 'The typical weekend occupancy for this building.';
+    }
   }
   if (primary_building_type !== 'family' && !isWithinNumericRangeArray(values.percent_male, 0, 100)) {
     errors['percent_male'] = 'Percentage of occupants that are male must be between 0 and 100.';
@@ -113,7 +139,7 @@ const validateAudits = (values, primary_building_type) => {
     if (!isWithinNumericRangeArray(values.week_days_hours, 1, 24)) {
       errors['week_days_hours'] = 'Number of week day hours must be between 1 and 24.';
     }
-    if (values.weekend_occupancy > 0) {
+    if (values.weekend_occupancy > 0 || primary_building_type === 'clinic' || primary_building_type === 'hospital') {
       if (!isWithinNumericRangeArray(values.weekend_days_year, 1, 104)) {
         errors['weekend_days_year'] = 'Number of weekend days per year must be between 1 and 104.';
       }
