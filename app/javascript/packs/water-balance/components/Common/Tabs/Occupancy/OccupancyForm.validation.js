@@ -181,8 +181,8 @@ const validate = values => {
 
   values.audits.map((audit, index) => {
     if (audit && Object.keys(audit).length > 0) {
-      const primary_building_type = values.buildings.find(building => building.name === audit.name).primary_building_type;
-      let sectionErrors = validateAudits(audit, primary_building_type);
+      const building = values.buildings.find(building => building.name === audit.name);
+      let sectionErrors = validateAudits(audit, selectn('primary_building_type')(building));
       if (sectionErrors) {
         auditErrors[index] = sectionErrors;
       }
