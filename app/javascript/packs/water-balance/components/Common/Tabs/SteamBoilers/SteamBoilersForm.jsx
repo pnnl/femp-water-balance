@@ -9,6 +9,13 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import Link from '@material-ui/core/Link';
+import CloseIcon from '@material-ui/icons/Close';
+import InfoIcon from '@material-ui/icons/Info';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
@@ -16,12 +23,13 @@ import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import formValidation from './SteamBoilersForm.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
+import CocReferenceGuide from '../CoolingTowers/CocReferenceGuide';
 
 let expansionPanel = mediaQuery();
 
 const focusOnError = createDecorator();
 
-const steamBoilerCalculation = (boiler) => {
+const steamBoilerCalculation = boiler => {
   let waterRegeneration = toNumber(boiler.water_regeneration);
   let regenerationPerWeek = toNumber(boiler.regeneration_per_week);
   let operatingWeeks = toNumber(boiler.operating_weeks);
@@ -39,7 +47,7 @@ const steamBoilerCalculation = (boiler) => {
   return total;
 };
 
-const toNumber = (value) => {
+const toNumber = value => {
   if (value === undefined || value === null) {
     return 0;
   }
@@ -51,10 +59,14 @@ class SteamBoilersForm extends React.Component {
     let waterUse = selectn(`campus.modules.steam_boilers.water_use`)(props);
     super(props);
     this.state = {
-      waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : '',
+      waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : ''
     };
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
+
+  toggleCocVisibility = () => {
+    this.setState({cocReferenceGuideVisible: !this.state.cocReferenceGuideVisible});
+  };
 
   clearValues = (clearValues, basePath, values) => {
     let field = basePath.split('[');
@@ -95,13 +107,13 @@ class SteamBoilersForm extends React.Component {
     values.water_use = formatTotal;
 
     this.setState({
-      waterUse: ' Water Use: ' + formatTotal + ' kgal',
+      waterUse: ' Water Use: ' + formatTotal + ' kgal'
     });
   };
 
-  onSubmit = (values) => {};
+  onSubmit = values => {};
 
-  weeksPerYear = (basePath) => {
+  weeksPerYear = basePath => {
     return (
       <Grid item xs={12}>
         <Field
@@ -188,6 +200,16 @@ class SteamBoilersForm extends React.Component {
             endAdornment={<InputAdornment position='end'>cycles</InputAdornment>}
           ></Field>
         </Grid>
+        <span>
+          <Typography variant='body2' gutterBottom>
+            <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
+            Click{' '}
+            <Link style={{cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
+              here
+            </Link>{' '}
+            for help with determining the cycles of concentration in the system.
+          </Typography>
+        </span>
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true}}
@@ -259,7 +281,7 @@ class SteamBoilersForm extends React.Component {
               'cycles_concentration',
               'hours_week',
               'softener',
-              'operating_weeks',
+              'operating_weeks'
             ],
             basePath,
             values
@@ -310,7 +332,11 @@ class SteamBoilersForm extends React.Component {
                       label='Enter a unique name identifier for this steam boiler system (such as the building name/number it is associated).'
                     />
                     {values.steam_boilers && values.steam_boilers.length > 1 && (
-                      <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
+                      <IconButton
+                        style={{padding: 'initial', height: '40px', width: '40px'}}
+                        onClick={() => fields.remove(index)}
+                        aria-label='Delete'
+                      >
                         <DeleteIcon />
                       </IconButton>
                     )}
@@ -333,7 +359,7 @@ class SteamBoilersForm extends React.Component {
             label='Water use'
             component={MaterialInput}
             type='text'
-            helperText={ valid || values.water_use == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
+            helperText={valid || values.water_use == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
             meta={{
               visited: true
             }}
@@ -379,8 +405,8 @@ class SteamBoilersForm extends React.Component {
             dirty,
             valid,
             form: {
-              mutators: {push, pop},
-            },
+              mutators: {push, pop}
+            }
           }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Grid container alignItems='flex-start' spacing={16}>
@@ -426,6 +452,16 @@ class SteamBoilersForm extends React.Component {
             </form>
           )}
         />
+        <Dialog open={this.state.cocReferenceGuideVisible} onClose={this.toggleCocVisibility} maxWidth='lg' aria-labelledby='form-dialog-title'>
+          <DialogTitle id='form-dialog-title'>
+            Cycles of Concentration Help
+            <CloseIcon color='action' onClick={() => this.toggleCocVisibility()} style={{float: 'right', cursor: 'pointer'}} />
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>Reference the tables below for help with determining the cycles of concentration.</DialogContentText>
+            <CocReferenceGuide />
+          </DialogContent>
+        </Dialog>
       </Fragment>
     );
   }

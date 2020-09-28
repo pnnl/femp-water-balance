@@ -24,3 +24,25 @@ export const coolingTowerMap = [
   {climateZone: '6B', hospitals: '10', otherBuildings: '4'},
   {climateZone: '8B', hospitals: '5', otherBuildings: '2'}
 ];
+
+export const cocDissolvedSolidsMap = [
+  {ppm: 200, coc: 8.4},
+  {ppm: 300, coc: 5.6},
+  {ppm: 400, coc: 4.2},
+  {ppm: 500, coc: 3.4},
+  {ppm: 600, coc: 2.8},
+  {ppm: 700, coc: 2.4},
+  {ppm: 800, coc: 2.1}
+];
+
+export const cocConductivityMap = [
+  {micromhos: 350, coc: 9.6},
+  {micromhos: 500, coc: 6.7},
+  {micromhos: 650, coc: 5.2},
+  {micromhos: 800, coc: 4.2},
+  {micromhos: 950, coc: 3.5},
+  {micromhos: 1100, coc: 3.0},
+  {micromhos: 1250, coc: 2.7},
+  {micromhos: 1400, coc: 2.4},
+  {micromhos: 1550, coc: 2.2}
+];

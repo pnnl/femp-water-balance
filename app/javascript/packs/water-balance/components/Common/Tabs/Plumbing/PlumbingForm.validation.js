@@ -158,7 +158,7 @@ const validateHospital = (values, basePath) => {
             valuePath = `${basePath}.shower_usage_inpatient`;
             if (!isWithinNumericRange(valuePath, values, 0, 100, true)) {
                 errors['shower_usage_inpatient'] =
-                    'Percentage of hospital inpatents that use showers on a daily basis must be between 0 and 100.';
+                    'Percentage of hospital inpatients that use showers on a daily basis must be between 0 and 100.';
             }
         }
     }
