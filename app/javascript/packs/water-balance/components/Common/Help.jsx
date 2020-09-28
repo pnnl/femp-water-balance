@@ -25,7 +25,7 @@ class HelpDialog extends React.Component {
                     <CloseIcon
                         color="action"
                         onClick={this.handleClose}
-                        style={{ float: 'right' }}
+                        style={{ float: 'right', cursor: 'pointer'}}
                     />
                 </DialogTitle>
                 <DialogContent>

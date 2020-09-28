@@ -445,7 +445,7 @@ class CoolingTowersForm extends React.Component {
         <Dialog open={this.state.referenceGuideVisible} onClose={this.toggleDialogVisibility} maxWidth='lg' aria-labelledby='form-dialog-title'>
           <DialogTitle id='form-dialog-title'>
             Full Load Cooling Hours Help
-            <CloseIcon color='action' onClick={() => this.toggleDialogVisibility()} style={{float: 'right'}} />
+            <CloseIcon color='action' onClick={() => this.toggleDialogVisibility()} style={{float: 'right', cursor: 'pointer'}} />
           </DialogTitle>
           <DialogContent>
             <FullLoadReferenceGuide />

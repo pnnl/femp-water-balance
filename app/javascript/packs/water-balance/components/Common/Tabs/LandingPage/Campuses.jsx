@@ -54,7 +54,7 @@ export default function campusesTable(props) {
                   <TableCell style={textAlign}>Water Supply Year</TableCell>
                   <TableCell>City</TableCell>
                   <TableCell style={textAlign}>State</TableCell>
-                  <TableCell style={textAlign}>Edit Campus Information</TableCell>
+                  <TableCell style={textAlign}>Edit/View Campus Information</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>{rows}</TableBody>
