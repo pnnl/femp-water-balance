@@ -14,6 +14,7 @@ import Link from '@material-ui/core/Link';
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import {fabStyle, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
@@ -34,7 +35,7 @@ const calculator = createCalculatorDecorator({
   field: /\.*_date/,
   updates: (value, name, allValues) => {
     if (allValues.cooling_towers) {
-      allValues.cooling_towers.forEach((cooling_tower) => {
+      allValues.cooling_towers.forEach(cooling_tower => {
         if (cooling_tower.start_date && cooling_tower.end_date) {
           const startDateMoment = moment(cooling_tower.start_date);
           const endDateMoment = moment(cooling_tower.end_date);
@@ -48,16 +49,16 @@ const calculator = createCalculatorDecorator({
       });
     }
     return {};
-  },
+  }
 });
 
 const focusOnError = createDecorator();
 
-const coolingTowerCalculation = (values) => {
+const coolingTowerCalculation = values => {
   let annualOperatingHours = 0;
   const evaporationRate = 1.65;
   if (values.parameters_known === 'yes') {
-    annualOperatingHours = (values.days_per_year * values.hours_per_day);
+    annualOperatingHours = values.days_per_year * values.hours_per_day;
   } else {
     let percentFullLoad = values.full_load_cooling;
     annualOperatingHours = (percentFullLoad / 100) * 8760;
@@ -74,7 +75,7 @@ class CoolingTowersForm extends React.Component {
     let waterUse = selectn(`campus.modules.cooling_towers.water_use`)(props);
     this.state = {
       waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : '',
-      referenceGuideVisible: false,
+      referenceGuideVisible: false
     };
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
@@ -121,11 +122,11 @@ class CoolingTowersForm extends React.Component {
     let formatTotal = numberFormat.format(total);
     values.water_use = formatTotal;
     this.setState({
-      waterUse: ' Water Use: ' + formatTotal + ' kgal',
+      waterUse: ' Water Use: ' + formatTotal + ' kgal'
     });
   };
 
-  onSubmit = (values) => {};
+  onSubmit = values => {};
   renderParameters = (basePath, values) => {
     return (
       <Fragment>
@@ -179,7 +180,7 @@ class CoolingTowersForm extends React.Component {
         <span>
           <Typography variant='body2' gutterBottom>
             <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
-            Click <Link onClick={() => this.toggleDialogVisibility()}>here</Link> for help calculating percent of full load cooling hours per year.
+            Click <Link style={{cursor: 'pointer'}} onClick={() => this.toggleDialogVisibility()}>here</Link> for help calculating percent of full load cooling hours per year.
           </Typography>
         </span>
         <Grid item xs={12}>
@@ -318,7 +319,7 @@ class CoolingTowersForm extends React.Component {
                         style={{
                           padding: 'initial',
                           height: '40px',
-                          width: '40px',
+                          width: '40px'
                         }}
                         onClick={() => fields.remove(index)}
                         aria-label='Delete'
@@ -345,9 +346,9 @@ class CoolingTowersForm extends React.Component {
             label='Water use'
             component={MaterialInput}
             type='text'
-            helperText={ valid || values.water_use == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
+            helperText={valid || values.water_use == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
             meta={{
-              visited: true,
+              visited: true
             }}
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
           />
@@ -393,8 +394,8 @@ class CoolingTowersForm extends React.Component {
             dirty,
             valid,
             form: {
-              mutators: {push},
-            },
+              mutators: {push}
+            }
           }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Grid container alignItems='flex-start' spacing={16}>
@@ -446,6 +447,11 @@ class CoolingTowersForm extends React.Component {
             <CloseIcon color='action' onClick={() => this.toggleDialogVisibility()} style={{float: 'right', cursor: 'pointer'}} />
           </DialogTitle>
           <DialogContent>
+            <DialogContentText>
+              To determine the percent of full-load cooling hours to be entered into the tool, identify the climate zone the campus is located in from
+              the figure. The table can then be used to select the percent full-load cooling hours based on the type of building the cooling tower is
+              serving. See Section 3.5.2 Data Entry for Cooling Towers in the Handbook: Water Evaluation Tools.
+            </DialogContentText>
             <FullLoadReferenceGuide />
           </DialogContent>
         </Dialog>
