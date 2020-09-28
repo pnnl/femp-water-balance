@@ -246,7 +246,7 @@ class VehicleWashForm extends React.Component {
         {basePath === 'conveyor' && (
           <Grid item xs={12}>
             <Field
-              formControlProps={{fullWidth: true}}
+              formControlProps={{fullWidth: true, required: true}}
               required
               name={`${name}.type`}
               component={Select}
@@ -330,7 +330,7 @@ class VehicleWashForm extends React.Component {
 
   renderWaterMeteredControl = (basePath, values) => (
     <Grid item xs={12}>
-      <Field formControlProps={{fullWidth: true}} required name={`${basePath}.metered`} component={Select} label='Is the water use metered?'>
+      <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.metered`} component={Select} label='Is the water use metered?'>
         <MenuItem value='yes'>Yes</MenuItem>
         <MenuItem value='no'>No</MenuItem>
       </Field>

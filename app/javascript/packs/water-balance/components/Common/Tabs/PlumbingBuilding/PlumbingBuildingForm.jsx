@@ -595,8 +595,7 @@ class PlumbingForm extends React.Component {
         {buildingType !== 'family' && (
           <Grid item xs={12}>
             <Field
-              formControlProps={{fullWidth: true}}
-              required
+              formControlProps={{fullWidth: true, required: true}}
               name={`${basePath}.urinals`}
               component={Select}
               label={'Are urinals typically present in ' + source + '?'}
@@ -688,8 +687,7 @@ class PlumbingForm extends React.Component {
                 <ExpansionPanel style={expansionPanel} expanded={selectn(`${name}.name`)(values) !== undefined}>
                   <ExpansionPanelSummary>
                     <Field
-                      formControlProps={{fullWidth: true}}
-                      required
+                      formControlProps={{fullWidth: true, required: true}}
                       name={`${name}.name`}
                       component={Select}
                       label='Select a unique name identifier for this building from the dropdown list.'

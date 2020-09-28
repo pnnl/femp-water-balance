@@ -188,10 +188,10 @@ class WaterSupplyForm extends React.Component {
           Water Supply
         </Typography>
         <Typography variant='body2' gutterBottom>
-          Enter the following information for potable water use (supply) for the campus.
+          Enter the annual potable water use (supply for the campus).
         </Typography>
         <Typography variant='body2' gutterBottom>
-          Optional - Enter the following information for wastewater discharge for the campus if it is available.
+          Optional – Enter the monthly supply and wastewater discharge for the campus if it is available.
         </Typography>
         <Form
           onSubmit={createOrUpdateCampusModule}

@@ -96,11 +96,10 @@ class CampusForm extends React.Component {
                             </Grid>
                             <Grid item xs={12}>
                                 <Field
-                                    formControlProps={{fullWidth: true}}
-                                    required
+                                    formControlProps={{fullWidth: true, required: true}}
                                     name="plumbing_level"
                                     component={Select}
-                                    label="Will this campus be using campus-wide or building level data for plumbing?"
+                                    label="Will this campus use campus-wide or building level plumbing data?"
                                 > 
                                     <MenuItem value='campus'>Campus</MenuItem>
                                     <MenuItem value='building'>Building</MenuItem>

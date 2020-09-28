@@ -211,8 +211,7 @@ class SteamBoilersForm extends React.Component {
       <Fragment>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.softener`}
             component={Select}
             label='Does the system have a softener or water conditioning system?'
@@ -276,8 +275,7 @@ class SteamBoilersForm extends React.Component {
       <Fragment>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.is_metered`}
             component={Select}
             label='Is the makeup water metered?'

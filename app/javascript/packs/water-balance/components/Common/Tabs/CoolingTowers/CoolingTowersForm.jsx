@@ -226,8 +226,7 @@ class CoolingTowersForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.parameters_known`}
             component={Select}
             label='Are operational parameters known (days and hours in operation)?'
@@ -280,8 +279,7 @@ class CoolingTowersForm extends React.Component {
       <Fragment>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.is_metered`}
             component={Select}
             label='Is the makeup water metered?'
