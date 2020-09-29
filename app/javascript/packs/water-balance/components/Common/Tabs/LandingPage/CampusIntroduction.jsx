@@ -106,7 +106,7 @@ class CampusIntroduction extends React.Component {
                             </li>
                         </ul>
                         <li style={liStyle}>
-                            If an entry is deleted, the&nbsp;
+                            If an entry is added or deleted, the&nbsp;
                             <em>“Calculate Water Use”</em>&nbsp; button must be
                             clicked again to update the calculation.
                         </li>
@@ -142,6 +142,7 @@ class CampusIntroduction extends React.Component {
                         <li style={liStyle}>gpm – gallons per minute</li>
                         <li style={liStyle}>gpv – gallons per vehicle</li>
                         <li style={liStyle}>lbs - pounds</li>
+                        <li style={liStyle}>CoC – cycles of concentration</li>
                     </ul>
                 </Typography>
             </Fragment>

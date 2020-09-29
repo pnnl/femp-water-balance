@@ -284,8 +284,7 @@ class IrrigationForm extends React.Component {
       <Fragment>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.supplemental_irrigation`}
             component={Select}
             label='What is the general level of supplemental irrigation needed by the plants for the location? (drought tolerant vs. high water need)'
@@ -297,8 +296,7 @@ class IrrigationForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.plant_density`}
             component={Select}
             label='What is the density of the plants in the landscape? (compact vs. sparsely planted?)'
@@ -310,8 +308,7 @@ class IrrigationForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.exposure`}
             component={Select}
             label='What is the exposure of the landscape?'
@@ -330,7 +327,7 @@ class IrrigationForm extends React.Component {
     return (
       <Fragment>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.species`} component={Select} label='What is the turfgrass species?'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.species`} component={Select} label='What is the turfgrass species?'>
             <MenuItem value='.8'>Cool Season</MenuItem>
             <MenuItem value='.6'>Warm Season</MenuItem>
           </Field>
@@ -345,8 +342,7 @@ class IrrigationForm extends React.Component {
       <Fragment>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.condition`}
             component={Select}
             label='General appearance/condition of the landscape'
@@ -357,7 +353,7 @@ class IrrigationForm extends React.Component {
           </Field>
         </Grid>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.soil_type`} component={Select} label='Soil type'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.soil_type`} component={Select} label='Soil type'>
             <MenuItem value='.4'>Sandy</MenuItem>
             <MenuItem value='.5'>Loam</MenuItem>
             <MenuItem value='.6'>Clay</MenuItem>
@@ -376,7 +372,7 @@ class IrrigationForm extends React.Component {
           ></Field>
         </Grid>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.equipment`} component={Select} label='Irrigation equipment type'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.equipment`} component={Select} label='Irrigation equipment type'>
             <MenuItem value='Rotor'>Rotor</MenuItem>
             <MenuItem value='Spray'>Spray</MenuItem>
             <MenuItem value='Micro-spray'>Micro-spray</MenuItem>
@@ -385,7 +381,7 @@ class IrrigationForm extends React.Component {
           </Field>
         </Grid>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.controls`} component={Select} label='Type of irrigation controls'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.controls`} component={Select} label='Type of irrigation controls'>
             <MenuItem value='3'>Manual</MenuItem>
             <MenuItem value='2'>Clock</MenuItem>
             <MenuItem value='1'>Smart Water Application Technologies</MenuItem>
@@ -393,8 +389,7 @@ class IrrigationForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.puddles_observed`}
             component={Select}
             label='Puddles observed in and around the landscape area'
@@ -406,8 +401,7 @@ class IrrigationForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.runoff_observed`}
             component={Select}
             label='Runoff observed in and around the landscape area'
@@ -418,8 +412,7 @@ class IrrigationForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.leaks_observed`}
             component={Select}
             label='Sprinkler head leaks observed'
@@ -431,8 +424,7 @@ class IrrigationForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.broken_equipment`}
             component={Select}
             label='Broken equipment observed'
@@ -443,8 +435,7 @@ class IrrigationForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.sidewalks`}
             component={Select}
             label='Impervious surfaces being watered (e.g., sidewalks or parking lots)'
@@ -463,7 +454,7 @@ class IrrigationForm extends React.Component {
     return (
       <Fragment>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.start_month`} component={Select} label='Month irrigation starts'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.start_month`} component={Select} label='Month irrigation starts'>
             {month.map((val, i) => (
               <MenuItem key={val} value={i++}>
                 {val}
@@ -472,7 +463,7 @@ class IrrigationForm extends React.Component {
           </Field>
         </Grid>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.end_month`} component={Select} label='Month irrigation ends'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.end_month`} component={Select} label='Month irrigation ends'>
             {month.map((val, i) => (
               <MenuItem key={val} value={i++}>
                 {val}
@@ -482,8 +473,7 @@ class IrrigationForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.type`}
             component={Select}
             label='Is the majority of this landscape area mixed beds or turfgrass?'
@@ -508,8 +498,7 @@ class IrrigationForm extends React.Component {
         {isMetered === 'yes' && (
           <Grid item xs={12}>
             <Field
-              formControlProps={{fullWidth: true}}
-              required
+              formControlProps={{fullWidth: true, required: true}}
               name={`${basePath}.annual_water_use`}
               component={MaterialInput}
               type='text'
@@ -530,7 +519,7 @@ class IrrigationForm extends React.Component {
     return (
       <Fragment>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.is_metered`} component={Select} label='Is the water use metered?'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.is_metered`} component={Select} label='Is the water use metered?'>
             <MenuItem value='yes'>Yes</MenuItem>
             <MenuItem value='no'>No</MenuItem>
           </Field>

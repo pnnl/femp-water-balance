@@ -14,6 +14,7 @@ import Link from '@material-ui/core/Link';
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import {fabStyle, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
@@ -27,6 +28,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import formValidation from './CoolingTowers.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import FullLoadReferenceGuide from './FullLoadReferenceGuide';
+import CocReferenceGuide from './CocReferenceGuide';
 
 let expansionPanel = mediaQuery();
 
@@ -34,7 +36,7 @@ const calculator = createCalculatorDecorator({
   field: /\.*_date/,
   updates: (value, name, allValues) => {
     if (allValues.cooling_towers) {
-      allValues.cooling_towers.forEach((cooling_tower) => {
+      allValues.cooling_towers.forEach(cooling_tower => {
         if (cooling_tower.start_date && cooling_tower.end_date) {
           const startDateMoment = moment(cooling_tower.start_date);
           const endDateMoment = moment(cooling_tower.end_date);
@@ -48,16 +50,16 @@ const calculator = createCalculatorDecorator({
       });
     }
     return {};
-  },
+  }
 });
 
 const focusOnError = createDecorator();
 
-const coolingTowerCalculation = (values) => {
+const coolingTowerCalculation = values => {
   let annualOperatingHours = 0;
   const evaporationRate = 1.65;
   if (values.parameters_known === 'yes') {
-    annualOperatingHours = (values.days_per_year * values.hours_per_day);
+    annualOperatingHours = values.days_per_year * values.hours_per_day * values.cooling_season_capacity_used/100;
   } else {
     let percentFullLoad = values.full_load_cooling;
     annualOperatingHours = (percentFullLoad / 100) * 8760;
@@ -74,13 +76,17 @@ class CoolingTowersForm extends React.Component {
     let waterUse = selectn(`campus.modules.cooling_towers.water_use`)(props);
     this.state = {
       waterUse: waterUse ? ' Water Use: ' + waterUse + ' kgal' : '',
-      referenceGuideVisible: false,
+      referenceGuideVisible: false
     };
     this.calculateWaterUse = this.calculateWaterUse.bind(this);
   }
 
-  toggleDialogVisibility = () => {
+  toggleFullLoadDialogVisibility = () => {
     this.setState({referenceGuideVisible: !this.state.referenceGuideVisible});
+  };
+
+  toggleCocVisibility = () => {
+    this.setState({cocReferenceGuideVisible: !this.state.cocReferenceGuideVisible});
   };
 
   clearValues = (clearValues, basePath, values) => {
@@ -121,11 +127,11 @@ class CoolingTowersForm extends React.Component {
     let formatTotal = numberFormat.format(total);
     values.water_use = formatTotal;
     this.setState({
-      waterUse: ' Water Use: ' + formatTotal + ' kgal',
+      waterUse: ' Water Use: ' + formatTotal + ' kgal'
     });
   };
 
-  onSubmit = (values) => {};
+  onSubmit = values => {};
   renderParameters = (basePath, values) => {
     return (
       <Fragment>
@@ -169,6 +175,16 @@ class CoolingTowersForm extends React.Component {
             endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
           />
         </Grid>
+        <Grid item xs={12}>
+          <Field
+            formControlProps={{fullWidth: true}}
+            name={`${basePath}.cooling_season_capacity_used`}
+            component={MaterialInput}
+            mask={ONE_DECIMAL_MASK}
+            label='Typical percent of capacity used during the cooling season'
+            endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+          />
+        </Grid>
       </Fragment>
     );
   };
@@ -179,7 +195,11 @@ class CoolingTowersForm extends React.Component {
         <span>
           <Typography variant='body2' gutterBottom>
             <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
-            Click <Link onClick={() => this.toggleDialogVisibility()}>here</Link> for help calculating percent of full load cooling hours per year.
+            Click{' '}
+            <Link style={{cursor: 'pointer'}} onClick={() => this.toggleFullLoadDialogVisibility()}>
+              here
+            </Link>{' '}
+            for help calculating percent of full load cooling hours per year.
           </Typography>
         </span>
         <Grid item xs={12}>
@@ -224,10 +244,19 @@ class CoolingTowersForm extends React.Component {
             endAdornment={<InputAdornment position='end'>cycles</InputAdornment>}
           />
         </Grid>
+        <span>
+          <Typography variant='body2' gutterBottom>
+            <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
+            Click{' '}
+            <Link style={{cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
+              here
+            </Link>{' '}
+            for help with determining the cycles of concentration in the system.
+          </Typography>
+        </span>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.parameters_known`}
             component={Select}
             label='Are operational parameters known (days and hours in operation)?'
@@ -236,7 +265,7 @@ class CoolingTowersForm extends React.Component {
             <MenuItem value='no'>No</MenuItem>
           </Field>
         </Grid>
-        {parametersKnown == 'no' && this.clearValues(['days_per_year', 'start_date', 'end_date', 'hours_per_day'], basePath, values)}
+        {parametersKnown == 'no' && this.clearValues(['days_per_year', 'start_date', 'end_date', 'hours_per_day', 'cooling_season_capacity_used'], basePath, values)}
         {parametersKnown == 'yes' && this.clearValues(['full_load_cooling'], basePath, values)}
         {selectn(`${basePath}.parameters_known`)(values) == 'yes' && this.renderParameters(basePath, values)}
         {selectn(`${basePath}.parameters_known`)(values) == 'no' && this.renderHandbook(basePath)}
@@ -265,7 +294,7 @@ class CoolingTowersForm extends React.Component {
         )}
         {isMetered == 'yes' &&
           this.clearValues(
-            ['tonnage', 'cycles', 'days_per_year', 'start_date', 'end_date', 'hours_per_day', 'parameters_known', 'full_load_cooling'],
+            ['tonnage', 'cycles', 'days_per_year', 'start_date', 'end_date', 'hours_per_day', 'cooling_season_capacity_used', 'parameters_known', 'full_load_cooling'],
             basePath,
             values
           )}
@@ -280,8 +309,7 @@ class CoolingTowersForm extends React.Component {
       <Fragment>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.is_metered`}
             component={Select}
             label='Is the makeup water metered?'
@@ -320,7 +348,7 @@ class CoolingTowersForm extends React.Component {
                         style={{
                           padding: 'initial',
                           height: '40px',
-                          width: '40px',
+                          width: '40px'
                         }}
                         onClick={() => fields.remove(index)}
                         aria-label='Delete'
@@ -347,9 +375,9 @@ class CoolingTowersForm extends React.Component {
             label='Water use'
             component={MaterialInput}
             type='text'
-            helperText={ valid || values.water_use == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
+            helperText={valid || values.water_use == null ? null : "Enter required fields and click 'Calculate Water Use' button to update value."}
             meta={{
-              visited: true,
+              visited: true
             }}
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
           />
@@ -395,8 +423,8 @@ class CoolingTowersForm extends React.Component {
             dirty,
             valid,
             form: {
-              mutators: {push},
-            },
+              mutators: {push}
+            }
           }) => (
             <form onSubmit={handleSubmit} noValidate>
               <Grid container alignItems='flex-start' spacing={16}>
@@ -442,13 +470,34 @@ class CoolingTowersForm extends React.Component {
             </form>
           )}
         />
-        <Dialog open={this.state.referenceGuideVisible} onClose={this.toggleDialogVisibility} maxWidth='lg' aria-labelledby='form-dialog-title'>
+        <Dialog
+          open={this.state.referenceGuideVisible}
+          onClose={this.toggleFullLoadDialogVisibility}
+          maxWidth='lg'
+          aria-labelledby='form-dialog-title'
+        >
           <DialogTitle id='form-dialog-title'>
             Full Load Cooling Hours Help
-            <CloseIcon color='action' onClick={() => this.toggleDialogVisibility()} style={{float: 'right'}} />
+            <CloseIcon color='action' onClick={() => this.toggleFullLoadDialogVisibility()} style={{float: 'right', cursor: 'pointer'}} />
           </DialogTitle>
           <DialogContent>
+            <DialogContentText>
+              To determine the percent of full-load cooling hours to be entered into the tool, identify the climate zone the campus is located in from
+              the figure. The table can then be used to select the percent full-load cooling hours based on the type of building the cooling tower is
+              serving. See Section 3.5.2 Data Entry for Cooling Towers in the Handbook: Water Evaluation Tools.
+            </DialogContentText>
             <FullLoadReferenceGuide />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={this.state.cocReferenceGuideVisible} onClose={this.toggleCocVisibility} maxWidth='lg' aria-labelledby='form-dialog-title'>
+          <DialogTitle id='form-dialog-title'>
+            Cycles of Concentration Help
+            <CloseIcon color='action' onClick={() => this.toggleCocVisibility()} style={{float: 'right', cursor: 'pointer'}} />
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>Reference the tables below for help with determining the cycles of concentration.</DialogContentText>
+            <CocReferenceGuide />
           </DialogContent>
         </Dialog>
       </Fragment>

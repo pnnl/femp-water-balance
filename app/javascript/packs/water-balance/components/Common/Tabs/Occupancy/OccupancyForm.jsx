@@ -308,8 +308,7 @@ class OccupancyForm extends React.Component {
               <ExpansionPanel style={expansionPanel} expanded={selectn(`${name}.name`)(values) !== undefined}>
                 <ExpansionPanelSummary>
                   <Field
-                    formControlProps={{fullWidth: true}}
-                    required
+                    formControlProps={{fullWidth: true, required: true}}
                     name={`${name}.name`}
                     component={Select}
                     label='Please select the building you would like to enter occupancy information for.'

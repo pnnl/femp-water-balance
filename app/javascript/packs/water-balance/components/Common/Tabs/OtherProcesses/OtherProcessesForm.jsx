@@ -267,7 +267,7 @@ class OtherProcessesForm extends React.Component {
     return (
       <Fragment>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.is_metered`} component={Select} label='Is the water use metered?'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.is_metered`} component={Select} label='Is the water use metered?'>
             <MenuItem value='yes'>Yes</MenuItem>
             <MenuItem value='no'>No</MenuItem>
           </Field>

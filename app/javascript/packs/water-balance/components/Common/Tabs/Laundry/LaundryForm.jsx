@@ -8,6 +8,7 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import {FieldArray} from 'react-final-form-arrays';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import FormControl from '@material-ui/core/FormControl';
 import arrayMutators from 'final-form-arrays';
 import {
   fabStyle,
@@ -187,8 +188,7 @@ class LaundryForm extends React.Component {
         {energyStar < 100 && (
           <Grid item xs={12}>
             <Field
-              formControlProps={{fullWidth: true}}
-              required
+              formControlProps={{fullWidth: true, required: true}}
               name={`${basePath}.machine_type`}
               component={Select}
               label='Non-ENERGY STAR single-load/multi-load washing machines predominately top loading or front loading?'

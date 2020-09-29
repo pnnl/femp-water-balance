@@ -15,7 +15,7 @@ export default function campusesTable(props) {
   const buttonStyle = {margin: '29px 6px', display: 'inline-block', float: 'right'};
 
   const isCampuses = campuses && campuses.length > 0;
-  const rows = (campuses || []).map((campus) => (
+  const rows = (campuses || []).map(campus => (
     <TableRow key={campus.id}>
       <TableCell component='th' scope='row'>
         {<Link href={`/secure/water-balance/campuses/${campus.id}`}>{campus.name}</Link> || 'N/A'}
@@ -33,7 +33,7 @@ export default function campusesTable(props) {
         {campus.region || 'N/A'}
       </TableCell>
       <TableCell component='th' scope='row' style={textAlign}>
-        <EditIcon id={campus.id} color='primary' onClick={handleClickOpen} style={{cursor: 'pointer'}}/>
+        <EditIcon id={campus.id} color='primary' onClick={handleClickOpen} style={{cursor: 'pointer'}} />
       </TableCell>
     </TableRow>
   ));
@@ -43,7 +43,10 @@ export default function campusesTable(props) {
       {isCampuses && (
         <Fragment>
           <Typography variant='h6' gutterBottom>
-            Your Campuses :
+            Your Campuses:
+          </Typography>
+          <Typography variant='body2' gutterBottom>
+            Select the campus name you want to work on or create a new campus
           </Typography>
           <Paper style={{marginTop: '10px'}}>
             <Table>
@@ -54,7 +57,7 @@ export default function campusesTable(props) {
                   <TableCell style={textAlign}>Water Supply Year</TableCell>
                   <TableCell>City</TableCell>
                   <TableCell style={textAlign}>State</TableCell>
-                  <TableCell style={textAlign}>Edit Campus Information</TableCell>
+                  <TableCell style={textAlign}>Edit/View Campus Information</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>{rows}</TableBody>

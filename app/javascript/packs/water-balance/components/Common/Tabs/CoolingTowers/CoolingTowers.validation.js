@@ -41,6 +41,10 @@ const validateProcesses = (values, allTowers) => {
 			valuePath = values.hours_per_day;
 			if (!isWithinNumericRange(valuePath, 1, 24)) {
 				errors['hours_per_day'] = 'The hours per day the system operates must be between 1 and 24.';
+      }
+      valuePath = values.cooling_season_capacity_used;
+			if (!isWithinNumericRange(valuePath, 1, 100)) {
+				errors['cooling_season_capacity_used'] = 'Percent of full load cooling hours per year must be between 1 and 100.';
 			}
 		}
 		if(values.parameters_known === 'no') {

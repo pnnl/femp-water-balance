@@ -358,8 +358,7 @@ class PlumbingForm extends React.Component {
             <Grid container alignItems='flex-start' spacing={16}>
               <Grid item xs={12}>
                 <Field
-                  formControlProps={{fullWidth: true}}
-                  required
+                  formControlProps={{fullWidth: true, required: true}}
                   name={`${basePath}.urinals`}
                   component={Select}
                   label={'Are urinals typically present in ' + source + '?'}

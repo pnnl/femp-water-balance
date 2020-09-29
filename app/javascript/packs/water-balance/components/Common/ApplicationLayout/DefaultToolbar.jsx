@@ -165,7 +165,7 @@ class DefaultToolbar extends React.Component {
                         <CloseIcon
                             color="action"
                             onClick={this.handleDialog}
-                            style={{ float: 'right' }}
+                            style={{ float: 'right', cursor: 'pointer'}}
                         />
                     </DialogTitle>
                     <DialogContent>

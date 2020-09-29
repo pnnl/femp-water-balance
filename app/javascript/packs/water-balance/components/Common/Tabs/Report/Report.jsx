@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import Typography from '@material-ui/core/Typography';
+import WarningIcon from '@material-ui/icons/Warning';
 import Table2 from './Table2';
 import Table1 from './Table1';
 import selectn from 'selectn';
@@ -125,8 +126,9 @@ class Report extends React.Component {
 	ScenarioTwo = waterUse => {
 		return (
 			<Fragment>
-				<Typography variant='body2' gutterBottom style={{ color: 'red' }}>
-					Looks like there may be a problem with your water balance! The sum of the water
+				<Typography variant='body2' gutterBottom>
+                    <WarningIcon style={{color: '#F8A000', margin: '15px 7px -5px 11px'}} />
+					Looks like there may be a problem with your water balance. The sum of the water
 					end-uses is greater than the total water supplied to your campus.
 				</Typography>
 				<br />

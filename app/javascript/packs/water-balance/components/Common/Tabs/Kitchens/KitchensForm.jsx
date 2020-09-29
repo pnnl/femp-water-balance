@@ -169,7 +169,7 @@ class KitchensForm extends React.Component {
     return (
       <Fragment>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.dishwasher_type`} component={Select} label='Type of dishwasher'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.dishwasher_type`} component={Select} label='Type of dishwasher'>
             <MenuItem value='3'>Standard Continuous</MenuItem>
             <MenuItem value='2'>Standard Batch</MenuItem>
             <MenuItem value='1'>Energy Star Labeled</MenuItem>
@@ -178,8 +178,7 @@ class KitchensForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.spray_valve`}
             component={Select}
             label='Type of pre-rinse spray valve'
@@ -191,8 +190,7 @@ class KitchensForm extends React.Component {
         </Grid>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.flow_rate`}
             component={MaterialInput}
             type='text'
@@ -214,8 +212,7 @@ class KitchensForm extends React.Component {
         />
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.combination_oven`}
             component={Select}
             label='Type of combination oven or steam cooker'
@@ -227,7 +224,7 @@ class KitchensForm extends React.Component {
           </Field>
         </Grid>
         <Grid item xs={12}>
-          <Field formControlProps={{fullWidth: true}} required name={`${basePath}.ice_maker`} component={Select} label='Type of ice maker'>
+          <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.ice_maker`} component={Select} label='Type of ice maker'>
             <MenuItem value='3'>Standard Water-Cooled</MenuItem>
             <MenuItem value='2'>Standard Air-Cooled</MenuItem>
             <MenuItem value='1'>Energy Star Labeled</MenuItem>
@@ -333,7 +330,7 @@ class KitchensForm extends React.Component {
       <Fragment>
         {facilityType === 'stand_alone' && (
           <Grid item xs={12}>
-            <Field formControlProps={{fullWidth: true}} required name={`${basePath}.is_metered`} component={Select} label='Is the water use metered?'>
+            <Field formControlProps={{fullWidth: true, required: true}} name={`${basePath}.is_metered`} component={Select} label='Is the water use metered?'>
               <MenuItem value='yes'>Yes</MenuItem>
               <MenuItem value='no'>No</MenuItem>
             </Field>
@@ -361,8 +358,7 @@ class KitchensForm extends React.Component {
                 <ExpansionPanel style={expansionPanel} expanded={selectn(`${name}.type`)(values) !== undefined}>
                   <ExpansionPanelSummary>
                     <Field
-                      formControlProps={{fullWidth: true}}
-                      required
+                      formControlProps={{fullWidth: true, required: true}}
                       name={`${name}.type`}
                       component={Select}
                       label='Is the commercial kitchen a stand-alone facility or is it incorporated into another building?'

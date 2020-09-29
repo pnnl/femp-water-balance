@@ -32,8 +32,7 @@ class GeneralBuildingForm extends React.Component {
       <Grid container alignItems='flex-start' spacing={16}>
         <Grid item xs={12}>
           <Field
-            formControlProps={{fullWidth: true}}
-            required
+            formControlProps={{fullWidth: true, required: true}}
             name={`${basePath}.primary_building_type`}
             label='Primary building type (select the most appropriate building type)'
             component={Select}
@@ -49,10 +48,9 @@ class GeneralBuildingForm extends React.Component {
         {selectn(`${basePath}.primary_building_type`)(values) === 'other' && (
           <Grid item xs={12}>
             <Field
-              formControlProps={{fullWidth: true}}
-              required
+              formControlProps={{fullWidth: true, required: true}}
               name={`${basePath}.building_occupants`}
-              label='Building occupants stationary or transient'
+              label='Building occupants stationary or transient?'
               component={Select}
             >
               <MenuItem value='stationary'>Stationary</MenuItem>
