@@ -20,10 +20,11 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
-import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
+import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery, linkStyle} from '../shared/sharedStyles';
 import formValidation from './SteamBoilersForm.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import CocReferenceGuide from '../CoolingTowers/CocReferenceGuide';
+import Handbook from '../shared/handbookLink';
 
 let expansionPanel = mediaQuery();
 
@@ -204,7 +205,7 @@ class SteamBoilersForm extends React.Component {
           <Typography variant='body2' gutterBottom>
             <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
             Click{' '}
-            <Link style={{cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
+            <Link style={{...linkStyle, cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
               here
             </Link>{' '}
             for help with determining the cycles of concentration in the system.
@@ -393,6 +394,7 @@ class SteamBoilersForm extends React.Component {
         <Typography variant='body2' gutterBottom>
           Enter the following information only for steam boilers that use potable water on the campus
         </Typography>
+        <Handbook sectionName={'Steam Boilers'}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

@@ -14,6 +14,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
+import Handbook from '../shared/handbookLink';
 import {
   fabStyle,
   DEFAULT_NUMBER_MASK,
@@ -495,6 +496,7 @@ class VehicleWashForm extends React.Component {
         <Typography variant='body2' gutterBottom>
           Enter the following information only for vehicle wash facilities that use potable water on the campus
         </Typography>
+        <Handbook sectionName={'Vehicle Wash'}/>
         <Form
           noValidate
           onSubmit={this.onSubmit}

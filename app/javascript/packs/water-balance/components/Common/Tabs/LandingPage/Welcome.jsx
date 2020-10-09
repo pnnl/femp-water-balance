@@ -2,6 +2,7 @@ import React from 'react';
 import helpIcon from 'images/help.png';
 import addButtonIcon from 'images/add-button.png';
 import Link from '@material-ui/core/Link';
+import { linkStyle } from '../shared/sharedStyles';
 
 const imgStyle = {
   verticalAlign: 'middle',
@@ -60,9 +61,9 @@ export function DataCollection() {
     <div>
       Before calculating a water balance, the user will need to conduct a walk-through survey of the campus to collect data about major
       water-consuming equipment. FEMP developed the&nbsp;
-      <Link href='https://www.energy.gov/eere/femp/downloads/water-evaluation-data-tool'>Water Evaluation Data Tool</Link>
+      <Link style={linkStyle} href='https://www.energy.gov/eere/femp/downloads/water-evaluation-data-tool'>Water Evaluation Data Tool</Link>
       &nbsp;to provide a method and general instructions for collecting comprehensive water data during a walk-through survey. The&nbsp;
-      <Link href='https://www.energy.gov/sites/prod/files/2018/11/f57/handbook-walk-through-water-survey.pdf'>
+      <Link style={linkStyle} href='https://www.energy.gov/sites/prod/files/2018/11/f57/handbook-walk-through-water-survey.pdf'>
         Handbook: Performing a Comprehensive Walk-through Water Survey
       </Link>
       &nbsp;provides descriptions of data that need to be collected, photographs of typical water-consuming equipment, and methods for collecting

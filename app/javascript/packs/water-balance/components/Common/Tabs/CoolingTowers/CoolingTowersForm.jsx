@@ -24,7 +24,8 @@ import {submitAlert, FormRulesListener, toNumber} from '../shared/sharedFunction
 import MaterialDatePicker from '../../MaterialDatePicker';
 import moment from 'moment';
 import InfoIcon from '@material-ui/icons/Info';
-
+import {linkStyle} from '../shared/sharedStyles';
+import Handbook from '../shared/handbookLink';
 import formValidation from './CoolingTowers.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import FullLoadReferenceGuide from './FullLoadReferenceGuide';
@@ -196,7 +197,7 @@ class CoolingTowersForm extends React.Component {
           <Typography variant='body2' gutterBottom>
             <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
             Click{' '}
-            <Link style={{cursor: 'pointer'}} onClick={() => this.toggleFullLoadDialogVisibility()}>
+            <Link style={{... linkStyle, cursor: 'pointer'}} onClick={() => this.toggleFullLoadDialogVisibility()}>
               here
             </Link>{' '}
             for help calculating percent of full load cooling hours per year.
@@ -248,7 +249,7 @@ class CoolingTowersForm extends React.Component {
           <Typography variant='body2' gutterBottom>
             <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
             Click{' '}
-            <Link style={{cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
+            <Link style={{... linkStyle, cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
               here
             </Link>{' '}
             for help with determining the cycles of concentration in the system.
@@ -411,6 +412,7 @@ class CoolingTowersForm extends React.Component {
         <Typography variant='body2' gutterBottom>
           Enter the following information only for cooling towers that use potable water on the campus
         </Typography>
+        <Handbook sectionName={'Cooling Towers'}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

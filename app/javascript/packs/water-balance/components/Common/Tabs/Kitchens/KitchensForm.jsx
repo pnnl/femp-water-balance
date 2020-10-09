@@ -15,7 +15,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
-
+import Handbook from '../shared/handbookLink';
 import formValidation from './kitchensForm.validation';
 
 let expansionPanel = mediaQuery();
@@ -437,6 +437,7 @@ class KitchensForm extends React.Component {
         <Typography variant='body2' gutterBottom>
           Enter the following information for commercial kitchens on the campus
         </Typography>
+        <Handbook sectionName={'Commercial Kitchen'}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

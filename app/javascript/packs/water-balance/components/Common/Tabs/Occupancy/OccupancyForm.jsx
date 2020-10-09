@@ -17,6 +17,7 @@ import {DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, expansionDetails, mediaQuery}
 import {buildingTypeMap, lodgingTypes} from '../shared/sharedConstants';
 import formValidation from './OccupancyForm.validation';
 import WarningIcon from '@material-ui/icons/Warning';
+import Handbook from '../shared/handbookLink';
 
 import {Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
@@ -606,6 +607,7 @@ class OccupancyForm extends React.Component {
           Enter the following information on campus occupancy groups and installed fixtures. Note that fixture information will only be entered for
           occupancy groups present on the campus.
         </Typography>
+        <Handbook sectionName={'Occupancy'}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

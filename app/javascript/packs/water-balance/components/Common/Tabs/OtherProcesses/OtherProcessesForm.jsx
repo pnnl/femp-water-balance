@@ -12,6 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery, noPadding, noShadow} from '../shared/sharedStyles';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
+import Handbook from '../shared/handbookLink';
 import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 
@@ -383,6 +384,7 @@ class OtherProcessesForm extends React.Component {
         <Typography variant='body2' gutterBottom>
           Enter the following information only for other processes that use potable water on the campus
         </Typography>
+        <Handbook sectionName={'Other Processes'}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}
