@@ -15,6 +15,7 @@ import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
 
 import GoogleLoginButton from './Common/GoogleLoginButton';
+import { linkStyle } from './Common/Tabs/shared/sharedStyles';
 
 const styles = theme => ({
     paper: {
@@ -47,17 +48,17 @@ function SignIn(props) {
                     <br />
                     <Typography variant="subtitle1" align="left" gutterBottom>
                         &nbsp; Or create a Google account{' '}
-                        <a href="https://support.google.com/mail/answer/56256?hl=en">
-                            here.
+                        <a style={linkStyle} href="https://support.google.com/mail/answer/56256?hl=en">
+                            here
                         </a>
                     </Typography>
                 </Grid>
                 {NODE_ENV === 'development' && (
                     <Grid item>
+                    <Typography component="h1" variant="h5">
                     <Avatar className={classes.avatar}>
                         <LockOutlinedIcon />
                     </Avatar>
-                    <Typography component="h1" variant="h5">
                         Sign in
                     </Typography>
                     <FormControl margin="normal" required fullWidth>

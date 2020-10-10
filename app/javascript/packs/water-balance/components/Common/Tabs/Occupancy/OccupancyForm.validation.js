@@ -93,7 +93,8 @@ const validateHospital = (values, basePath) => {
 
 const validateAudits = (values, primary_building_type) => {
   let errors = {};
-
+  const weekend_staff = values.weekend_staff;
+  const weekendRequired = weekend_staff !== '0' || weekend_staff === undefined || weekend_staff === null;
   if (!values.name) {
     errors['name'] = 'The building that you would like to enter occupancy information for.';
   }
@@ -106,20 +107,20 @@ const validateAudits = (values, primary_building_type) => {
     if (!isPositiveNumericArray(values.weekday_staff, true, true)) {
       errors['weekday_staff'] = 'The typical number of daily staff on a weekday.';
     }
-    if (!isPositiveNumericArray(values.outpatient_weekday)) {
+    if (!isPositiveNumericArray(values.outpatient_weekday, true, true)) {
       errors['outpatient_weekday'] = 'The typical number of daily outpatient visits on a weekday.';
     }
-    if (!isPositiveNumericArray(values.weekend_staff, true, true)) {
+    if (weekendRequired && !isPositiveNumericArray(values.weekend_staff, true, false)) {
       errors['weekend_staff'] = 'The typical number of daily staff on a weekend day.';
     }
-    if (!isPositiveNumericArray(values.outpatient_weekend)) {
+    if (weekendRequired && !isPositiveNumericArray(values.outpatient_weekend, true, true)) {
       errors['outpatient_weekend'] = 'The typical number of daily outpatient visits on a weekend day.';
     }
     if (primary_building_type == 'hospital') {
-      if (!isPositiveNumericArray(values.inpatient_weekday, true, true)) {
+      if (!isPositiveNumericArray(values.inpatient_weekday, true, false)) {
         errors['inpatient_weekday'] = 'The typical number of daily inpatients on a weekday.';
       }
-      if (!isPositiveNumericArray(values.inpatient_weekend, true, true)) {
+      if (weekendRequired && !isPositiveNumericArray(values.inpatient_weekend, true, false)) {
         errors['inpatient_weekend'] = 'The typical number of daily inpatients on a weekend day.';
       }
     }
@@ -139,7 +140,7 @@ const validateAudits = (values, primary_building_type) => {
     if (!isWithinNumericRangeArray(values.week_days_hours, 1, 24)) {
       errors['week_days_hours'] = 'Number of week day hours must be between 1 and 24.';
     }
-    if (values.weekend_occupancy > 0 || primary_building_type === 'clinic' || primary_building_type === 'hospital') {
+    if (weekendRequired && (primary_building_type === 'clinic' || primary_building_type === 'hospital')) {
       if (!isWithinNumericRangeArray(values.weekend_days_year, 1, 104)) {
         errors['weekend_days_year'] = 'Number of weekend days per year must be between 1 and 104.';
       }
@@ -192,7 +193,7 @@ const validate = values => {
   if (auditErrors.length > 0) {
     errors['audits'] = auditErrors;
   }
-  console.log('%o', errors);
+
   return errors;
 };
 export default validate;

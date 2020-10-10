@@ -93,7 +93,7 @@ class BarChart extends React.Component {
                     </Typography>
                     <Tooltip
                         placement="top"
-                        title={`${value.label} :${value.percent}%`}
+                        title={`${value.label}: ${value.percent}%`}
                         interactive={active}
                     >
                         <div style={pieChart}>

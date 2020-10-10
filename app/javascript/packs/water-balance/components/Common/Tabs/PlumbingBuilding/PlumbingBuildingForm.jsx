@@ -750,7 +750,7 @@ class PlumbingForm extends React.Component {
             fullWidth
             disabled
             name='plumbing.overall_water_usage'
-            label='General Campus'
+            label='General Campus Water Use'
             component={MaterialInput}
             type='text'
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}

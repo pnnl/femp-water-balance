@@ -60,13 +60,13 @@ const coolingTowerCalculation = values => {
   let annualOperatingHours = 0;
   const evaporationRate = 1.65;
   if (values.parameters_known === 'yes') {
-    annualOperatingHours = values.days_per_year * values.hours_per_day * values.cooling_season_capacity_used/100;
+    annualOperatingHours = toNumber(values.days_per_year) * toNumber(values.hours_per_day) * toNumber(values.cooling_season_capacity_used)/100;
   } else {
-    let percentFullLoad = values.full_load_cooling;
+    let percentFullLoad = toNumber(values.full_load_cooling);
     annualOperatingHours = (percentFullLoad / 100) * 8760;
   }
-  const evaporationWaterUse = annualOperatingHours * values.tonnage * evaporationRate;
-  const blowDown = evaporationWaterUse / (values.cycles - 1);
+  const evaporationWaterUse = annualOperatingHours * toNumber(values.tonnage) * evaporationRate;
+  const blowDown = evaporationWaterUse / (toNumber(values.cycles) - 1);
   let totalWaterUse = (evaporationWaterUse + blowDown) / 1000;
   return totalWaterUse;
 };
@@ -195,7 +195,7 @@ class CoolingTowersForm extends React.Component {
       <Fragment>
         <span>
           <Typography variant='body2' gutterBottom>
-            <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
+            <InfoIcon style={{color: '#F8A000', margin: '15px 12px -5px 6px'}} />
             Click{' '}
             <Link style={{... linkStyle, cursor: 'pointer'}} onClick={() => this.toggleFullLoadDialogVisibility()}>
               here
@@ -234,8 +234,19 @@ class CoolingTowersForm extends React.Component {
             endAdornment={<InputAdornment position='end'>tons</InputAdornment>}
           />
         </Grid>
+        <span>
+          <Typography variant='body2' gutterBottom>
+            <InfoIcon style={{color: '#F8A000', margin: '15px 12px -5px 6px'}} />
+            Click{' '}
+            <Link style={{... linkStyle, cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
+              here
+            </Link>{' '}
+            for help with determining the cycles of concentration in the system.
+          </Typography>
+        </span>
         <Grid item xs={12}>
           <Field
+            style={{marginTop: '0px'}}
             formControlProps={{fullWidth: true}}
             required
             name={`${basePath}.cycles`}
@@ -245,16 +256,6 @@ class CoolingTowersForm extends React.Component {
             endAdornment={<InputAdornment position='end'>cycles</InputAdornment>}
           />
         </Grid>
-        <span>
-          <Typography variant='body2' gutterBottom>
-            <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
-            Click{' '}
-            <Link style={{... linkStyle, cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
-              here
-            </Link>{' '}
-            for help with determining the cycles of concentration in the system.
-          </Typography>
-        </span>
         <Grid item xs={12}>
           <Field
             formControlProps={{fullWidth: true, required: true}}
