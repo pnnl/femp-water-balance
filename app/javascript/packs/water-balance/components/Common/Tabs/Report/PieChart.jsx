@@ -89,7 +89,7 @@ class BarChart extends React.Component {
             <div style={fontStyle}>
                 <div className="pie-chart-container">
                     <Typography style={title} variant="body2" gutterBottom>
-                        Water Balance Pie Chart
+                        Water Balance Pie Chart (%)
                     </Typography>
                     <Tooltip
                         placement="top"

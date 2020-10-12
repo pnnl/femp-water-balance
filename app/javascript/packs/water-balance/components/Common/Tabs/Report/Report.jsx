@@ -214,7 +214,7 @@ class Report extends React.Component {
 			toNumber(selectn('modules.other_processes.other_processes.water_use')(values)),
 			toNumber(selectn('modules.steam_boilers.water_use')(values)),
 			toNumber(selectn('modules.plumbing.plumbing.water_usage')(values)),
-			toNumber(selectn('modules.laundry.laundry.water_usage')(values)),
+			toNumber(selectn('modules.laundry.water_usage')(values)),
 			toNumber(selectn('modules.cooling_towers.water_use')(values)),
 			toNumber(selectn('modules.irrigation.water_use')(values)),
 		];

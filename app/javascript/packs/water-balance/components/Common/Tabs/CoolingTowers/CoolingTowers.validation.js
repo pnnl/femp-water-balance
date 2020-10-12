@@ -44,13 +44,13 @@ const validateProcesses = (values, allTowers) => {
       }
       valuePath = values.cooling_season_capacity_used;
 			if (!isWithinNumericRange(valuePath, 1, 100)) {
-				errors['cooling_season_capacity_used'] = 'Percent of full load cooling hours per year must be between 1 and 100.';
+				errors['cooling_season_capacity_used'] = 'Percent of full load cooling hours per year must be between 1% and 100%.';
 			}
 		}
 		if(values.parameters_known === 'no') {
 			valuePath = values.full_load_cooling;
-			if(!isWithinNumericRange(valuePath, 2.0, 46.0)) {
-				errors['full_load_cooling'] = "Percent of full load cooling hours per year must be between 2.0% and 46.0%."
+			if(!isWithinNumericRange(valuePath, 0, 100)) {
+				errors['full_load_cooling'] = "Percent of full load cooling hours per year must be between 0% and 100%."
 			}  
 		}
   }
