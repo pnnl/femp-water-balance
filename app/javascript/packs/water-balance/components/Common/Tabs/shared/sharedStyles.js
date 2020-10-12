@@ -64,3 +64,7 @@ export const ONE_DECIMAL_MASK = createNumberMask({
 });
 
 export const numberFormat = new Intl.NumberFormat('en-US', {maximumFractionDigits: 1, minimumFractionDigits: 1});
+
+export const linkStyle = {
+	color: '#008ACD',
+};

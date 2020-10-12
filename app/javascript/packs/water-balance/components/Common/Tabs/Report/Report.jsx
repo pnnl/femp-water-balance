@@ -4,6 +4,8 @@ import WarningIcon from '@material-ui/icons/Warning';
 import Table2 from './Table2';
 import Table1 from './Table1';
 import selectn from 'selectn';
+import {linkStyle} from '../shared/sharedStyles';
+import Handbook from '../shared/handbookLink';
 
 const toNumber = value => {
 	if (value === undefined || value === null) {
@@ -12,20 +14,16 @@ const toNumber = value => {
 	return parseFloat(value.toString().replace(/,/g, ''));
 };
 
-const style = {
-	color: '#2196f3',
-};
-
 const WaterUse = {};
 
 class Report extends React.Component {
 	ScenarioOne = waterUse => {
 		return (
 			<Fragment>
+				<br />
 				<Typography variant='body2' gutterBottom>
 					Here are your water balance results of the data you’ve entered:
 				</Typography>
-				<br />
 				<br />
 				<Table1 values={waterUse} /> <br /> <br /> <br />
 				<Typography variant='body2' gutterBottom>
@@ -61,7 +59,7 @@ class Report extends React.Component {
 					distribution system. Performing a leak detection survey is a sound recommended
 					next step. Go to FEMP's Best Management Practice (BMP) on &nbsp;
 					<a
-						style={style}
+						style={linkStyle}
 						href='https://www.energy.gov/eere/femp/best-management-practice-3-distribution-system-audits-leak-detection-and-repair'
 					>
 						Distribution System Leak Detection and Repair
@@ -78,7 +76,7 @@ class Report extends React.Component {
 					reveals the biggest water consumer, focus on high efficiency fixture
 					replacement. Go to &nbsp;
 					<a
-						style={style}
+						style={linkStyle}
 						href='https://www.energy.gov/eere/femp/best-management-practices-water-efficiency'
 					>
 						FEMP BMPs
@@ -91,28 +89,28 @@ class Report extends React.Component {
 					<br />
 					<br />
 					<a
-						style={style}
+						style={linkStyle}
 						href='https://www.energy.gov/eere/femp/best-management-practice-1-water-management-planning'
 					>
 						Water Management Planning
 					</a>
 					<br />
 					<a
-						style={style}
+						style={linkStyle}
 						href='https://www.energy.gov/eere/femp/prioritizing-building-water-meter-applications'
 					>
 						Water Metering
 					</a>
 					<br />
 					<a
-						style={style}
+						style={linkStyle}
 						href='https://www.energy.gov/eere/femp/water-efficient-technology-opportunities'
 					>
 						Water Efficient Technologies
 					</a>
 					<br />
 					<a
-						style={style}
+						style={linkStyle}
 						href='https://www.energy.gov/eere/femp/alternative-water-sources-maps'
 					>
 						Alternative Water
@@ -127,11 +125,10 @@ class Report extends React.Component {
 		return (
 			<Fragment>
 				<Typography variant='body2' gutterBottom>
-                    <WarningIcon style={{color: '#F8A000', margin: '15px 7px -5px 11px'}} />
+                    <WarningIcon style={{color: '#F8A000', margin: '0px 7px -5px 0px'}} />
 					Looks like there may be a problem with your water balance. The sum of the water
 					end-uses is greater than the total water supplied to your campus.
 				</Typography>
-				<br />
 				<br />
 				<Table2 values={waterUse} /> <br /> <br /> <br />
 				<Typography variant='body2' gutterBottom>
@@ -217,7 +214,7 @@ class Report extends React.Component {
 			toNumber(selectn('modules.other_processes.other_processes.water_use')(values)),
 			toNumber(selectn('modules.steam_boilers.water_use')(values)),
 			toNumber(selectn('modules.plumbing.plumbing.water_usage')(values)),
-			toNumber(selectn('modules.laundry.laundry.water_usage')(values)),
+			toNumber(selectn('modules.laundry.water_usage')(values)),
 			toNumber(selectn('modules.cooling_towers.water_use')(values)),
 			toNumber(selectn('modules.irrigation.water_use')(values)),
 		];
@@ -267,6 +264,7 @@ class Report extends React.Component {
 				<Typography variant='h5' gutterBottom>
 					Water Balance Results
 				</Typography>
+				<Handbook sectionName={'Water Balance Results'}/>
 				<div>{scenario == 1 ? this.ScenarioOne(waterUse) : this.ScenarioTwo(waterUse)}</div>
 			</Fragment>
 		);

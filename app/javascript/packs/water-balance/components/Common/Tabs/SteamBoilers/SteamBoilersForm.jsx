@@ -20,10 +20,11 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
-import {fabStyle, DEFAULT_NUMBER_MASK, ONE_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
+import {fabStyle, ONE_DECIMAL_MASK, numberFormat, mediaQuery, linkStyle} from '../shared/sharedStyles';
 import formValidation from './SteamBoilersForm.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import CocReferenceGuide from '../CoolingTowers/CocReferenceGuide';
+import Handbook from '../shared/handbookLink';
 
 let expansionPanel = mediaQuery();
 
@@ -122,7 +123,7 @@ class SteamBoilersForm extends React.Component {
           name={`${basePath}.operating_weeks`}
           component={MaterialInput}
           type='text'
-          mask={DEFAULT_NUMBER_MASK}
+          mask={ONE_DECIMAL_MASK}
           label='Number of weeks per year the system is operating'
           endAdornment={<InputAdornment position='end'>weeks</InputAdornment>}
         ></Field>
@@ -140,7 +141,7 @@ class SteamBoilersForm extends React.Component {
             name={`${basePath}.water_regeneration`}
             component={MaterialInput}
             type='text'
-            mask={DEFAULT_NUMBER_MASK}
+            mask={ONE_DECIMAL_MASK}
             label='Amount of water used between regenerations'
             endAdornment={<InputAdornment position='end'>gal</InputAdornment>}
           ></Field>
@@ -152,7 +153,7 @@ class SteamBoilersForm extends React.Component {
             name={`${basePath}.regeneration_per_week`}
             component={MaterialInput}
             type='text'
-            mask={DEFAULT_NUMBER_MASK}
+            mask={ONE_DECIMAL_MASK}
             label='Number of times the system regenerates in 1 week'
           ></Field>
         </Grid>
@@ -171,7 +172,7 @@ class SteamBoilersForm extends React.Component {
             name={`${basePath}.steam_generation`}
             component={MaterialInput}
             type='text'
-            mask={DEFAULT_NUMBER_MASK}
+            mask={ONE_DECIMAL_MASK}
             label='Steam generation rate'
             endAdornment={<InputAdornment position='end'>lb./hr.</InputAdornment>}
           ></Field>
@@ -183,7 +184,7 @@ class SteamBoilersForm extends React.Component {
             name={`${basePath}.condensate_percentage`}
             component={MaterialInput}
             type='text'
-            mask={DEFAULT_NUMBER_MASK}
+            mask={ONE_DECIMAL_MASK}
             label='Percentage of condensate that is returned'
             endAdornment={<InputAdornment position='end'>%</InputAdornment>}
           ></Field>
@@ -195,16 +196,16 @@ class SteamBoilersForm extends React.Component {
             name={`${basePath}.cycles_concentration`}
             component={MaterialInput}
             type='text'
-            mask={DEFAULT_NUMBER_MASK}
+            mask={ONE_DECIMAL_MASK}
             label='Cycles of concentration'
             endAdornment={<InputAdornment position='end'>cycles</InputAdornment>}
           ></Field>
         </Grid>
         <span>
           <Typography variant='body2' gutterBottom>
-            <InfoIcon style={{color: '#F8A000', margin: '33px 12px -5px 6px'}} />
+            <InfoIcon style={{color: '#F8A000', margin: '0px 12px -5px 6px'}} />
             Click{' '}
-            <Link style={{cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
+            <Link style={{...linkStyle, cursor: 'pointer'}} onClick={() => this.toggleCocVisibility()}>
               here
             </Link>{' '}
             for help with determining the cycles of concentration in the system.
@@ -212,12 +213,13 @@ class SteamBoilersForm extends React.Component {
         </span>
         <Grid item xs={12}>
           <Field
+            style={{marginTop: '0px'}}
             formControlProps={{fullWidth: true}}
             required
             name={`${basePath}.hours_week`}
             component={MaterialInput}
             type='text'
-            mask={DEFAULT_NUMBER_MASK}
+            mask={ONE_DECIMAL_MASK}
             label='Number of hours per week the system operates'
             endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
           ></Field>
@@ -393,6 +395,7 @@ class SteamBoilersForm extends React.Component {
         <Typography variant='body2' gutterBottom>
           Enter the following information only for steam boilers that use potable water on the campus
         </Typography>
+        <Handbook sectionName={'Steam Boilers'}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

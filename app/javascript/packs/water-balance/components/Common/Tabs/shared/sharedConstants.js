@@ -46,3 +46,11 @@ export const cocConductivityMap = [
   {micromhos: 1400, coc: 2.4},
   {micromhos: 1550, coc: 2.2}
 ];
+
+export const vwNames = {
+  auto_wash: "in-bay automated vehicle wash",
+  conveyor: "friction/frictionless vehicle wash",
+  wash_pad_pressure_washer: " self-service wash pad with pressure washer",
+  wash_pad_open_hose: "self-service wash pad with open hose",
+  large_vehicles: "large vehicle wash"
+};

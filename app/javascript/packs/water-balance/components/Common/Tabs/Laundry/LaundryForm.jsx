@@ -8,7 +8,6 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import {FieldArray} from 'react-final-form-arrays';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import FormControl from '@material-ui/core/FormControl';
 import arrayMutators from 'final-form-arrays';
 import {
   fabStyle,
@@ -26,6 +25,7 @@ import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import formValidation from './LaundryForm.validation';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
+import Handbook from '../shared/handbookLink';
 
 let expansionPanel = mediaQuery();
 
@@ -445,6 +445,7 @@ class LaundryForm extends React.Component {
         <Typography variant='body2' gutterBottom>
           Enter the following information for laundry (washing machines) on the campus
         </Typography>
+        <Handbook sectionName={'Laundry (Washing Machines)'}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

@@ -12,22 +12,16 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
-import {requireFieldSubmitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
+import {requireFieldSubmitAlert, FormRulesListener, ToggleAdapter, toNumber} from '../shared/sharedFunctions';
 import {DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, expansionDetails, mediaQuery} from '../shared/sharedStyles';
 import {buildingTypeMap, lodgingTypes} from '../shared/sharedConstants';
 import formValidation from './OccupancyForm.validation';
 import WarningIcon from '@material-ui/icons/Warning';
+import Handbook from '../shared/handbookLink';
 
 import {Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
 let expansionPanel = mediaQuery();
-
-const toNumber = value => {
-  if (value === undefined || value === null) {
-    return 0;
-  }
-  return parseFloat(value.replace(/,/g, ''));
-};
 
 const focusOnError = createDecorator();
 
@@ -40,13 +34,6 @@ class OccupancyForm extends React.Component {
   calculateTotalOccupants = (values, basePath) => {
     values.plumbing.hospital.total_occupants =
       toNumber(selectn(`${basePath}.inpatient_per_day`)(values)) + toNumber(selectn(`${basePath}.daily_staff`)(values));
-  };
-
-  clearValues = (clearValues, basePath, values) => {
-    let field = basePath.replace('plumbing.', '');
-    for (let i = 0; i < clearValues.length; i++) {
-      values['plumbing'][field][clearValues[i]] = null;
-    }
   };
 
   clearSection = (values, name) => {
@@ -91,6 +78,8 @@ class OccupancyForm extends React.Component {
     const name = selectn(`${basePath}.name`)(values);
     const building = values.buildings.find(building => building.name === name);
     const primary_building_type = selectn('primary_building_type')(building);
+    const weekend_staff = selectn(`${basePath}.weekend_staff`)(values);
+    const showWeekend = weekend_staff !== '0' || weekend_staff === undefined || weekend_staff === null;
     return (
       <Grid container alignItems='flex-start' spacing={16}>
         {primary_building_type !== 'hospital' && primary_building_type !== 'clinic' && (
@@ -177,19 +166,22 @@ class OccupancyForm extends React.Component {
                 endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
               />
             </Grid>
-            <Grid item xs={12}>
-              <Field
-                formControlProps={{fullWidth: true}}
-                required
-                name={`${basePath}.outpatient_weekend`}
-                component={MaterialInput}
-                type='text'
-                mask={DEFAULT_DECIMAL_MASK}
-                label={`What is the typical number of daily outpatient visits on a weekend day for  ${name}`}
-                endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
-              />
-            </Grid>
-            {primary_building_type === 'hospital' && (
+            {showWeekend && (
+              <Grid item xs={12}>
+                <Field
+                  formControlProps={{fullWidth: true}}
+                  required
+                  name={`${basePath}.outpatient_weekend`}
+                  component={MaterialInput}
+                  type='text'
+                  mask={DEFAULT_DECIMAL_MASK}
+                  label={`What is the typical number of daily outpatient visits on a weekend day for  ${name}`}
+                  endAdornment={<InputAdornment position='end'>persons</InputAdornment>}
+                />
+              </Grid>
+            )}
+
+            {showWeekend && primary_building_type === 'hospital' && (
               <Grid item xs={12}>
                 <Field
                   formControlProps={{fullWidth: true}}
@@ -245,7 +237,7 @@ class OccupancyForm extends React.Component {
                 endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
               />
             </Grid>
-            {(selectn(`${basePath}.weekend_occupancy`)(values) > 0 || primary_building_type === 'clinic' || primary_building_type === 'hospital') && (
+            {showWeekend && (primary_building_type === 'clinic' || primary_building_type === 'hospital') && (
               <Fragment>
                 <Grid item xs={12}>
                   <Field
@@ -284,6 +276,8 @@ class OccupancyForm extends React.Component {
         {(primary_building_type === 'hospital' || primary_building_type === 'clinic') &&
           this.clearValuesArray(['weekday_occupancy', 'weekend_occupancy'], basePath, values)}
         {primary_building_type !== 'hospital' && this.clearValuesArray(['inpatient_weekday', 'inpatient_weekend'], basePath, values)}
+        {weekend_staff == 0 &&
+          this.clearValuesArray(['weekend_days_year', 'weekend_days_hours', 'inpatient_weekend', 'outpatient_weekend'], basePath, values)}
       </Grid>
     );
   };
@@ -500,7 +494,6 @@ class OccupancyForm extends React.Component {
         {selectn(`${basePath}.inpatient_per_day`)(values) != undefined &&
           selectn(`${basePath}.daily_staff`)(values) != undefined &&
           this.calculateTotalOccupants(values, basePath)}
-        {selectn(`${basePath}.inpatient_per_day`)(values) == 0 && this.clearValues(['shower_usage_inpatient'], basePath, values)}
       </Fragment>
     );
   };
@@ -606,6 +599,7 @@ class OccupancyForm extends React.Component {
           Enter the following information on campus occupancy groups and installed fixtures. Note that fixture information will only be entered for
           occupancy groups present on the campus.
         </Typography>
+        <Handbook sectionName={'Occupancy'} />
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

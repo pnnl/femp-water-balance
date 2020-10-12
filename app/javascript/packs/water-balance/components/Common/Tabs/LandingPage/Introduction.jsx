@@ -3,7 +3,7 @@ import React, {Fragment} from 'react';
 import MobileStepper from '@material-ui/core/MobileStepper';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import {Grid, Button, Paper} from '@material-ui/core';
+import {Grid, Button} from '@material-ui/core';
 import {Welcome, EndUses, Results, DataCollection, ToolInstructions, GeneralCampusInformation} from './Welcome';
 
 function getStepContent(stepIndex) {
@@ -51,7 +51,7 @@ export default function Introduction() {
         <Grid item xs={12}>
           <div style={{width: '80%', margin: 'auto'}}>
             <div style={{margin: '10px 2px'}}>
-              <Typography gutterBottom style={{paddingTop: '6px'}} variant='h6'>
+              <Typography gutterBottom style={{paddingTop: '28px', color: '#005E84'}} variant='h5'>
                 {tutorialSteps[activeStep]}
               </Typography>
               <Typography variant='body1' gutterBottom style={{height: '150px', overflow: 'auto', marginTop: '5px'}}>
@@ -62,7 +62,7 @@ export default function Introduction() {
         </Grid>
       </Grid>
       <MobileStepper
-        style={{margin: 'auto', padding: '0px'}}
+        style={{margin: 'auto', padding: '0px', background: 'white'}}
         variant='dots'
         steps={6}
         position='static'

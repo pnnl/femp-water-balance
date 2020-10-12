@@ -25,7 +25,7 @@ class BarChart extends React.Component {
 		return (
 			<Fragment>
 				<Typography style={title} variant='body2' gutterBottom>
-					Water Balance Results Bar Chart
+					Water Balance Results Bar Chart (kgal)
 				</Typography>
 				<div style={barChart}>
 					<FlexibleXYPlot

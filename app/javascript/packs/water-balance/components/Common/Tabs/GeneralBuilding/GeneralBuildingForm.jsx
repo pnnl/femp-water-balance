@@ -17,6 +17,7 @@ import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import {Select} from 'final-form-material-ui';
 import {Grid, Button, MenuItem, InputAdornment} from '@material-ui/core';
 import MaterialInput from '../../MaterialInput';
+import Handbook from '../shared/handbookLink';
 
 let expansionPanel = mediaQuery();
 const focusOnError = createDecorator();
@@ -187,10 +188,11 @@ class GeneralBuildingForm extends React.Component {
         <Typography variant='h5' gutterBottom>
           General Building
         </Typography>
-        <Typography variant='body2' gutterBottom style={{marginBottom: '23px'}}>
+        <Typography variant='body2' gutterBottom>
           Enter the following general building information. Note: Required fields are unique name, primary building type and occupancy type (if
           applicable).
         </Typography>
+        <Handbook sectionName={'General Building'} style={{marginBottom: '23px'}}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

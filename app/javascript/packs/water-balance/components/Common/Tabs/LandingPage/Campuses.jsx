@@ -8,6 +8,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 
 import {Paper, Typography, Button, Link} from '@material-ui/core';
+import { linkStyle } from '../shared/sharedStyles';
 
 export default function campusesTable(props) {
   const {handleClickOpen, campuses} = props;
@@ -18,7 +19,7 @@ export default function campusesTable(props) {
   const rows = (campuses || []).map(campus => (
     <TableRow key={campus.id}>
       <TableCell component='th' scope='row'>
-        {<Link href={`/secure/water-balance/campuses/${campus.id}`}>{campus.name}</Link> || 'N/A'}
+        {<Link style={linkStyle} href={`/secure/water-balance/campuses/${campus.id}`}>{campus.name}</Link> || 'N/A'}
       </TableCell>
       <TableCell component='th' scope='row'>
         {campus.evaluator || 'N/A'}

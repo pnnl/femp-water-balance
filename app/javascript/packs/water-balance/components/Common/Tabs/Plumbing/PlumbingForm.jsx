@@ -12,6 +12,7 @@ import Divider from '@material-ui/core/Divider';
 import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
 import {fabStyle, DEFAULT_NUMBER_MASK, DEFAULT_DECIMAL_MASK, numberFormat, mediaQuery} from '../shared/sharedStyles';
 import formValidation from './PlumbingForm.validation';
+import Handbook from '../shared/handbookLink';
 
 import {Fab, Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
@@ -848,9 +849,12 @@ class PlumbingForm extends React.Component {
           Plumbing Fixtures
         </Typography>
         <Typography variant='body2' gutterBottom>
-          Enter the following information on campus occupancy groups and installed plumbing fixtures (toilets, urinals, restroom and kitchen faucets, and showerheads). <br/> 
-          Note that plumbing fixture information will only be entered for occupancy groups present on the campus.
+          Enter the following information on campus occupancy groups and installed plumbing fixtures (toilets, urinals, restroom and kitchen faucets, and showerheads).
         </Typography>
+        <Typography variant='body2' gutterBottom>
+          Note: Plumbing fixture information will only be entered for occupancy groups present on the campus.
+        </Typography>
+        <Handbook sectionName={'Plumbing Fixtures'} style={{marginBottom: '25px'}}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

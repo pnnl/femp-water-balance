@@ -4,12 +4,13 @@ import {Form, Field} from 'react-final-form';
 import {Checkbox} from 'final-form-material-ui';
 import {Grid, Button, FormControlLabel, InputAdornment} from '@material-ui/core';
 import DateFnsUtils from '@date-io/date-fns';
-import withWidth, {isWidthDown} from '@material-ui/core/withWidth';
+import withWidth from '@material-ui/core/withWidth';
 import createDecorator from 'final-form-calculate';
 import selectn from 'selectn';
 import MaterialInput from '../../MaterialInput';
 import {FormRulesListener} from '../shared/sharedFunctions'
 import {DEFAULT_NUMBER_MASK} from '../shared/sharedStyles';
+import Handbook from '../shared/handbookLink';
 
 const numberFormat = new Intl.NumberFormat('en-US');
 
@@ -188,11 +189,9 @@ class WaterSupplyForm extends React.Component {
           Water Supply
         </Typography>
         <Typography variant='body2' gutterBottom>
-          Enter the annual potable water use (supply for the campus).
+          Enter the annual potable water use (supply for the campus). Optional – Enter the monthly supply and wastewater discharge for the campus if it is available.
         </Typography>
-        <Typography variant='body2' gutterBottom>
-          Optional – Enter the monthly supply and wastewater discharge for the campus if it is available.
-        </Typography>
+        <Handbook sectionName={'Water Supply'}/>
         <Form
           onSubmit={createOrUpdateCampusModule}
           decorators={[calculator]}

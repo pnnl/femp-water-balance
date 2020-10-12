@@ -18,6 +18,7 @@ import formValidation from './PlumbingBuildingForm.validation';
 import validate from '../Occupancy/OccupancyForm.validation';
 import {buildingTypeMap} from '../shared/sharedConstants';
 import WarningIcon from '@material-ui/icons/Warning';
+import Handbook from '../shared/handbookLink';
 
 import {Fab, Grid, Button, InputAdornment, MenuItem} from '@material-ui/core';
 
@@ -749,7 +750,7 @@ class PlumbingForm extends React.Component {
             fullWidth
             disabled
             name='plumbing.overall_water_usage'
-            label='General Campus'
+            label='General Campus Water Use'
             component={MaterialInput}
             type='text'
             endAdornment={<InputAdornment position='end'>kgal</InputAdornment>}
@@ -843,12 +844,13 @@ class PlumbingForm extends React.Component {
     return (
       <Fragment>
         <Typography variant='h5' gutterBottom>
-          Plumbing
+          Plumbing Fixtures
         </Typography>
-        <Typography variant='body2' gutterBottom style={{marginBottom: '25px'}}>
+        <Typography variant='body2' gutterBottom>
           Enter the following information on campus occupancy groups and installed fixtures. Note that fixture information will only be entered for
           occupancy groups present on the campus.
         </Typography>
+        <Handbook sectionName={'Plumbing Fixtures'} style={{marginBottom: '25px'}}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

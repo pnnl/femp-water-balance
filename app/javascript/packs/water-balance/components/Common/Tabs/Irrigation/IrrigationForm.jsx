@@ -14,7 +14,7 @@ import MaterialInput from '../../MaterialInput';
 import selectn from 'selectn';
 import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener} from '../shared/sharedFunctions';
-
+import Handbook from '../shared/handbookLink';
 import {Fab, Grid, Button, FormControlLabel, InputAdornment, MenuItem} from '@material-ui/core';
 import formValidation from './Irrigation.validation';
 import RemoteApi from '../../../../RemoteApi';
@@ -622,6 +622,7 @@ class IrrigationForm extends React.Component {
         <Typography variant='body2' gutterBottom>
           Enter the following information only for irrigated landscaped areas that use potable water on the campus
         </Typography>
+        <Handbook sectionName={'Landscape Irrigation'}/>
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}

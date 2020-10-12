@@ -5,6 +5,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 import {cocDissolvedSolidsMap, cocConductivityMap} from '../shared/sharedConstants';
 
 class CocReferenceGuide extends React.Component {
@@ -30,8 +31,11 @@ class CocReferenceGuide extends React.Component {
       </TableRow>
     ));
     return (
-      <Fragment>
-        <Paper style={{margin: '20px auto', width: '80%'}}>
+      <div style={{margin: '20px auto', width: '80%'}}>
+        <Typography variant='body2' gutterBottom style={{margin: '25px 0px 10px 0px'}}>
+          This table provides the relationship between CoC and water quality measured in parts per million of total dissolved solids (TDS).{' '}
+        </Typography>
+        <Paper>
           <Table>
             <TableHead>
               <TableRow>
@@ -42,8 +46,10 @@ class CocReferenceGuide extends React.Component {
             <TableBody>{solidsRows}</TableBody>
           </Table>
         </Paper>
-
-        <Paper style={{margin: 'auto', width: '80%'}}>
+        <Typography variant='body2' gutterBottom style={{margin: '25px 0px 10px 0px'}}>
+          This table provides the relationship between CoC and water quality measured by conductivity (micromhos/cm).
+        </Typography>
+        <Paper>
           <Table>
             <TableHead>
               <TableRow>
@@ -54,7 +60,7 @@ class CocReferenceGuide extends React.Component {
             <TableBody>{conductivityRows}</TableBody>
           </Table>
         </Paper>
-      </Fragment>
+      </div>
     );
   }
 }

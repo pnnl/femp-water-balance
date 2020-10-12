@@ -14,6 +14,8 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import createDecorator from 'final-form-focus';
 import {submitAlert, FormRulesListener, ToggleAdapter} from '../shared/sharedFunctions';
+import {vwNames} from '../shared/sharedConstants.js';
+import Handbook from '../shared/handbookLink';
 import {
   fabStyle,
   DEFAULT_NUMBER_MASK,
@@ -221,7 +223,7 @@ class VehicleWashForm extends React.Component {
                       name={`${name}.name`}
                       component={MaterialInput}
                       type='text'
-                      label='Enter a unique name identifier for this vehicle wash process'
+                      label={`Enter a unique name identifier for this ${vwNames[basePath]} process`}
                     />
                     {values[basePath] && values[basePath].length > 1 && (
                       <IconButton style={{padding: 'initial', height: '40px', width: '40px'}} onClick={() => fields.remove(index)} aria-label='Delete'>
@@ -495,6 +497,7 @@ class VehicleWashForm extends React.Component {
         <Typography variant='body2' gutterBottom>
           Enter the following information only for vehicle wash facilities that use potable water on the campus
         </Typography>
+        <Handbook sectionName={'Vehicle Wash'}/>
         <Form
           noValidate
           onSubmit={this.onSubmit}
