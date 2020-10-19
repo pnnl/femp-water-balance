@@ -22,7 +22,7 @@ class CampusIntroduction extends React.Component {
             <Fragment>
                 <Typography variant="body2" gutterBottom>
                     Click {' '}
-                    <Link href="/femp-water-balance-help-2019.pdf" target="_blank" download style={linkStyle} >
+                    <Link href="/femp-water-balance-help-2020.pdf" target="_blank" download style={linkStyle} >
                         here 
                     </Link> to download the full help guide
                 </Typography>&nbsp;

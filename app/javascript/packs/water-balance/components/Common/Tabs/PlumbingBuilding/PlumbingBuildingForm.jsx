@@ -695,10 +695,12 @@ class PlumbingForm extends React.Component {
                     >
                       {values.audits.map(building => {
                         const disabled = facilities.indexOf(building.name) > -1;
-                        const primary_building_type = values.buildings.find(item => item.name === building.name).primary_building_type;
+                        const thisBuilding = values.buildings.find(item => item.name === building.name);
+                        const primaryBuildingType = buildingTypeMap[selectn('primary_building_type')(thisBuilding)];
+                        const displayType = primaryBuildingType !== undefined ? `(${primaryBuildingType})` : '';
                         return (
                           <MenuItem disabled={disabled} value={building.name}>
-                            {`${building.name} (${buildingTypeMap[primary_building_type]})`}
+                            {`${building.name} ${displayType}`}
                           </MenuItem>
                         );
                       })}
@@ -850,7 +852,7 @@ class PlumbingForm extends React.Component {
           Enter the following information on campus occupancy groups and installed fixtures. Note that fixture information will only be entered for
           occupancy groups present on the campus.
         </Typography>
-        <Handbook sectionName={'Plumbing Fixtures'} style={{marginBottom: '25px'}}/>
+        <Handbook sectionName={'Plumbing Fixtures'} style={{marginBottom: '25px'}} />
         <Form
           onSubmit={this.onSubmit}
           initialValues={module}
