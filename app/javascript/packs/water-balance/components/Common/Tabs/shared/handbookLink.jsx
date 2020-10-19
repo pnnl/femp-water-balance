@@ -7,7 +7,7 @@ export default function Handbook(props) {
   return (
     <Typography variant='body2' gutterBottom style={props.style}>
       See the section on "{props.sectionName}" in the{' '}
-      <Link style={linkStyle} href='/femp-water-balance-help-2019.pdf' target='_blank' download>
+      <Link style={linkStyle} href='/femp-water-balance-help-2020.pdf' target='_blank' download>
         help guide
       </Link>{' '}
       for additional information and photos.

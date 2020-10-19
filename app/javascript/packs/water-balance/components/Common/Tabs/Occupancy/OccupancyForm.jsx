@@ -79,7 +79,11 @@ class OccupancyForm extends React.Component {
     const building = values.buildings.find(building => building.name === name);
     const primary_building_type = selectn('primary_building_type')(building);
     const weekend_staff = selectn(`${basePath}.weekend_staff`)(values);
+    const weekend_occupancy = selectn(`${basePath}.weekend_occupancy`)(values);
     const showWeekend = weekend_staff !== '0' || weekend_staff === undefined || weekend_staff === null;
+    const isHospitalType = primary_building_type === 'clinic' || primary_building_type === 'hospital';
+    const showWeekendOther = weekend_occupancy != 0 || weekend_occupancy === undefined || weekend_occupancy === null;
+
     return (
       <Grid container alignItems='flex-start' spacing={16}>
         {primary_building_type !== 'hospital' && primary_building_type !== 'clinic' && (
@@ -96,7 +100,7 @@ class OccupancyForm extends React.Component {
             />
           </Grid>
         )}
-        {(primary_building_type === 'clinic' || primary_building_type === 'hospital') && (
+        {isHospitalType && (
           <Fragment>
             <Grid item xs={12}>
               <Field
@@ -152,7 +156,7 @@ class OccupancyForm extends React.Component {
             />
           </Grid>
         )}
-        {(primary_building_type === 'clinic' || primary_building_type === 'hospital') && (
+        {isHospitalType && (
           <Fragment>
             <Grid item xs={12}>
               <Field
@@ -237,7 +241,7 @@ class OccupancyForm extends React.Component {
                 endAdornment={<InputAdornment position='end'>hours</InputAdornment>}
               />
             </Grid>
-            {showWeekend && (primary_building_type === 'clinic' || primary_building_type === 'hospital') && (
+            {((showWeekend && isHospitalType) || (primary_building_type == 'other' && showWeekendOther)) && (
               <Fragment>
                 <Grid item xs={12}>
                   <Field
@@ -278,6 +282,7 @@ class OccupancyForm extends React.Component {
         {primary_building_type !== 'hospital' && this.clearValuesArray(['inpatient_weekday', 'inpatient_weekend'], basePath, values)}
         {weekend_staff == 0 &&
           this.clearValuesArray(['weekend_days_year', 'weekend_days_hours', 'inpatient_weekend', 'outpatient_weekend'], basePath, values)}
+        {weekend_occupancy == 0 && this.clearValuesArray(['weekend_days_hours', 'weekend_days_year'], basePath, values)}
       </Grid>
     );
   };
