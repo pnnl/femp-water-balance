@@ -1,12 +1,7 @@
 import React from 'react';
-import helpIcon from 'images/help.png';
-import addButtonIcon from 'images/add-button.png';
-import Link from '@material-ui/core/Link';
-import {linkStyle} from '../shared/sharedStyles';
-
-const imgStyle = {
-  verticalAlign: 'middle'
-};
+import HelpIcon from '@material-ui/icons/Help';
+import {linkStyle, iconStyle} from '../shared/sharedStyles';
+import {Button, Link} from '@material-ui/core';
 
 export function Welcome() {
   return (
@@ -64,8 +59,9 @@ export function DataCollection() {
       </Link>
       &nbsp;to provide a method and general instructions for collecting comprehensive water data during a walk-through survey, provide descriptions of
       data that need to be collected, photographs of typical water-consuming equipment, and methods for collecting data. The handbook also includes
-      information describing how to enter collected data into the Water Balance Tool and can be accessed at any time by clicking the{' '}
-      <img src={helpIcon} style={{width: '36px', verticalAlign: 'middle'}} /> button in the top right corner of the tool.
+      information describing how to enter collected data into the Water Balance Tool and can be accessed at any time by clicking the
+      <HelpIcon style={iconStyle} color='primary' />
+      button in the top right corner of the tool.
     </div>
   );
 }
@@ -73,11 +69,14 @@ export function DataCollection() {
 export function ToolInstructions() {
   return (
     <div>
-      To create or add a new campus, click the button&nbsp;
-      <img src={addButtonIcon} style={imgStyle} /> on the upper right side of the landing page. First, general information must be entered. This
-      information includes the campus name, location, date of the walk-through survey, and the calendar year of the water-supply data. This general
-      information must be entered before any other data can be added. When the general information is successfully entered and saved, the campus name
-      will appear on the left-hand side of the screen. Click on the campus name to continue entering data.
+      To create or add a new campus, click the{' '}
+      <Button size='small' variant='contained' color='primary'>
+        Create Campus
+      </Button>{' '}
+      button on the bottom left side of the landing page. First, general information must be entered. This information includes the campus name,
+      location, date of the walk-through survey, and the calendar year of the water-supply data. This general information must be entered before any
+      other data can be added. When the general information is successfully entered and saved, the campus name will appear on the left-hand side of
+      the screen. Click on the campus name to continue entering data.
     </div>
   );
 }
