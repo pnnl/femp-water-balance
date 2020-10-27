@@ -68,3 +68,8 @@ export const numberFormat = new Intl.NumberFormat('en-US', {maximumFractionDigit
 export const linkStyle = {
 	color: '#008ACD',
 };
+
+export const iconStyle = {
+  width: '36px',
+  verticalAlign: 'bottom',
+};
