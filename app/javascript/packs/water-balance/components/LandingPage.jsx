@@ -1,146 +1,115 @@
 import React from 'react';
-import List from '@material-ui/core/List';
-import Grid from '@material-ui/core/Grid';
-import Fab from '@material-ui/core/Fab';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import MaterialInput from './Common/MaterialInput';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import AddIcon from '@material-ui/icons/Add';
-import Introduction from './Common/Introduction';
-import CloseIcon from '@material-ui/icons/Close';
-
+import {Grid} from '@material-ui/core';
 import RemoteApi from '../RemoteApi';
-import CampusForm from './Common/CampusForm';
+import CampusDialog from './Common/Tabs/LandingPage/CampusDialog';
+import Campuses from './Common/Tabs/LandingPage/Campuses';
+import Introduction from './Common/Tabs/LandingPage/Introduction';
+import Paper from '@material-ui/core/Paper';
 
 class LandingPage extends React.Component {
-    state = {
-        error: undefined,
-        addOpen: false,
-        introOpen: true,
-        campuses: [],
-        isLoaded: false,
+  constructor(props) {
+    super(props);
+    this.state = {
+      error: undefined,
+      addOpen: false,
+      campuses: [],
+      isLoaded: false
     };
+    this.handleClickOpen = this.handleClickOpen.bind(this);
+  }
 
-    componentDidMount() {
-        RemoteApi.getCurrentCampuses(
-            campusList =>
-                this.setState({
-                    isLoaded: true,
-                    campuses: campusList,
-                }),
-            error =>
-                this.setState({
-                    isLoaded: true,
-                    error,
-                }),
-            this
-        );
+  componentDidMount() {
+    RemoteApi.getCurrentCampuses(
+      campusList =>
+        this.setState({
+          isLoaded: true,
+          campuses: campusList
+        }),
+      error =>
+        this.setState({
+          isLoaded: true,
+          error
+        }),
+      this
+    );
+  }
+
+  createNewCampus = values => {
+    RemoteApi.createCampus(
+      values,
+      newCampus => {
+        const {campuses} = this.state;
+        const clone = campuses.slice();
+        clone.push(newCampus);
+        this.setState({
+          isLoaded: true,
+          addOpen: false,
+          campuses: clone
+        });
+      },
+      error => {
+        this.setState({
+          isLoaded: true,
+          error
+        });
+      }
+    );
+  };
+
+  updateCampus = values => {
+    RemoteApi.updateCampus(
+      values,
+      () => {
+        const {campuses} = this.state;
+        const clone = campuses.slice();
+        const updatedIndex = clone.findIndex(campus => campus.id === values.id);
+        clone[updatedIndex] = values;
+        this.setState({
+          isLoaded: true,
+          addOpen: false,
+          campuses: clone
+        });
+      },
+      data =>
+        this.setState({
+          isLoaded: true,
+          error: data
+        })
+    );
+  };
+
+  handleClose = () => {
+    this.setState({addOpen: false});
+  };
+
+  handleClickOpen = e => {
+    let campus = undefined;
+    if (e.currentTarget.id) {
+      campus = this.state.campuses.find(campus => campus.id == e.currentTarget.id);
     }
+    this.setState({addOpen: true, campus});
+  };
 
-    createNewCampus = values => {
-        RemoteApi.createCampus(
-            values,
-            newCampus => {
-                const { campuses } = this.state;
-                const clone = campuses.slice();
-                clone.push(newCampus);
-                this.setState({
-                    isLoaded: true,
-                    addOpen: false,
-                    campuses: clone,
-                });
-            },
-            error => {
-                this.setState({
-                    isLoaded: true,
-                    error,
-                });
-            }
-        );
-    };
-
-    handleClose = () => {
-        this.setState({ addOpen: false, introOpen: false });
-    };
-
-    handleClickOpen = () => {
-        this.setState({ addOpen: true, introOpen: false });
-    };
-
-    render() {
-        const { campuses, addOpen, introOpen } = this.state;
-        return (
-            <Grid container>
-                <Dialog
-                    open={addOpen}
-                    onClose={this.handleClose}
-                    aria-labelledby="form-dialog-title"
-                >
-                    <DialogTitle id="form-dialog-title">
-                        Create a new Campus
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            Fill out the form with information regarding the
-                            campus being evaluated for water usage.
-                        </DialogContentText>
-                        <CampusForm createNewCampus={this.createNewCampus} />
-                    </DialogContent>
-                </Dialog>
-                <Dialog
-                    open={introOpen}
-                    onClose={this.handleClose}
-                    aria-labelledby="form-dialog-title"
-                >
-                    <DialogTitle id="form-dialog-title">
-                        Welcome to the FEMP Water Balance Tool
-                        <CloseIcon
-                            color="action"
-                            onClick={this.handleClose}
-                            style={{ float: 'right' }}
-                        />
-                    </DialogTitle>
-                    <DialogContent>
-                        <Introduction />
-                    </DialogContent>
-                </Dialog>
-
-                <Grid item xs={12}>
-                    <List dense>
-                        {(campuses || []).map(c => (
-                            <ListItem
-                                key={`campus-${c.id}`}
-                                button
-                                component="a"
-                                href={`/secure/water-balance/campuses/${c.id}`}
-                            >
-                                <ListItemText primary={c.name} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Grid>
-                <Grid item xs={12}>
-                    <Fab
-                        style={{
-                            position: 'absolute',
-                            bottom: '1em',
-                            right: '1em',
-                        }}
-                        color="primary"
-                        onClick={this.handleClickOpen}
-                    >
-                        <AddIcon />
-                    </Fab>
-                </Grid>
-            </Grid>
-        );
-    }
+  render() {
+    const {campuses, addOpen, campus} = this.state;
+    return (
+      <Paper style ={{width: '95%', margin: 'auto'}}>
+        <Grid container>
+          <CampusDialog
+            createNewCampus={this.createNewCampus}
+            updateCampus={this.updateCampus}
+            addOpen={addOpen}
+            handleClose={this.handleClose}
+            campus={campus}
+          />
+          <Introduction />
+          <Grid item xs={12}>
+            <Campuses campuses={campuses} handleClickOpen={this.handleClickOpen} addOpen={addOpen} handleClose={this.handleClose} />
+          </Grid>
+        </Grid>
+      </Paper>
+    );
+  }
 }
 
 export default LandingPage;

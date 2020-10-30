@@ -1,9 +1,10 @@
 import React from 'react';
 import { Form, Field } from 'react-final-form';
-import { Grid, Button } from '@material-ui/core';
+import { Grid, Button, MenuItem} from '@material-ui/core';
+import { Select } from 'final-form-material-ui';
 import emailMask from 'text-mask-addons/dist/emailMask';
-import MaterialInput from './MaterialInput';
-import MaterialDatePicker from './MaterialDatePicker';
+import MaterialInput from '../../MaterialInput';
+import MaterialDatePicker from '../../MaterialDatePicker';
 
 class CampusForm extends React.Component {
     validate = values => {
@@ -14,18 +15,22 @@ class CampusForm extends React.Component {
         }
         if (!values.evaluator) {
             errors.evaluator =
-                'An evaluator email address is required for creating a new campus.';
+                'An evaluator email address is required for a campus.';
         }
         if (!values.city) {
-            errors.city = 'A city name is required for creating a new campus.';
+            errors.city = 'A city name is required for a campus.';
         }
         if (!values.region) {
             errors.region =
-                'A state designation is required for creating a new campus.';
+                'A state designation is required for a campus.';
+        }
+        if (!values.plumbing_level) {
+            errors.plumbing_level =
+                'A plumbing level designation is required for a campus.';
         }
         if (!values.year) {
             errors.year =
-                'A water supply year is required for creating a new campus';
+                'A water supply year is required for a campus';
         } else if (values.year < 2010 || values.year > currentYear) {
             errors.year =
                 'Calendar year must be between 2010 and ' + currentYear + '.';
@@ -34,10 +39,17 @@ class CampusForm extends React.Component {
     };
 
     render() {
-        const { createNewCampus, formId } = this.props;
+        const { createNewCampus, formId, updateCampus, campus} = this.props;
+        let onSubmit = undefined;
+        if(campus && Object.keys(campus).length > 0) {
+            onSubmit = updateCampus;
+        } else {
+            onSubmit = createNewCampus;
+        }
         return (
             <Form
-                onSubmit={createNewCampus}
+                onSubmit={onSubmit}
+                initialValues={campus}
                 validate={this.validate}
                 render={({
                     handleSubmit,
@@ -84,6 +96,17 @@ class CampusForm extends React.Component {
                             </Grid>
                             <Grid item xs={12}>
                                 <Field
+                                    formControlProps={{fullWidth: true, required: true}}
+                                    name="plumbing_level"
+                                    component={Select}
+                                    label="Will this campus use campus-wide or building level plumbing data?"
+                                > 
+                                    <MenuItem value='campus'>Campus</MenuItem>
+                                    <MenuItem value='building'>Building</MenuItem>
+                                </Field>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Field
                                     fullWidth
                                     required
                                     name="year"
@@ -113,15 +136,6 @@ class CampusForm extends React.Component {
                                     type="text"
                                     label="State"
                                 />
-                            </Grid>
-                            <Grid item style={{ marginTop: 16 }}>
-                                <Button
-                                    type="button"
-                                    onClick={reset}
-                                    disabled={submitting || pristine}
-                                >
-                                    Reset
-                                </Button>
                             </Grid>
                             <Grid item style={{ marginTop: 16 }}>
                                 <Button

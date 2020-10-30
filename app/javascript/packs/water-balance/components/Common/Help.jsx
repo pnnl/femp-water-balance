@@ -1,5 +1,5 @@
 import React from 'react';
-import CampusIntroduction from './CampusIntroduction';
+import CampusIntroduction from './Tabs/LandingPage/CampusIntroduction';
 import CloseIcon from '@material-ui/icons/Close';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -25,7 +25,7 @@ class HelpDialog extends React.Component {
                     <CloseIcon
                         color="action"
                         onClick={this.handleClose}
-                        style={{ float: 'right' }}
+                        style={{ float: 'right', cursor: 'pointer'}}
                     />
                 </DialogTitle>
                 <DialogContent>

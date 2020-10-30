@@ -12,7 +12,7 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import Divider from '@material-ui/core/Divider';
 import fempLogo from 'images/FEMP_logo.png';
 import HelpIcon from '@material-ui/icons/Help';
-import CampusIntroduction from '../CampusIntroduction';
+import CampusIntroduction from '../Tabs/LandingPage/CampusIntroduction';
 import CloseIcon from '@material-ui/icons/Close';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -165,7 +165,7 @@ class DefaultToolbar extends React.Component {
                         <CloseIcon
                             color="action"
                             onClick={this.handleDialog}
-                            style={{ float: 'right' }}
+                            style={{ float: 'right', cursor: 'pointer'}}
                         />
                     </DialogTitle>
                     <DialogContent>
