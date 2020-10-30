@@ -2,10 +2,17 @@ import React from 'react';
 import HelpIcon from '@material-ui/icons/Help';
 import {linkStyle, iconStyle} from '../shared/sharedStyles';
 import {Button, Link} from '@material-ui/core';
+import InfoIcon from '@material-ui/icons/Info';
 
 export function Welcome() {
   return (
     <div>
+      <div>
+        <InfoIcon style={{color: '#F8A000', margin: '15px 7px -5px 0px'}} />
+        The Water Balance Tool has been updated and now allows for multiple entries for all water end-uses. Additionally, plumbing allows for two
+        options for data entry: 1) campus-wide or 2) building by building. Please see the revised Handbook for additional information.
+      </div>
+      <br/>
       The Federal Energy Management Program developed this Water Balance Tool to provide a method for estimating potable water consumption across
       multiple water end-use categories at a campus. A water balance compares the total water supply to the volume of water consumed by water-using
       equipment and applications. The output of the tool provides the estimated potable water consumption by major end-uses and compares the sum of
