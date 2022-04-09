@@ -23,7 +23,7 @@
     "final-form-material-ui": "^0.3.0",
     "json-rules-engine": "^2.3.6",
     "material-ui-pickers": "^2.2.4",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "moment-timezone": "^0.5.25",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
